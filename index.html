@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glacier Client Config Editor</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- JSZip for creating zip files -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <!-- Monaco Editor CDN (for raw JSON view) -->
+    <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.49.0/min/vs/loader.js"></script>
+    <style>
+        /* Custom CSS variables for themes */
+        :root {
+            --primary-bg: #1A1A2E; /* Darker background for depth */
+            --secondary-bg: rgba(42, 42, 60, 0.6); /* Semi-transparent for glass effect */
+            --accent-color: #7289DA; /* Discord-like blue */
+            --text-color: #E0E0E0; /* Light grey for text */
+            --border-color: rgba(114, 137, 218, 0.3); /* Accent-based border for glass */
+            --hover-bg: rgba(114, 137, 218, 0.1); /* Subtle hover for glass */
+            --active-bg: rgba(114, 137, 218, 0.2); /* More pronounced active for glass */
+            --input-bg: rgba(255, 255, 255, 0.1); /* Very subtle transparency for inputs */
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --toggle-off-bg: #4A4A5E;
+            --toggle-on-bg: var(--accent-color);
+        }
+
+        .light-mode {
+            --primary-bg: #F0F2F5; /* Light background */
+            --secondary-bg: rgba(255, 255, 255, 0.7); /* Lighter semi-transparent for glass */
+            --accent-color: #5C6BC0; /* Muted blue for light mode */
+            --text-color: #333333; /* Dark text */
+            --border-color: rgba(92, 107, 192, 0.3);
+            --hover-bg: rgba(92, 107, 192, 0.1);
+            --active-bg: rgba(92, 107, 192, 0.2);
+            --input-bg: rgba(0, 0, 0, 0.05);
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --toggle-off-bg: #B0B0C0;
+            --toggle-on-bg: var(--accent-color);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--primary-bg);
+            color: var(--text-color);
+            transition: background-color 0.5s ease-in-out, color 0.5s ease-in-out;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .panel {
+            background-color: var(--secondary-bg);
+            border-radius: 1.5rem; /* More rounded for liquid feel */
+            box-shadow: 0 10px 30px var(--shadow-color); /* Deeper, softer shadow */
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(15px); /* Liquid glass effect */
+            -webkit-backdrop-filter: blur(15px); /* Safari support */
+            padding: 2rem;
+            transition: background-color 0.5s ease-in-out, border-color 0.5s ease-in-out, box-shadow 0.5s ease-in-out;
+        }
+
+        .btn-primary {
+            background-color: var(--accent-color);
+            color: var(--text-color);
+            padding: 0.85rem 1.5rem; /* Slightly larger */
+            border-radius: 1rem; /* More rounded */
+            transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary:hover {
+            background-color: #607ad1; /* Slightly darker accent */
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .input-field, .select-field {
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem; /* Rounded */
+            width: 100%;
+            transition: border-color 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .input-field:focus, .select-field:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(114, 137, 218, 0.3); /* Accent glow */
+        }
+
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--toggle-off-bg);
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--toggle-on-bg);
+        }
+
+        input:focus + .slider {
+            box-shadow: 0 0 1px var(--toggle-on-bg);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        /* Monaco Editor container styling */
+        #json-editor-container {
+            border-radius: 1.25rem; /* Match panel rounding */
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 5px 15px var(--shadow-color);
+            transition: border-color 0.5s ease-in-out, box-shadow 0.5s ease-in-out;
+            min-height: 600px; /* Increased height for better visibility */
+        }
+
+        /* Header styling */
+        header {
+            background-color: var(--secondary-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 2px 10px var(--shadow-color);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            font-size: 2.25rem; /* text-4xl */
+            font-weight: 800; /* Extra bold */
+            color: var(--accent-color);
+            letter-spacing: -0.05em; /* Tighter tracking */
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Footer styling */
+        footer {
+            background-color: var(--secondary-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-top: 1px solid var(--border-color);
+            box-shadow: 0 -2px 10px var(--shadow-color);
+            padding: 1rem;
+            text-align: center;
+            font-size: 0.875rem;
+            color: var(--text-color);
+            opacity: 0.8;
+        }
+
+        /* Loading spinner */
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid var(--accent-color);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+            margin-left: 0.5rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+    <!-- Header -->
+    <header>
+        <h1 class="text-4xl font-extrabold tracking-tight">Glacier Client Config Editor</h1>
+        <div class="flex items-center gap-4">
+            <button id="theme-toggle" class="p-3 rounded-full bg-primary-bg text-text-color hover:bg-accent-color transition-colors shadow-md">
+                <i class="fas fa-sun text-lg" id="theme-icon"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow p-6 flex flex-col items-center justify-center">
+        <div class="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Left Panel: Config Editor Form -->
+            <div class="panel flex flex-col">
+                <h2 class="text-2xl font-bold text-text-color mb-6 border-b pb-3 border-border-color">
+                    <i class="fas fa-sliders-h mr-2"></i>Module Configuration
+                </h2>
+                <div id="config-form" class="space-y-6 overflow-y-auto max-h-[70vh] pr-4">
+                    <!-- Config fields will be dynamically generated here -->
+                    <p class="text-text-color/60 italic text-center">Loading configuration...</p>
+                </div>
+                <button id="download-config-btn" class="btn-primary mt-8">
+                    <i class="fas fa-download mr-2"></i> Download config.json
+                </button>
+            </div>
+
+            <!-- Right Panel: Raw JSON Editor -->
+            <div class="panel flex flex-col">
+                <h2 class="text-2xl font-bold text-text-color mb-6 border-b pb-3 border-border-color">
+                    <i class="fas fa-code mr-2"></i>Raw config.json
+                </h2>
+                <div id="json-editor-container" class="flex-grow"></div>
+                <button id="copy-json-btn" class="btn-primary mt-4">
+                    <i class="fas fa-copy mr-2"></i> Copy JSON
+                </button>
+                <p class="text-sm text-text-color/70 mt-4 text-center">
+                    Disclaimer: Only edit the anchor and offset if you have knowledge about JSON UI. Replace each value with either true (automatically on) or false (automatically off) to make the config work. Mods are saved when leaving the world or entering another dimension. Only toggle between true/false, change opacity, mod position (read disclaimer), or item id/aux. Changing anything else may break the pack.
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Message Box for user feedback -->
+    <div id="message-box" class="fixed bottom-4 right-4 p-4 rounded-lg text-center font-medium hidden" role="alert" style="z-index: 1000;"></div>
+
+    <!-- Footer -->
+    <footer>
+        &copy; 2025 Glacier Client Config Editor. All rights reserved.
+    </footer>
+
+    <script type="module">
+        // --- Initial Config JSON (provided by user) ---
+        const initialConfigJsonString = `{
+            "mod_menu_config@gc.pnl": {
+                "$armorhud": false,
+                "$armorhud_anchor|default": "bottom_right",
+                "$armorhud_offset|default": [ 0, -108 ],
+                "$bowindicator": false,
+                "$bowindicator_opacity|default": 0.7,
+                "$bowindicator_anchor|default": "left_middle",
+                "$bowindicator_offset|default": [ 2, 0 ],
+                "$chat": true,
+                "$chat_opacity|default": 0.7,
+                "$chat_toggle_index": 0,
+                "$chunkmap": false,
+                "$chunkmap_anchor|default": "top_left",
+                "$chunkmap_offset|default": [ 2, 2 ],
+                "$chunkmap_opacity|default": 0.7,
+                "$chunkmap_chunk_position|default": false,
+                "$hide_slime_chunks|default": false,
+                "$coordinates": true,
+                "$coordinates_opacity|default": 0.7,
+                "$hide_chunkcoordinates": true,
+                "$hide_nethercoordinates": true,
+                "$hide_nethercoordinates_in_overworld": true,
+                "$hide_vanillacordinates": false,
+                "$daycounter": false,
+                "$daycounter_anchor|default": "bottom_left",
+                "$daycounter_offset|default": [ 1, -20 ],
+                "$daycounter_opacity|default": 0.7,
+                "$dayevent": false,
+                "$dayevent_anchor|default": "bottom_left",
+                "$dayevent_offset|default": [ 62, -20 ],
+                "$dayevent_opacity|default": 0.7,
+                "$directionhud": false,
+                "$directionhud_rotation": false,
+                "$directionhud_anchor|default": "top_middle",
+                "$directionhud_touch_offset": [ 9, 20 ],
+                "$directionhud_mouse_controller_offset": [ 0, 4 ],
+                "$directionhud_opacity|default": 0.7,
+                "$expcalculator": false,
+                "$expcalculator_anchor|default": "bottom_left",
+                "$expcalculator_offset|default": [ 1, -1 ],
+                "$expcalculator_opacity|default": 0.7,
+                "$forcecoords": false,
+                "$forcecoords_anchor|default": "top_right",
+                "$forcecoords_offset|default": [ -1, 1 ],
+                "$forcecoords_opacity|default": 0.7,
+                "$fpscounter": false,
+                "$fpscounter_anchor|default": "bottom_left",
+                "$fpscounter_offset|default": [ 1, -39 ],
+                "$fpscounter_opacity|default": 0.7,
+                "$hudpopup": true,
+                "$hotbar": true,
+                "$hide_hotbar_item_count": false,
+                "$hide_creative_xp_bar": false,
+                "$hide_xp_percentage": false,
+                "$hide_inventory_button": false,
+                "$hide_hotbar_numbers": false,
+                "$hotbar_number1": "1",
+                "$hotbar_number2": "2",
+                "$hotbar_number3": "3",
+                "$hotbar_number4": "4",
+                "$hotbar_number5": "5",
+                "$hotbar_number6": "6",
+                "$hotbar_number7": "7",
+                "$hotbar_number8": "8",
+                "$hotbar_number9": "9",
+                "$hotbar_toggle_index": 0,
+                "$inventoryhud": false,
+                "$inventoryhud_toggle_index": 0,
+                "$inventoryhud_anchor|default": "bottom_right",
+                "$inventoryhud_offset|default" : [ 0, -1 ],
+                "$inventoryhud_opacity|default": 0.7,
+                "$hide_inventoryhud_durability": false,
+                "$hide_inventoryhud_stack": false,
+                "$show_inventoryhud_numbers": false,
+                "$itemcounters": false,
+                "$hide_potioncounter": true,
+                "$lingering_potion_counter_item_id": 595,
+                "$potion_counter_item_id": 453,
+                "$splash_potion_counter_item_id": 594,
+                "$hide_totemcounter": true,
+                "$totem_counter_item_id": 601,
+                "$hide_arrowcounter": true,
+                "$arrow_counter_item_id": 325,
+                "$lowdurability": false,
+                "$lowdurability_anchor|default": "bottom_right",
+                "$lowdurability_offset|default": [ -1, -75 ],
+                "$lowdurability_opacity|default": 0.7,
+                "$mainhandhud": false,
+                "$mainhand_durability_toggle_index": 0,
+                "$hide_mainhandhud_total_durability": false,
+                "$hide_mainhandhud_stack": false,
+                "$hide_mainhandhud_item": false,
+                "$mainhandhud_opacity": 0.7,
+                "$mainhandhud_touch_offset": [ 140, -3.5 ],
+                "$mainhandhud_mouse_controller_offset": [ 130, -3.5 ],
+                "$offhandhud": false,
+                "$offhandhud_anchor|default": "bottom_middle",
+                "$offhandhud_offset|default":[ -113, -1 ],
+                "$playerlist": true,
+                "$playerlist_mobile_button_anchor|default": "top_middle",
+                "$playerlist_mobile_button_offset|default": [ 47.5, 1 ],
+                "$playerlist_mobile_button_size|default": [ 18, 18 ],
+                "$serverdisplay": false,
+                "$serverdisplay_anchor|default": "bottom_right",
+                "$serverdisplay_offset|default": [ -1, -75 ],
+                "$serverdisplay_opacity|default": 0.7,
+                "$slotcounter": false,
+                "$slotcounter_anchor|default": "bottom_left",
+                "$slotcounter_offset|default" : [ 62, -39 ],
+                "$slotcounter_opacity|default": 0.7,
+                "$speedometer": false,
+                "$speedometer_anchor|default": "top_middle",
+                "$speedometer_touch_offset|default": [ 9, 39 ],
+                "$speedometer_mouse_controller_offset|default": [ 0, 22 ],
+                "$speedometer_opacity|default": 0.7,
+                "$statushud": false,
+                "$statushud_anchor|default": "bottom_left",
+                "$statushud_offset|default": [ 1, -58 ],
+                "$statushud_opacity|default": 0.7,
+                "$targethud": false,
+                "$targethud_anchor|default": "top_right",
+                "$targethud_offset|default": [ -1, 42 ],
+                "$targethud_opacity|default": 0.7,
+                "$timerhud": false,
+                "$timerhud_anchor|default": "bottom_left",
+                "$timerhud_offset|default": [ 62, -58 ],
+                "$timerhud_opacity|default": 0.7,
+                "$walkdistance": false,
+                "$walkdistance_anchor|default": "bottom_right",
+                "$walkdistance_offset|default": [ -1, -56 ],
+                "$walkdistance_opacity|default": 0.7,
+                "$hide_item_name_text": false,
+                "$hide_jukebox_text": false,
+                "$hide_tip_text": false,
+                "$hide_actionbar_text": false,
+                "$show_safezone": false,
+                "$show_clock_compass": false,
+                "$compass_aux": 27328512,
+                "$clock_aux": 27459584,
+                "$recovery_compass_aux": 44761088,
+                "$bossbar_anchor|default": "top_middle",
+                "$bossbar_offset|default": [ 0, 15 ],
+                "$hide_bossname": false,
+                "$hide_bossbar": false,
+                "$show_boss_health": false,
+                "$scoreboard_anchor|default": "right_middle",
+                "$scoreboard_offset|default": [ 0, 0 ],
+                "$hide_scoreboard": false,
+                "$hide_scoreboard_numbers": false,
+                "$crosshair_default_preset_index": 1,
+                "$hide_crosshair": false,
+                "$rgb_crosshair": false,
+                "$brighter": false,
+                "$aqua_display": false,
+                "$red_display": false,
+                "$yellow_display": false,
+                "$blue_display": false,
+                "$orange_display": false,
+                "$purple_display": false,
+                "$green_display": false,
+                "$display_opacity|default": 1.0
+            },
+            "pause_menu_config@gc.pnl": {
+                "$glacier_playername": false,
+                "$glacier_worldname": false
+            },
+            "container_config@gc.pnl": {
+                "$force_autoplace_mode": false,
+                "$hide_container_durability": false,
+                "$hide_hover_item_id": false,
+                "$hide_hover_item_aux_id": false
+            },
+            "namespace": "gc"
+        }`;
+
+        // --- DOM Elements ---
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+        const configForm = document.getElementById('config-form');
+        const jsonEditorContainer = document.getElementById('json-editor-container');
+        const downloadConfigBtn = document.getElementById('download-config-btn');
+        const copyJsonBtn = document.getElementById('copy-json-btn');
+        const messageBox = document.getElementById('message-box');
+
+        let currentConfig = {};
+        let monacoEditor; // Monaco Editor instance
+        let updateFormTimeout; // Debounce for Monaco to Form updates
+
+        // --- Theme Toggle Functionality ---
+        const currentTheme = localStorage.getItem('theme') || 'dark';
+        if (currentTheme === 'light') {
+            document.body.classList.add('light-mode');
+            themeIcon.classList.replace('fa-sun', 'fa-moon');
+        }
+
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('light-mode');
+            if (document.body.classList.contains('light-mode')) {
+                themeIcon.classList.replace('fa-sun', 'fa-moon');
+                localStorage.setItem('theme', 'light');
+            } else {
+                themeIcon.classList.replace('fa-moon', 'fa-sun');
+                localStorage.setItem('theme', 'dark');
+            }
+            if (monacoEditor) {
+                monaco.editor.setTheme(document.body.classList.contains('light-mode') ? 'vs-light' : 'vs-dark');
+            }
+        });
+
+        // --- Message Box Functionality ---
+        function showMessage(message, type = 'info') {
+            messageBox.textContent = message;
+            messageBox.classList.remove('hidden', 'bg-red-500', 'bg-green-500', 'bg-blue-500');
+            if (type === 'error') {
+                messageBox.classList.add('bg-red-500', 'text-white');
+            } else if (type === 'success') {
+                messageBox.classList.add('bg-green-500', 'text-white');
+            } else {
+                messageBox.classList.add('bg-blue-500', 'text-white'); // Info
+            }
+            messageBox.classList.remove('hidden');
+            setTimeout(() => {
+                messageBox.classList.add('hidden');
+            }, 5000);
+        }
+
+        // --- Helper to sanitize key names for display ---
+        function sanitizeKeyForDisplay(key) {
+            // Replace specific strings and underscores, then capitalize words
+            let displayKey = key.replace(/@gc\.pnl|\$|\|default/g, '')
+                                .replace(/_/g, ' ')
+                                .trim();
+            // Capitalize first letter of each word
+            return displayKey.replace(/\b\w/g, char => char.toUpperCase());
+        }
+
+        // --- Anchor Options ---
+        const anchorOptions = [
+            "top_left", "top_middle", "top_right",
+            "left_middle", "center", "right_middle",
+            "bottom_left", "bottom_middle", "bottom_right"
+        ];
+
+        // --- Toggle Index Options ---
+        const chatToggleOptions = { 0: "Bottom Chat", 1: "Top Chat" };
+        const hotbarToggleOptions = { 0: "Default", 1: "Connected", 2: "RGB" };
+        const inventoryHudToggleOptions = { 0: "Horizontal", 1: "Vertical" };
+        const mainhandDurabilityToggleOptions = { 0: "Absolute", 1: "Percentage" };
+
+
+        // --- Render Config Form ---
+        function renderConfigForm(config) {
+            configForm.innerHTML = ''; // Clear existing form
+            const mainConfig = config["mod_menu_config@gc.pnl"];
+            const pauseMenuConfig = config["pause_menu_config@gc.pnl"];
+            const containerConfig = config["container_config@gc.pnl"];
+
+            // Helper to create form group
+            const createFormGroup = (label, inputHtml) => {
+                const div = document.createElement('div');
+                div.className = 'flex items-center justify-between gap-4';
+                const labelElem = document.createElement('label');
+                labelElem.className = 'text-text-color text-lg font-medium flex-grow';
+                labelElem.textContent = label;
+                div.appendChild(labelElem);
+                div.innerHTML += inputHtml;
+                return div;
+            };
+
+            // Helper to create section header
+            const createSectionHeader = (title) => {
+                const h3 = document.createElement('h3');
+                h3.className = 'text-xl font-semibold text-accent-color mt-6 mb-4 border-b border-border-color pb-2';
+                h3.textContent = title;
+                return h3;
+            };
+
+            // Render Mod Menu Config
+            configForm.appendChild(createSectionHeader('Modules Configuration'));
+            for (const key in mainConfig) {
+                if (mainConfig.hasOwnProperty(key)) {
+                    const cleanKey = key.replace(/\|default/g, ''); // Remove |default for display ID
+                    const displayLabel = sanitizeKeyForDisplay(key); // Use original key for display label
+                    let inputHtml = '';
+                    let value = mainConfig[key];
+
+                    // Store the original key in a data attribute for form updates
+                    const dataOriginalKey = `data-original-key="${key}"`;
+
+                    if (cleanKey.startsWith('$hotbar_number')) {
+                        // Hotbar numbers are strings
+                        inputHtml = `<input type="text" id="${cleanKey}" ${dataOriginalKey} value="${value}" class="input-field w-auto min-w-[100px] text-center" />`;
+                    } else if (cleanKey.endsWith('_item_id') || cleanKey.endsWith('_aux')) {
+                        // Item IDs and AUX values are numbers
+                        inputHtml = `<input type="number" id="${cleanKey}" ${dataOriginalKey} value="${value}" class="input-field w-auto min-w-[120px] text-center" />`;
+                    } else if (Array.isArray(value) && value.length === 2) {
+                        // Offset arrays [x, y]
+                        inputHtml = `
+                            <div class="flex gap-2">
+                                <input type="number" id="${cleanKey}_x" ${dataOriginalKey} value="${value[0]}" class="input-field w-24 text-center" placeholder="X" />
+                                <input type="number" id="${cleanKey}_y" ${dataOriginalKey} value="${value[1]}" class="input-field w-24 text-center" placeholder="Y" />
+                            </div>
+                        `;
+                    } else if (typeof value === 'boolean') {
+                        // Boolean toggles
+                        inputHtml = `
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="${cleanKey}" ${dataOriginalKey} ${value ? 'checked' : ''}>
+                                <span class="slider"></span>
+                            </label>
+                        `;
+                    } else if (typeof value === 'number' && key.includes('opacity')) {
+                        // Opacity sliders (float from 0.0 to 1.0)
+                        inputHtml = `
+                            <div class="flex items-center gap-2 w-full max-w-[200px]">
+                                <input type="range" id="${cleanKey}_range" ${dataOriginalKey} min="0" max="1" step="0.01" value="${value}" class="flex-grow h-2 rounded-lg appearance-none cursor-pointer bg-accent-color/50" />
+                                <input type="number" id="${cleanKey}_number" ${dataOriginalKey} min="0" max="1" step="0.01" value="${value}" class="input-field w-20 text-center" />
+                            </div>
+                        `;
+                    } else if (typeof value === 'string' && key.includes('anchor')) {
+                        // Anchor dropdowns
+                        const optionsHtml = anchorOptions.map(opt => `<option value="${opt}" ${value === opt ? 'selected' : ''}>${sanitizeKeyForDisplay(opt)}</option>`).join('');
+                        inputHtml = `
+                            <select id="${cleanKey}" ${dataOriginalKey} class="select-field w-auto min-w-[150px]">
+                                ${optionsHtml}
+                            </select>
+                        `;
+                    } else if (cleanKey === '$chat_toggle_index') {
+                        const optionsHtml = Object.entries(chatToggleOptions).map(([idx, label]) => `<option value="${idx}" ${value == idx ? 'selected' : ''}>${label}</option>`).join('');
+                        inputHtml = `<select id="${cleanKey}" ${dataOriginalKey} class="select-field w-auto min-w-[150px]">${optionsHtml}</select>`;
+                    } else if (cleanKey === '$hotbar_toggle_index') {
+                        const optionsHtml = Object.entries(hotbarToggleOptions).map(([idx, label]) => `<option value="${idx}" ${value == idx ? 'selected' : ''}>${label}</option>`).join('');
+                        inputHtml = `<select id="${cleanKey}" ${dataOriginalKey} class="select-field w-auto min-w-[150px]">${optionsHtml}</selectмещение>`;
+                    } else if (cleanKey === '$inventoryhud_toggle_index') {
+                        const optionsHtml = Object.entries(inventoryHudToggleOptions).map(([idx, label]) => `<option value="${idx}" ${value == idx ? 'selected' : ''}>${label}</option>`).join('');
+                        inputHtml = `<select id="${cleanKey}" ${dataOriginalKey} class="select-field w-auto min-w-[150px]">${optionsHtml}</select>`;
+                    } else if (cleanKey === '$mainhand_durability_toggle_index') {
+                        const optionsHtml = Object.entries(mainhandDurabilityToggleOptions).map(([idx, label]) => `<option value="${idx}" ${value == idx ? 'selected' : ''}>${label}</option>`).join('');
+                        inputHtml = `<select id="${cleanKey}" ${dataOriginalKey} class="select-field w-auto min-w-[150px]">${optionsHtml}</select>`;
+                    } else if (typeof value === 'number') {
+                        // Generic numbers (like crosshair_default_preset_index)
+                        inputHtml = `<input type="number" id="${cleanKey}" ${dataOriginalKey} value="${value}" class="input-field w-auto min-w-[100px] text-center" />`;
+                    } else {
+                        // Fallback for any unhandled types (shouldn't happen with this JSON)
+                        console.warn("Unhandled type for key:", key, value);
+                        inputHtml = `<input type="text" id="${cleanKey}" ${dataOriginalKey} value="${JSON.stringify(value)}" class="input-field" disabled />`;
+                    }
+
+                    configForm.appendChild(createFormGroup(displayLabel, inputHtml));
+                }
+            }
+
+            // Render Pause Menu Config
+            configForm.appendChild(createSectionHeader('Pause Menu Configuration'));
+            for (const key in pauseMenuConfig) {
+                if (pauseMenuConfig.hasOwnProperty(key)) {
+                    const displayLabel = sanitizeKeyForDisplay(key);
+                    const value = pauseMenuConfig[key];
+                    const inputHtml = `
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="${key}" data-original-key="${key}" ${value ? 'checked' : ''}>
+                            <span class="slider"></span>
+                        </label>
+                    `;
+                    configForm.appendChild(createFormGroup(displayLabel, inputHtml));
+                }
+            }
+
+            // Render Container Config
+            configForm.appendChild(createSectionHeader('Container Configuration'));
+            for (const key in containerConfig) {
+                if (containerConfig.hasOwnProperty(key)) {
+                    const displayLabel = sanitizeKeyForDisplay(key);
+                    const value = containerConfig[key];
+                    const inputHtml = `
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="${key}" data-original-key="${key}" ${value ? 'checked' : ''}>
+                            <span class="slider"></span>
+                        </label>
+                    `;
+                    configForm.appendChild(createFormGroup(displayLabel, inputHtml));
+                }
+            }
+
+            // Attach event listeners to update config and editor
+            configForm.addEventListener('input', updateConfigFromForm);
+            configForm.addEventListener('change', updateConfigFromForm); // For checkboxes and selects
+        }
+
+        // --- Update Config from Form Inputs ---
+        function updateConfigFromForm(event) {
+            const target = event.target;
+            // Retrieve the original key from the data-original-key attribute
+            const originalKey = target.dataset.originalKey || target.id;
+            const value = target.value;
+            const type = target.type;
+
+            let sectionKey = "mod_menu_config@gc.pnl"; // Default section
+            if (originalKey.includes('pause_menu_config')) sectionKey = "pause_menu_config@gc.pnl";
+            else if (originalKey.includes('container_config')) sectionKey = "container_config@gc.pnl";
+
+            if (type === 'checkbox') {
+                currentConfig[sectionKey][originalKey] = target.checked;
+            } else if (type === 'range' || (type === 'number' && originalKey.includes('opacity'))) {
+                // For opacity, the originalKey from data-attribute already includes |default if present
+                const numValue = parseFloat(value);
+                currentConfig[sectionKey][originalKey] = numValue;
+                // Update both range and number input for consistency
+                // Need to use the cleanKey for ID lookup
+                const cleanKey = originalKey.replace(/\|default/g, '');
+                document.getElementById(`${cleanKey}_range`).value = numValue;
+                document.getElementById(`${cleanKey}_number`).value = numValue;
+            } else if (type === 'number' && (originalKey.endsWith('_item_id') || originalKey.endsWith('_aux') || originalKey.endsWith('_preset_index') || originalKey.endsWith('_toggle_index'))) {
+                currentConfig[sectionKey][originalKey] = parseInt(value, 10);
+            } else if (originalKey.endsWith('_offset|default')) { // Specifically target offset arrays
+                const cleanKey = originalKey.replace(/\|default/g, '');
+                const xInput = document.querySelector(`[data-original-key="${originalKey}"][id="${cleanKey}_x"]`);
+                const yInput = document.querySelector(`[data-original-key="${originalKey}"][id="${cleanKey}_y"]`);
+
+                currentConfig[sectionKey][originalKey] = [parseFloat(xInput.value), parseFloat(yInput.value)];
+            } else {
+                // Default for text, select (anchor, hotbar numbers)
+                currentConfig[sectionKey][originalKey] = value;
+            }
+
+            updateMonacoEditor();
+        }
+
+        // --- Initialize Monaco Editor for Raw JSON View ---
+        function initializeMonacoEditor() {
+            require.config({ paths: { 'vs': 'https://cdn.jsdelivr.net/npm/monaco-editor@0.49.0/min/vs' } });
+            require(['vs/editor/editor.main'], () => {
+                monacoEditor = monaco.editor.create(jsonEditorContainer, {
+                    value: JSON.stringify(currentConfig, null, 4),
+                    language: 'json',
+                    theme: document.body.classList.contains('light-mode') ? 'vs-light' : 'vs-dark',
+                    readOnly: false, // Make it editable for real-time updates
+                    automaticLayout: true,
+                    minimap: { enabled: false }
+                });
+
+                // Debounce for Monaco to Form updates
+                let monacoUpdateTimeout;
+                monacoEditor.onDidChangeModelContent(() => {
+                    clearTimeout(monacoUpdateTimeout);
+                    monacoUpdateTimeout = setTimeout(() => {
+                        const jsonText = monacoEditor.getValue();
+                        try {
+                            const parsedJson = JSON.parse(jsonText);
+                            currentConfig = parsedJson; // Update the main config object
+                            renderConfigForm(currentConfig); // Re-render the form
+                            showMessage("JSON updated from editor.", "success");
+                        } catch (e) {
+                            // Only show error if JSON is not empty, to avoid initial parse error on load
+                            if (jsonText.trim() !== "") {
+                                showMessage("Invalid JSON format in editor. Form not updated.", "error");
+                            }
+                            console.error("Error parsing JSON from editor:", e);
+                        }
+                    }, 500); // Debounce for 500ms
+                });
+            });
+        }
+
+        // --- Update Monaco Editor with current config ---
+        function updateMonacoEditor() {
+            if (monacoEditor) {
+                // Prevent infinite loop: only update if content is different
+                const currentEditorValue = monacoEditor.getValue();
+                const newEditorValue = JSON.stringify(currentConfig, null, 4);
+                if (currentEditorValue !== newEditorValue) {
+                    monacoEditor.setValue(newEditorValue);
+                }
+            }
+        }
+
+        // --- Download Config File ---
+        downloadConfigBtn.addEventListener('click', () => {
+            const blob = new Blob([JSON.stringify(currentConfig, null, 4)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'config.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showMessage("config.json downloaded successfully!", "success");
+        });
+
+        // --- Copy JSON to Clipboard ---
+        copyJsonBtn.addEventListener('click', () => {
+            if (monacoEditor) {
+                const textToCopy = monacoEditor.getValue();
+                // Use a temporary textarea for copying to clipboard in iframes
+                const tempTextArea = document.createElement('textarea');
+                tempTextArea.value = textToCopy;
+                document.body.appendChild(tempTextArea);
+                tempTextArea.select();
+                try {
+                    document.execCommand('copy');
+                    showMessage("JSON copied to clipboard!", "success");
+                } catch (err) {
+                    console.error('Failed to copy text: ', err);
+                    showMessage("Failed to copy JSON. Please copy manually.", "error");
+                }
+                document.body.removeChild(tempTextArea);
+            }
+        });
+
+        // --- Initial Setup ---
+        window.onload = () => {
+            try {
+                // Remove comments from the JSON string before parsing
+                const cleanedConfigJsonString = initialConfigJsonString.replace(/\/\*[\s\S]*?\*\/|\/\/.*/g, '');
+                currentConfig = JSON.parse(cleanedConfigJsonString);
+                renderConfigForm(currentConfig);
+                initializeMonacoEditor();
+            } catch (e) {
+                console.error("Error parsing initial config JSON:", e);
+                showMessage("Failed to load initial configuration. Invalid JSON format.", "error");
+                configForm.innerHTML = `<p class="text-red-500 text-center">Error loading configuration: Invalid JSON.</p>`;
+            }
+        };
+    </script>
+</body>
+</html>
