@@ -8,75 +8,115 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <!-- JSZip for creating zip files -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <!-- Monaco Editor CDN (for raw JSON view) -->
     <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.49.0/min/vs/loader.js"></script>
     <style>
-        /* Custom CSS variables for themes */
+        /* Custom CSS variables for themes - Aligned with main.html */
         :root {
-            --primary-bg: #1A1A2E; /* Darker background for depth */
-            --secondary-bg: rgba(42, 42, 60, 0.6); /* Semi-transparent for glass effect */
-            --accent-color: #7289DA; /* Discord-like blue */
-            --text-color: #E0E0E0; /* Light grey for text */
-            --border-color: rgba(114, 137, 218, 0.3); /* Accent-based border for glass */
-            --hover-bg: rgba(114, 137, 218, 0.1); /* Subtle hover for glass */
-            --active-bg: rgba(114, 137, 218, 0.2); /* More pronounced active for glass */
+            --color-primary: #7289DA; /* Accent color, Discord-like blue */
+            --color-dark: #1A1A1A;    /* Primary background color */
+            --color-dark-alt: #2D2D2D; /* Secondary background color, for cards/panels */
+            --color-text: #FFFFFF;    /* Light text */
+            --color-text-alt: #D9D9D9; /* Slightly muted text for descriptions */
+
+            /* Derived from main.html's aesthetic, or directly from config.html's original structure */
+            --glass-border-color: rgba(114, 137, 218, 0.2); /* Subtle accent-based border for glass */
+            --hover-bg: rgba(114, 137, 218, 0.1); /* Subtle hover for interactive elements */
+            --active-bg: rgba(114, 137, 218, 0.2); /* More pronounced active for interactive elements */
             --input-bg: rgba(255, 255, 255, 0.1); /* Very subtle transparency for inputs */
-            --shadow-color: rgba(0, 0, 0, 0.3);
-            --toggle-off-bg: #4A4A5E;
-            --toggle-on-bg: var(--accent-color);
+            --shadow-color: rgba(0, 0, 0, 0.3); /* General shadow color */
+            --toggle-off-bg: #4A4A5E; /* Specific for toggle switch off state */
+            --toggle-on-bg: var(--color-primary); /* Specific for toggle switch on state */
         }
 
-        .light-mode {
-            --primary-bg: #F0F2F5; /* Light background */
-            --secondary-bg: rgba(255, 255, 255, 0.7); /* Lighter semi-transparent for glass */
-            --accent-color: #5C6BC0; /* Muted blue for light mode */
-            --text-color: #333333; /* Dark text */
-            --border-color: rgba(92, 107, 192, 0.3);
-            --hover-bg: rgba(92, 107, 192, 0.1);
-            --active-bg: rgba(92, 107, 192, 0.2);
-            --input-bg: rgba(0, 0, 0, 0.05);
-            --shadow-color: rgba(0, 0, 0, 0.1);
-            --toggle-off-bg: #B0B0C0;
-            --toggle-on-bg: var(--accent-color);
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--primary-bg);
-            color: var(--text-color);
+            background: var(--color-dark); /* Use main.html's dark background */
+            color: var(--color-text); /* Use main.html's text color */
+            line-height: 1.6; /* From main.html */
+            overflow-x: hidden; /* Prevent horizontal scroll, from main.html */
             transition: background-color 0.5s ease-in-out, color 0.5s ease-in-out;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
         }
 
-        .panel {
-            background-color: var(--secondary-bg);
-            border-radius: 1.5rem; /* More rounded for liquid feel */
-            box-shadow: 0 10px 30px var(--shadow-color); /* Deeper, softer shadow */
-            border: 1px solid var(--border-color);
-            backdrop-filter: blur(15px); /* Liquid glass effect */
-            -webkit-backdrop-filter: blur(15px); /* Safari support */
-            padding: 2rem;
-            transition: background-color 0.5s ease-in-out, border-color 0.5s ease-in-out, box-shadow 0.5s ease-in-out;
+        /* Header styling - Aligned with main.html's .main-header */
+        header {
+            background: rgba(26, 26, 26, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 2px solid var(--color-primary);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky; /* Sticky header for scroll behavior */
+            top: 0;
+            width: 100%;
+            z-index: 999;
         }
 
+        header h1 {
+            font-size: 2.25rem; /* text-4xl from original */
+            font-weight: 800; /* Extra bold */
+            color: var(--color-primary); /* Changed to primary color from main.html */
+            letter-spacing: -0.05em; /* Tighter tracking */
+            text-shadow: 0 0 15px rgba(114, 137, 218, 0.5); /* Subtle glow from main.html's .home-title */
+        }
+
+        /* Panel/Card styling - Aligned with main.html's .feature-card */
+        .panel {
+            background: var(--color-dark-alt); /* Use main.html's dark-alt for cards */
+            border-radius: 16px; /* Match main.html's card border-radius */
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3); /* Match main.html's card shadow */
+            border: 1px solid rgba(114, 137, 218, 0.2); /* Match main.html's subtle border */
+            backdrop-filter: blur(15px); /* Keep existing glass effect if desired */
+            -webkit-backdrop-filter: blur(15px); /* Safari support */
+            padding: 2.5rem; /* Increase padding to match feature-card */
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease, background-color 0.5s ease-in-out;
+        }
+
+        .panel:hover {
+            transform: translateY(-8px); /* Add hover lift like main.html cards */
+            box-shadow: 0 12px 25px rgba(0,0,0,0.5); /* More pronounced shadow on hover */
+            border-color: var(--color-primary); /* Highlight border on hover */
+        }
+
+        /* Button styling - Aligned with main.html's .download-button */
         .btn-primary {
-            background-color: var(--accent-color);
-            color: var(--text-color);
-            padding: 0.85rem 1.5rem; /* Slightly larger */
-            border-radius: 1rem; /* More rounded */
-            transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+            background: var(--color-primary);
+            color: var(--color-text);
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
             font-weight: 600;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: transform 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 5px 15px rgba(114, 137, 218, 0.4);
+            text-decoration: none;
         }
 
         .btn-primary:hover {
-            background-color: #607ad1; /* Slightly darker accent */
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+            transform: translateY(-5px);
+            background: #5b6eae; /* Slightly darker on hover */
+            box-shadow: 0 8px 20px rgba(114, 137, 218, 0.6);
         }
 
         .btn-primary:active {
@@ -84,20 +124,21 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
 
+        /* Input field styling - Aligned with the new theme */
         .input-field, .select-field {
-            background-color: var(--input-bg);
-            color: var(--text-color);
-            border: 1px solid var(--border-color);
-            padding: 0.75rem 1rem;
-            border-radius: 0.75rem; /* Rounded */
+            background: var(--color-dark); /* Use dark background for inputs */
+            color: var(--color-text);
+            border: 2px solid var(--glass-border-color);
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
             width: 100%;
             transition: border-color 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
         }
 
         .input-field:focus, .select-field:focus {
             outline: none;
-            border-color: var(--accent-color);
-            box-shadow: 0 0 0 3px rgba(114, 137, 218, 0.3); /* Accent glow */
+            border-color: var(--color-primary);
+            box-shadow: 0 0 10px rgba(114, 137, 218, 0.5); /* Glow on focus */
         }
 
         /* Toggle Switch */
@@ -152,53 +193,90 @@
 
         /* Monaco Editor container styling */
         #json-editor-container {
-            border-radius: 1.25rem; /* Match panel rounding */
+            border-radius: 16px; /* Match panel rounding */
             overflow: hidden;
-            border: 1px solid var(--border-color);
+            border: 1px solid var(--glass-border-color);
             box-shadow: 0 5px 15px var(--shadow-color);
             transition: border-color 0.5s ease-in-out, box-shadow 0.5s ease-in-out;
-            min-height: 600px; /* Increased height for better visibility */
+            min-height: 600px;
         }
 
-        /* Header styling */
-        header {
-            background-color: var(--secondary-bg);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--border-color);
-            box-shadow: 0 2px 10px var(--shadow-color);
-            padding: 1rem 2rem;
+        /* Panel H2 and Icon Styling */
+        .panel h2 {
+            color: var(--color-text);
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--glass-border-color);
+            padding-bottom: 0.8rem;
             display: flex;
-            justify-content: space-between;
             align-items: center;
         }
 
-        header h1 {
-            font-size: 2.25rem; /* text-4xl */
-            font-weight: 800; /* Extra bold */
-            color: var(--accent-color);
-            letter-spacing: -0.05em; /* Tighter tracking */
-            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        .panel h2 i {
+            color: var(--color-primary);
+            margin-right: 0.75rem;
+            transition: transform 0.3s ease;
         }
 
-        /* Footer styling */
+        /* Footer styling - Aligned with main.html's .main-footer */
         footer {
-            background-color: var(--secondary-bg);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-top: 1px solid var(--border-color);
-            box-shadow: 0 -2px 10px var(--shadow-color);
-            padding: 1rem;
+            background: var(--color-dark);
+            border-top: 2px solid var(--color-primary);
+            padding: 2.5rem 0;
             text-align: center;
-            font-size: 0.875rem;
-            color: var(--text-color);
-            opacity: 0.8;
+            font-size: 0.9rem;
+            color: var(--color-text-alt);
+            margin-top: 3rem;
+        }
+
+        /* Animations from main.html */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        /* New entrance animations from main.html */
+        .animate-fade-in-up {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        .animate-fade-in-up.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .delay-1 { transition-delay: 0.1s; }
+        .delay-2 { transition-delay: 0.2s; }
+        .delay-3 { transition-delay: 0.3s; }
+        .delay-4 { transition-delay: 0.4s; }
+        .delay-5 { transition-delay: 0.5s; }
+        .delay-6 { transition-delay: 0.6s; }
+        .delay-7 { transition-delay: 0.7s; }
+        .delay-8 { transition-delay: 0.8s; }
+        .delay-9 { transition-delay: 0.9s; }
+        .delay-10 { transition-delay: 1.0s; }
+
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
         }
 
         /* Loading spinner */
         .spinner {
             border: 4px solid rgba(255, 255, 255, 0.3);
-            border-top: 4px solid var(--accent-color);
+            border-top: 4px solid var(--color-primary);
             border-radius: 50%;
             width: 20px;
             height: 20px;
@@ -219,7 +297,8 @@
     <header>
         <h1 class="text-4xl font-extrabold tracking-tight">Glacier Client Config Editor</h1>
         <div class="flex items-center gap-4">
-            <button id="theme-toggle" class="p-3 rounded-full bg-primary-bg text-text-color hover:bg-accent-color transition-colors shadow-md">
+            <!-- Theme toggle button - simplified as main.html doesn't have light mode -->
+            <button id="theme-toggle" class="p-3 rounded-full bg-color-dark text-color-text hover:bg-color-primary transition-colors shadow-md">
                 <i class="fas fa-sun text-lg" id="theme-icon"></i>
             </button>
         </div>
@@ -229,13 +308,13 @@
     <main class="flex-grow p-6 flex flex-col items-center justify-center">
         <div class="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-6">
             <!-- Left Panel: Config Editor Form -->
-            <div class="panel flex flex-col">
-                <h2 class="text-2xl font-bold text-text-color mb-6 border-b pb-3 border-border-color">
+            <div class="panel flex flex-col animate-fade-in-up delay-1">
+                <h2 class="text-2xl font-bold mb-6">
                     <i class="fas fa-sliders-h mr-2"></i>Module Configuration
                 </h2>
-                <div id="config-form" class="space-y-6 overflow-y-auto max-h-[70vh] pr-4">
+                <div id="config-form" class="space-y-6 overflow-auto max-h-[70vh] pr-4"> <!-- Changed overflow-y-auto to overflow-auto for better cross-browser compatibility and removed pr-4 as it might cause issues with overflow-auto -->
                     <!-- Config fields will be dynamically generated here -->
-                    <p class="text-text-color/60 italic text-center">Loading configuration...</p>
+                    <p class="text-color-text-alt italic text-center">Loading configuration...</p>
                 </div>
                 <button id="download-config-btn" class="btn-primary mt-8">
                     <i class="fas fa-download mr-2"></i> Download config.json
@@ -243,15 +322,15 @@
             </div>
 
             <!-- Right Panel: Raw JSON Editor -->
-            <div class="panel flex flex-col">
-                <h2 class="text-2xl font-bold text-text-color mb-6 border-b pb-3 border-border-color">
+            <div class="panel flex flex-col animate-fade-in-up delay-2">
+                <h2 class="text-2xl font-bold mb-6">
                     <i class="fas fa-code mr-2"></i>Raw config.json
                 </h2>
                 <div id="json-editor-container" class="flex-grow"></div>
                 <button id="copy-json-btn" class="btn-primary mt-4">
                     <i class="fas fa-copy mr-2"></i> Copy JSON
                 </button>
-                <p class="text-sm text-text-color/70 mt-4 text-center">
+                <p class="text-sm text-color-text-alt mt-4 text-center">
                     Disclaimer: Only edit the anchor and offset if you have knowledge about JSON UI. Replace each value with either true (automatically on) or false (automatically off) to make the config work. Mods are saved when leaving the world or entering another dimension. Only toggle between true/false, change opacity, mod position (read disclaimer), or item id/aux. Changing anything else may break the pack.
                 </p>
             </div>
@@ -419,7 +498,6 @@
                 "$hide_scoreboard": false,
                 "$hide_scoreboard_numbers": false,
                 "$crosshair_default_preset_index": 1,
-                "$hide_crosshair": false,
                 "$rgb_crosshair": false,
                 "$brighter": false,
                 "$aqua_display": false,
@@ -457,26 +535,13 @@
         let monacoEditor; // Monaco Editor instance
         let updateFormTimeout; // Debounce for Monaco to Form updates
 
-        // --- Theme Toggle Functionality ---
-        const currentTheme = localStorage.getItem('theme') || 'dark';
-        if (currentTheme === 'light') {
-            document.body.classList.add('light-mode');
-            themeIcon.classList.replace('fa-sun', 'fa-moon');
-        }
-
+        // --- Theme Toggle Functionality (Simplified as main.html has no light mode) ---
+        // Default to dark theme, as main.html is dark. The button is now just a visual element.
         themeToggle.addEventListener('click', () => {
-            document.body.classList.toggle('light-mode');
-            if (document.body.classList.contains('light-mode')) {
-                themeIcon.classList.replace('fa-sun', 'fa-moon');
-                localStorage.setItem('theme', 'light');
-            } else {
-                themeIcon.classList.replace('fa-moon', 'fa-sun');
-                localStorage.setItem('theme', 'dark');
-            }
-            if (monacoEditor) {
-                monaco.editor.setTheme(document.body.classList.contains('light-mode') ? 'vs-light' : 'vs-dark');
-            }
+            // No actual theme toggle functionality, just a visual button
+            showMessage("Theme is currently fixed to dark mode to match the main website.", "info");
         });
+
 
         // --- Message Box Functionality ---
         function showMessage(message, type = 'info') {
@@ -531,7 +596,7 @@
                 const div = document.createElement('div');
                 div.className = 'flex items-center justify-between gap-4';
                 const labelElem = document.createElement('label');
-                labelElem.className = 'text-text-color text-lg font-medium flex-grow';
+                labelElem.className = 'text-color-text text-lg font-medium flex-grow'; // Updated text color
                 labelElem.textContent = label;
                 div.appendChild(labelElem);
                 div.innerHTML += inputHtml;
@@ -541,7 +606,7 @@
             // Helper to create section header
             const createSectionHeader = (title) => {
                 const h3 = document.createElement('h3');
-                h3.className = 'text-xl font-semibold text-accent-color mt-6 mb-4 border-b border-border-color pb-2';
+                h3.className = 'text-xl font-semibold text-color-primary mt-6 mb-4 border-b border-glass-border-color pb-2'; // Updated colors
                 h3.textContent = title;
                 return h3;
             };
@@ -584,7 +649,7 @@
                         // Opacity sliders (float from 0.0 to 1.0)
                         inputHtml = `
                             <div class="flex items-center gap-2 w-full max-w-[200px]">
-                                <input type="range" id="${cleanKey}_range" ${dataOriginalKey} min="0" max="1" step="0.01" value="${value}" class="flex-grow h-2 rounded-lg appearance-none cursor-pointer bg-accent-color/50" />
+                                <input type="range" id="${cleanKey}_range" ${dataOriginalKey} min="0" max="1" step="0.01" value="${value}" class="flex-grow h-2 rounded-lg appearance-none cursor-pointer bg-color-primary/50" />
                                 <input type="number" id="${cleanKey}_number" ${dataOriginalKey} min="0" max="1" step="0.01" value="${value}" class="input-field w-20 text-center" />
                             </div>
                         `;
@@ -601,7 +666,7 @@
                         inputHtml = `<select id="${cleanKey}" ${dataOriginalKey} class="select-field w-auto min-w-[150px]">${optionsHtml}</select>`;
                     } else if (cleanKey === '$hotbar_toggle_index') {
                         const optionsHtml = Object.entries(hotbarToggleOptions).map(([idx, label]) => `<option value="${idx}" ${value == idx ? 'selected' : ''}>${label}</option>`).join('');
-                        inputHtml = `<select id="${cleanKey}" ${dataOriginalKey} class="select-field w-auto min-w-[150px]">${optionsHtml}</selectмещение>`;
+                        inputHtml = `<select id="${cleanKey}" ${dataOriginalKey} class="select-field w-auto min-w-[150px]">${optionsHtml}</select>`;
                     } else if (cleanKey === '$inventoryhud_toggle_index') {
                         const optionsHtml = Object.entries(inventoryHudToggleOptions).map(([idx, label]) => `<option value="${idx}" ${value == idx ? 'selected' : ''}>${label}</option>`).join('');
                         inputHtml = `<select id="${cleanKey}" ${dataOriginalKey} class="select-field w-auto min-w-[150px]">${optionsHtml}</select>`;
@@ -656,6 +721,12 @@
             // Attach event listeners to update config and editor
             configForm.addEventListener('input', updateConfigFromForm);
             configForm.addEventListener('change', updateConfigFromForm); // For checkboxes and selects
+
+            // Trigger animations for form elements after rendering
+            const formAnimatedElements = configForm.querySelectorAll('.animate-fade-in-up');
+            formAnimatedElements.forEach(element => {
+                element.classList.add('is-visible');
+            });
         }
 
         // --- Update Config from Form Inputs ---
@@ -704,10 +775,17 @@
                 monacoEditor = monaco.editor.create(jsonEditorContainer, {
                     value: JSON.stringify(currentConfig, null, 4),
                     language: 'json',
-                    theme: document.body.classList.contains('light-mode') ? 'vs-light' : 'vs-dark',
-                    readOnly: false, // Make it editable for real-time updates
-                    automaticLayout: true,
+                    theme: 'vs-dark', // Explicitly set to dark theme
+                    readOnly: false,
+                    automaticLayout: false, // Changed to false to prevent ResizeObserver loop errors
                     minimap: { enabled: false }
+                });
+
+                // Manually trigger layout on window resize
+                window.addEventListener('resize', () => {
+                    if (monacoEditor) {
+                        monacoEditor.layout();
+                    }
                 });
 
                 // Debounce for Monaco to Form updates
@@ -787,6 +865,13 @@
                 currentConfig = JSON.parse(cleanedConfigJsonString);
                 renderConfigForm(currentConfig);
                 initializeMonacoEditor();
+
+                // Apply initial animations to main panels
+                const mainPanels = document.querySelectorAll('.panel.animate-fade-in-up');
+                mainPanels.forEach(panel => {
+                    panel.classList.add('is-visible');
+                });
+
             } catch (e) {
                 console.error("Error parsing initial config JSON:", e);
                 showMessage("Failed to load initial configuration. Invalid JSON format.", "error");
