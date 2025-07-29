@@ -4,6 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Glacier Client Config Editor</title>
+    <!-- Open Graph / Twitter Card Tags for Embeds -->
+    <meta property="og:title" content="Glacier Client Config Editor" />
+    <meta property="og:description" content="Configure your Glacier Client modules and settings online." />
+    <meta property="og:image" content="https://placehold.co/1200x630/7289DA/FFFFFF?text=Glacier+Config+Editor" />
+    <meta property="og:url" content="https://config.glacierclient.xyz" />
+    <meta property="og:type" content="website" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@glacierclientbe" />
+    <meta name="twitter:title" content="Glacier Client Config Editor" />
+    <meta name="twitter:description" content="Configure your Glacier Client modules and settings online." />
+    <meta name="twitter:image" content="https://placehold.co/1200x675/7289DA/FFFFFF?text=Glacier+Config+Editor" />
+
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome for icons -->
@@ -296,12 +309,7 @@
     <!-- Header -->
     <header>
         <h1 class="text-4xl font-extrabold tracking-tight">Glacier Client Config Editor</h1>
-        <div class="flex items-center gap-4">
-            <!-- Theme toggle button - simplified as main.html doesn't have light mode -->
-            <button id="theme-toggle" class="p-3 rounded-full bg-color-dark text-color-text hover:bg-color-primary transition-colors shadow-md">
-                <i class="fas fa-sun text-lg" id="theme-icon"></i>
-            </button>
-        </div>
+        <!-- Removed Theme toggle button -->
     </header>
 
     <!-- Main Content -->
@@ -312,7 +320,7 @@
                 <h2 class="text-2xl font-bold mb-6">
                     <i class="fas fa-sliders-h mr-2"></i>Module Configuration
                 </h2>
-                <div id="config-form" class="space-y-6 overflow-auto max-h-[70vh] pr-4"> <!-- Changed overflow-y-auto to overflow-auto for better cross-browser compatibility and removed pr-4 as it might cause issues with overflow-auto -->
+                <div id="config-form" class="space-y-6 overflow-auto max-h-[70vh] pr-4">
                     <!-- Config fields will be dynamically generated here -->
                     <p class="text-color-text-alt italic text-center">Loading configuration...</p>
                 </div>
@@ -337,8 +345,7 @@
         </div>
     </main>
 
-    <!-- Message Box for user feedback -->
-    <div id="message-box" class="fixed bottom-4 right-4 p-4 rounded-lg text-center font-medium hidden" role="alert" style="z-index: 1000;"></div>
+    <!-- Removed Message Box for user feedback -->
 
     <!-- Footer -->
     <footer>
@@ -498,6 +505,7 @@
                 "$hide_scoreboard": false,
                 "$hide_scoreboard_numbers": false,
                 "$crosshair_default_preset_index": 1,
+                "$hide_crosshair": false,
                 "$rgb_crosshair": false,
                 "$brighter": false,
                 "$aqua_display": false,
@@ -523,42 +531,23 @@
         }`;
 
         // --- DOM Elements ---
-        const themeToggle = document.getElementById('theme-toggle');
-        const themeIcon = document.getElementById('theme-icon');
+        // Removed themeToggle and themeIcon
         const configForm = document.getElementById('config-form');
         const jsonEditorContainer = document.getElementById('json-editor-container');
         const downloadConfigBtn = document.getElementById('download-config-btn');
         const copyJsonBtn = document.getElementById('copy-json-btn');
-        const messageBox = document.getElementById('message-box');
+        // Removed messageBox
 
         let currentConfig = {};
         let monacoEditor; // Monaco Editor instance
         let updateFormTimeout; // Debounce for Monaco to Form updates
 
-        // --- Theme Toggle Functionality (Simplified as main.html has no light mode) ---
+        // --- Removed Theme Toggle Functionality ---
         // Default to dark theme, as main.html is dark. The button is now just a visual element.
-        themeToggle.addEventListener('click', () => {
-            // No actual theme toggle functionality, just a visual button
-            showMessage("Theme is currently fixed to dark mode to match the main website.", "info");
-        });
+        // Removed themeToggle.addEventListener and showMessage call
 
-
-        // --- Message Box Functionality ---
-        function showMessage(message, type = 'info') {
-            messageBox.textContent = message;
-            messageBox.classList.remove('hidden', 'bg-red-500', 'bg-green-500', 'bg-blue-500');
-            if (type === 'error') {
-                messageBox.classList.add('bg-red-500', 'text-white');
-            } else if (type === 'success') {
-                messageBox.classList.add('bg-green-500', 'text-white');
-            } else {
-                messageBox.classList.add('bg-blue-500', 'text-white'); // Info
-            }
-            messageBox.classList.remove('hidden');
-            setTimeout(() => {
-                messageBox.classList.add('hidden');
-            }, 5000);
-        }
+        // --- Removed Message Box Functionality ---
+        // Removed showMessage function (and its usage)
 
         // --- Helper to sanitize key names for display ---
         function sanitizeKeyForDisplay(key) {
@@ -798,13 +787,12 @@
                             const parsedJson = JSON.parse(jsonText);
                             currentConfig = parsedJson; // Update the main config object
                             renderConfigForm(currentConfig); // Re-render the form
-                            showMessage("JSON updated from editor.", "success");
                         } catch (e) {
                             // Only show error if JSON is not empty, to avoid initial parse error on load
                             if (jsonText.trim() !== "") {
-                                showMessage("Invalid JSON format in editor. Form not updated.", "error");
+                                // console.error is still useful for debugging
+                                console.error("Invalid JSON format in editor. Form not updated.", e);
                             }
-                            console.error("Error parsing JSON from editor:", e);
                         }
                     }, 500); // Debounce for 500ms
                 });
@@ -834,7 +822,6 @@
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
-            showMessage("config.json downloaded successfully!", "success");
         });
 
         // --- Copy JSON to Clipboard ---
@@ -848,10 +835,8 @@
                 tempTextArea.select();
                 try {
                     document.execCommand('copy');
-                    showMessage("JSON copied to clipboard!", "success");
                 } catch (err) {
                     console.error('Failed to copy text: ', err);
-                    showMessage("Failed to copy JSON. Please copy manually.", "error");
                 }
                 document.body.removeChild(tempTextArea);
             }
@@ -874,7 +859,6 @@
 
             } catch (e) {
                 console.error("Error parsing initial config JSON:", e);
-                showMessage("Failed to load initial configuration. Invalid JSON format.", "error");
                 configForm.innerHTML = `<p class="text-red-500 text-center">Error loading configuration: Invalid JSON.</p>`;
             }
         };
