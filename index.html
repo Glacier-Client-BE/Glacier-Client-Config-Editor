@@ -799,7 +799,7 @@
         
         async function loadConfigFromFile(version) {
             try {
-                const response = await fetch(`/configs/${version}.json`);
+                const response = await fetch(`configs/${version}.json`);
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
