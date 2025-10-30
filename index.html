@@ -4,37 +4,49 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Glacier Client Config Editor</title>
+    <!-- Open Graph / Twitter Card Tags for Embeds -->
     <meta property="og:title" content="Glacier Client Config Editor" />
     <meta property="og:description" content="Configure your Glacier Client modules and settings online." />
     <meta property="og:image" content="https://placehold.co/1200x630/7289DA/FFFFFF?text=Glacier+Config+Editor" />
     <meta property="og:url" content="https://config.glacierclient.xyz" />
     <meta property="og:type" content="website" />
+
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@glacierclientbe" />
     <meta name="twitter:title" content="Glacier Client Config Editor" />
     <meta name="twitter:description" content="Configure your Glacier Client modules and settings online." />
     <meta name="twitter:image" content="https://placehold.co/1200x675/7289DA/FFFFFF?text=Glacier+Config+Editor" />
+
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Google Fonts - Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <!-- JSZip for creating zip files -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <!-- Monaco Editor CDN (for raw JSON view) -->
     <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.49.0/min/vs/loader.js"></script>
     <style>
+        /* Custom CSS variables for themes - Aligned with main.html */
         :root {
-            --color-primary: #7289DA;
-            --color-dark: #1A1A1A;
-            --color-dark-alt: #2D2D2D;
-            --color-text: #FFFFFF;
-            --color-text-alt: #D9D9D9;
-            --glass-border-color: rgba(114, 137, 218, 0.2);
-            --hover-bg: rgba(114, 137, 218, 0.1);
-            --active-bg: rgba(114, 137, 218, 0.2);
-            --input-bg: rgba(255, 255, 255, 0.1);
-            --shadow-color: rgba(0, 0, 0, 0.3);
-            --toggle-off-bg: #4A4A5E;
-            --toggle-on-bg: var(--color-primary);
+            --color-primary: #7289DA; /* Accent color, Discord-like blue */
+            --color-dark: #1A1A1A;    /* Primary background color */
+            --color-dark-alt: #2D2D2D; /* Secondary background color, for cards/panels */
+            --color-text: #FFFFFF;    /* Light text */
+            --color-text-alt: #D9D9D9; /* Slightly muted text for descriptions */
+
+            /* Derived from main.html's aesthetic, or directly from config.html's original structure */
+            --glass-border-color: rgba(114, 137, 218, 0.2); /* Subtle accent-based border for glass */
+            --hover-bg: rgba(114, 137, 218, 0.1); /* Subtle hover for interactive elements */
+            --active-bg: rgba(114, 137, 218, 0.2); /* More pronounced active for interactive elements */
+            --input-bg: rgba(255, 255, 255, 0.1); /* Very subtle transparency for inputs */
+            --shadow-color: rgba(0, 0, 0, 0.3); /* General shadow color */
+            --toggle-off-bg: #4A4A5E; /* Specific for toggle switch off state */
+            --toggle-on-bg: var(--color-primary); /* Specific for toggle switch on state */
         }
 
+        /* Base Styles */
         * {
             margin: 0;
             padding: 0;
@@ -43,16 +55,17 @@
         }
 
         body {
-            background: var(--color-dark);
-            color: var(--color-text);
-            line-height: 1.6;
-            overflow-x: hidden;
+            background: var(--color-dark); /* Use main.html's dark background */
+            color: var(--color-text); /* Use main.html's text color */
+            line-height: 1.6; /* From main.html */
+            overflow-x: hidden; /* Prevent horizontal scroll, from main.html */
             transition: background-color 0.5s ease-in-out, color 0.5s ease-in-out;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
         }
 
+        /* Header styling - Aligned with main.html's .main-header */
         header {
             background: rgba(26, 26, 26, 0.95);
             backdrop-filter: blur(10px);
@@ -63,37 +76,39 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            position: sticky;
+            position: sticky; /* Sticky header for scroll behavior */
             top: 0;
             width: 100%;
             z-index: 999;
         }
 
         header h1 {
-            font-size: 2.25rem;
-            font-weight: 800;
-            color: var(--color-primary);
-            letter-spacing: -0.05em;
-            text-shadow: 0 0 15px rgba(114, 137, 218, 0.5);
+            font-size: 2.25rem; /* text-4xl from original */
+            font-weight: 800; /* Extra bold */
+            color: var(--color-primary); /* Changed to primary color from main.html */
+            letter-spacing: -0.05em; /* Tighter tracking */
+            text-shadow: 0 0 15px rgba(114, 137, 218, 0.5); /* Subtle glow from main.html's .home-title */
         }
 
+        /* Panel/Card styling - Aligned with main.html's .feature-card */
         .panel {
-            background: var(--color-dark-alt);
-            border-radius: 16px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-            border: 1px solid rgba(114, 137, 218, 0.2);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            padding: 2.5rem;
+            background: var(--color-dark-alt); /* Use main.html's dark-alt for cards */
+            border-radius: 16px; /* Match main.html's card border-radius */
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3); /* Match main.html's card shadow */
+            border: 1px solid rgba(114, 137, 218, 0.2); /* Match main.html's subtle border */
+            backdrop-filter: blur(15px); /* Keep existing glass effect if desired */
+            -webkit-backdrop-filter: blur(15px); /* Safari support */
+            padding: 2.5rem; /* Increase padding to match feature-card */
             transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease, background-color 0.5s ease-in-out;
         }
 
         .panel:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 12px 25px rgba(0,0,0,0.5);
-            border-color: var(--color-primary);
+            transform: translateY(-8px); /* Add hover lift like main.html cards */
+            box-shadow: 0 12px 25px rgba(0,0,0,0.5); /* More pronounced shadow on hover */
+            border-color: var(--color-primary); /* Highlight border on hover */
         }
 
+        /* Button styling - Aligned with main.html's .download-button */
         .btn-primary {
             background: var(--color-primary);
             color: var(--color-text);
@@ -113,7 +128,7 @@
 
         .btn-primary:hover {
             transform: translateY(-5px);
-            background: #5b6eae;
+            background: #5b6eae; /* Slightly darker on hover */
             box-shadow: 0 8px 20px rgba(114, 137, 218, 0.6);
         }
 
@@ -122,8 +137,9 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
 
+        /* Input field styling - Aligned with the new theme */
         .input-field, .select-field {
-            background: var(--color-dark);
+            background: var(--color-dark); /* Use dark background for inputs */
             color: var(--color-text);
             border: 2px solid var(--glass-border-color);
             padding: 0.8rem 1rem;
@@ -135,9 +151,10 @@
         .input-field:focus, .select-field:focus {
             outline: none;
             border-color: var(--color-primary);
-            box-shadow: 0 0 10px rgba(114, 137, 218, 0.5);
+            box-shadow: 0 0 10px rgba(114, 137, 218, 0.5); /* Glow on focus */
         }
 
+        /* Toggle Switch */
         .toggle-switch {
             position: relative;
             display: inline-block;
@@ -187,8 +204,9 @@
             transform: translateX(26px);
         }
 
+        /* Monaco Editor container styling */
         #json-editor-container {
-            border-radius: 16px;
+            border-radius: 16px; /* Match panel rounding */
             overflow: hidden;
             border: 1px solid var(--glass-border-color);
             box-shadow: 0 5px 15px var(--shadow-color);
@@ -196,6 +214,7 @@
             min-height: 600px;
         }
 
+        /* Panel H2 and Icon Styling */
         .panel h2 {
             color: var(--color-text);
             font-size: 2rem;
@@ -213,6 +232,7 @@
             transition: transform 0.3s ease;
         }
 
+        /* Footer styling - Aligned with main.html's .main-footer */
         footer {
             background: var(--color-dark);
             border-top: 2px solid var(--color-primary);
@@ -223,6 +243,7 @@
             margin-top: 3rem;
         }
 
+        /* Animations from main.html */
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
@@ -238,6 +259,7 @@
             50% { transform: translateY(-20px); }
         }
 
+        /* New entrance animations from main.html */
         .animate-fade-in-up {
             opacity: 0;
             transform: translateY(20px);
@@ -264,6 +286,7 @@
             animation: float 3s ease-in-out infinite;
         }
 
+        /* Loading spinner */
         .spinner {
             border: 4px solid rgba(255, 255, 255, 0.3);
             border-top: 4px solid var(--color-primary);
@@ -283,17 +306,22 @@
     </style>
 </head>
 <body class="flex flex-col min-h-screen">
+    <!-- Header -->
     <header>
         <h1 class="text-4xl font-extrabold tracking-tight">Glacier Client Config Editor</h1>
+        <!-- Removed Theme toggle button -->
     </header>
 
+    <!-- Main Content -->
     <main class="flex-grow p-6 flex flex-col items-center justify-center">
         <div class="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Left Panel: Config Editor Form -->
             <div class="panel flex flex-col animate-fade-in-up delay-1">
                 <h2 class="text-2xl font-bold mb-6">
                     <i class="fas fa-sliders-h mr-2"></i>Module Configuration
                 </h2>
                 <div id="config-form" class="space-y-6 overflow-auto max-h-[70vh] pr-4">
+                    <!-- Config fields will be dynamically generated here -->
                     <p class="text-color-text-alt italic text-center">Loading configuration...</p>
                 </div>
                 <button id="download-config-btn" class="btn-primary mt-8">
@@ -301,6 +329,7 @@
                 </button>
             </div>
 
+            <!-- Right Panel: Raw JSON Editor -->
             <div class="panel flex flex-col animate-fade-in-up delay-2">
                 <h2 class="text-2xl font-bold mb-6">
                     <i class="fas fa-code mr-2"></i>Raw config.json
@@ -316,77 +345,281 @@
         </div>
     </main>
 
+    <!-- Removed Message Box for user feedback -->
+
+    <!-- Footer -->
     <footer>
         &copy; 2025 Glacier Client Config Editor. All rights reserved.
     </footer>
 
     <script type="module">
+        // --- Initial Config JSON (provided by user) ---
+        const initialConfigJsonString = `{
+            "mod_menu_config@gc.pnl": {
+                "$armorhud": false,
+                "$armorhud_anchor|default": "bottom_right",
+                "$armorhud_offset|default": [ 0, -108 ],
+                "$bowindicator": false,
+                "$bowindicator_opacity|default": 0.7,
+                "$bowindicator_anchor|default": "left_middle",
+                "$bowindicator_offset|default": [ 2, 0 ],
+                "$chat": true,
+                "$chat_opacity|default": 0.7,
+                "$chat_toggle_index": 0,
+                "$chunkmap": false,
+                "$chunkmap_anchor|default": "top_left",
+                "$chunkmap_offset|default": [ 2, 2 ],
+                "$chunkmap_opacity|default": 0.7,
+                "$chunkmap_chunk_position|default": false,
+                "$hide_slime_chunks|default": false,
+                "$coordinates": true,
+                "$coordinates_opacity|default": 0.7,
+                "$hide_chunkcoordinates": true,
+                "$hide_nethercoordinates": true,
+                "$hide_nethercoordinates_in_overworld": true,
+                "$hide_vanillacordinates": false,
+                "$daycounter": false,
+                "$daycounter_anchor|default": "bottom_left",
+                "$daycounter_offset|default": [ 1, -20 ],
+                "$daycounter_opacity|default": 0.7,
+                "$dayevent": false,
+                "$dayevent_anchor|default": "bottom_left",
+                "$dayevent_offset|default": [ 62, -20 ],
+                "$dayevent_opacity|default": 0.7,
+                "$directionhud": false,
+                "$directionhud_rotation": false,
+                "$directionhud_anchor|default": "top_middle",
+                "$directionhud_touch_offset": [ 9, 20 ],
+                "$directionhud_mouse_controller_offset": [ 0, 4 ],
+                "$directionhud_opacity|default": 0.7,
+                "$expcalculator": false,
+                "$expcalculator_anchor|default": "bottom_left",
+                "$expcalculator_offset|default": [ 1, -1 ],
+                "$expcalculator_opacity|default": 0.7,
+                "$forcecoords": false,
+                "$forcecoords_anchor|default": "top_right",
+                "$forcecoords_offset|default": [ -1, 1 ],
+                "$forcecoords_opacity|default": 0.7,
+                "$fpscounter": false,
+                "$fpscounter_anchor|default": "bottom_left",
+                "$fpscounter_offset|default": [ 1, -39 ],
+                "$fpscounter_opacity|default": 0.7,
+                "$hudpopup": true,
+                "$hotbar": true,
+                "$hide_hotbar_item_count": false,
+                "$hide_creative_xp_bar": false,
+                "$hide_xp_percentage": false,
+                "$hide_inventory_button": false,
+                "$hide_hotbar_numbers": false,
+                "$hotbar_number1": "1",
+                "$hotbar_number2": "2",
+                "$hotbar_number3": "3",
+                "$hotbar_number4": "4",
+                "$hotbar_number5": "5",
+                "$hotbar_number6": "6",
+                "$hotbar_number7": "7",
+                "$hotbar_number8": "8",
+                "$hotbar_number9": "9",
+                "$hotbar_toggle_index": 0,
+                "$inventoryhud": false,
+                "$inventoryhud_toggle_index": 0,
+                "$inventoryhud_anchor|default": "bottom_right",
+                "$inventoryhud_offset|default" : [ 0, -1 ],
+                "$inventoryhud_opacity|default": 0.7,
+                "$hide_inventoryhud_durability": false,
+                "$hide_inventoryhud_stack": false,
+                "$show_inventoryhud_numbers": false,
+                "$itemcounters": false,
+                "$hide_potioncounter": true,
+                "$lingering_potion_counter_item_id": 595,
+                "$potion_counter_item_id": 453,
+                "$splash_potion_counter_item_id": 594,
+                "$hide_totemcounter": true,
+                "$totem_counter_item_id": 601,
+                "$hide_arrowcounter": true,
+                "$arrow_counter_item_id": 325,
+                "$lowdurability": false,
+                "$lowdurability_anchor|default": "bottom_right",
+                "$lowdurability_offset|default": [ -1, -75 ],
+                "$lowdurability_opacity|default": 0.7,
+                "$mainhandhud": false,
+                "$mainhand_durability_toggle_index": 0,
+                "$hide_mainhandhud_total_durability": false,
+                "$hide_mainhandhud_stack": false,
+                "$hide_mainhandhud_item": false,
+                "$mainhandhud_opacity": 0.7,
+                "$mainhandhud_touch_offset": [ 140, -3.5 ],
+                "$mainhandhud_mouse_controller_offset": [ 130, -3.5 ],
+                "$offhandhud": false,
+                "$offhandhud_anchor|default": "bottom_middle",
+                "$offhandhud_offset|default":[ -113, -1 ],
+                "$playerlist": true,
+                "$playerlist_mobile_button_anchor|default": "top_middle",
+                "$playerlist_mobile_button_offset|default": [ 47.5, 1 ],
+                "$playerlist_mobile_button_size|default": [ 18, 18 ],
+                "$serverdisplay": false,
+                "$serverdisplay_anchor|default": "bottom_right",
+                "$serverdisplay_offset|default": [ -1, -75 ],
+                "$serverdisplay_opacity|default": 0.7,
+                "$slotcounter": false,
+                "$slotcounter_anchor|default": "bottom_left",
+                "$slotcounter_offset|default" : [ 62, -39 ],
+                "$slotcounter_opacity|default": 0.7,
+                "$speedometer": false,
+                "$speedometer_anchor|default": "top_middle",
+                "$speedometer_touch_offset|default": [ 9, 39 ],
+                "$speedometer_mouse_controller_offset|default": [ 0, 22 ],
+                "$speedometer_opacity|default": 0.7,
+                "$statushud": false,
+                "$statushud_anchor|default": "bottom_left",
+                "$statushud_offset|default": [ 1, -58 ],
+                "$statushud_opacity|default": 0.7,
+                "$targethud": false,
+                "$targethud_anchor|default": "top_right",
+                "$targethud_offset|default": [ -1, 42 ],
+                "$targethud_opacity|default": 0.7,
+                "$timerhud": false,
+                "$timerhud_anchor|default": "bottom_left",
+                "$timerhud_offset|default": [ 62, -58 ],
+                "$timerhud_opacity|default": 0.7,
+                "$walkdistance": false,
+                "$walkdistance_anchor|default": "bottom_right",
+                "$walkdistance_offset|default": [ -1, -56 ],
+                "$walkdistance_opacity|default": 0.7,
+                "$hide_item_name_text": false,
+                "$hide_jukebox_text": false,
+                "$hide_tip_text": false,
+                "$hide_actionbar_text": false,
+                "$show_safezone": false,
+                "$show_clock_compass": false,
+                "$compass_aux": 27328512,
+                "$clock_aux": 27459584,
+                "$recovery_compass_aux": 44761088,
+                "$bossbar_anchor|default": "top_middle",
+                "$bossbar_offset|default": [ 0, 15 ],
+                "$hide_bossname": false,
+                "$hide_bossbar": false,
+                "$show_boss_health": false,
+                "$scoreboard_anchor|default": "right_middle",
+                "$scoreboard_offset|default": [ 0, 0 ],
+                "$hide_scoreboard": false,
+                "$hide_scoreboard_numbers": false,
+                "$crosshair_default_preset_index": 1,
+                "$hide_crosshair": false,
+                "$rgb_crosshair": false,
+                "$brighter": false,
+                "$aqua_display": false,
+                "$red_display": false,
+                "$yellow_display": false,
+                "$blue_display": false,
+                "$orange_display": false,
+                "$purple_display": false,
+                "$green_display": false,
+                "$display_opacity|default": 1.0
+            },
+            "pause_menu_config@gc.pnl": {
+                "$glacier_playername": false,
+                "$glacier_worldname": false
+            },
+            "container_config@gc.pnl": {
+                "$force_autoplace_mode": false,
+                "$hide_container_durability": false,
+                "$hide_hover_item_id": false,
+                "$hide_hover_item_aux_id": false
+            },
+            "namespace": "gc"
+        }`;
+
+        // --- DOM Elements ---
+        // Removed themeToggle and themeIcon
         const configForm = document.getElementById('config-form');
         const jsonEditorContainer = document.getElementById('json-editor-container');
         const downloadConfigBtn = document.getElementById('download-config-btn');
         const copyJsonBtn = document.getElementById('copy-json-btn');
+        // Removed messageBox
 
         let currentConfig = {};
-        let monacoEditor;
-        let updateFormTimeout;
+        let monacoEditor; // Monaco Editor instance
+        let updateFormTimeout; // Debounce for Monaco to Form updates
 
+        // --- Removed Theme Toggle Functionality ---
+        // Default to dark theme, as main.html is dark. The button is now just a visual element.
+        // Removed themeToggle.addEventListener and showMessage call
+
+        // --- Removed Message Box Functionality ---
+        // Removed showMessage function (and its usage)
+
+        // --- Helper to sanitize key names for display ---
         function sanitizeKeyForDisplay(key) {
+            // Replace specific strings and underscores, then capitalize words
             let displayKey = key.replace(/@gc\.pnl|\$|\|default/g, '')
                                 .replace(/_/g, ' ')
                                 .trim();
+            // Capitalize first letter of each word
             return displayKey.replace(/\b\w/g, char => char.toUpperCase());
         }
 
+        // --- Anchor Options ---
         const anchorOptions = [
             "top_left", "top_middle", "top_right",
             "left_middle", "center", "right_middle",
             "bottom_left", "bottom_middle", "bottom_right"
         ];
 
+        // --- Toggle Index Options ---
         const chatToggleOptions = { 0: "Bottom Chat", 1: "Top Chat" };
         const hotbarToggleOptions = { 0: "Default", 1: "Connected", 2: "RGB" };
         const inventoryHudToggleOptions = { 0: "Horizontal", 1: "Vertical" };
         const mainhandDurabilityToggleOptions = { 0: "Absolute", 1: "Percentage" };
 
+
+        // --- Render Config Form ---
         function renderConfigForm(config) {
-            configForm.innerHTML = '';
+            configForm.innerHTML = ''; // Clear existing form
             const mainConfig = config["mod_menu_config@gc.pnl"];
             const pauseMenuConfig = config["pause_menu_config@gc.pnl"];
             const containerConfig = config["container_config@gc.pnl"];
 
+            // Helper to create form group
             const createFormGroup = (label, inputHtml) => {
                 const div = document.createElement('div');
                 div.className = 'flex items-center justify-between gap-4';
                 const labelElem = document.createElement('label');
-                labelElem.className = 'text-color-text text-lg font-medium flex-grow';
+                labelElem.className = 'text-color-text text-lg font-medium flex-grow'; // Updated text color
                 labelElem.textContent = label;
                 div.appendChild(labelElem);
                 div.innerHTML += inputHtml;
                 return div;
             };
 
+            // Helper to create section header
             const createSectionHeader = (title) => {
                 const h3 = document.createElement('h3');
-                h3.className = 'text-xl font-semibold text-color-primary mt-6 mb-4 border-b border-glass-border-color pb-2';
+                h3.className = 'text-xl font-semibold text-color-primary mt-6 mb-4 border-b border-glass-border-color pb-2'; // Updated colors
                 h3.textContent = title;
                 return h3;
             };
 
+            // Render Mod Menu Config
             configForm.appendChild(createSectionHeader('Modules Configuration'));
             for (const key in mainConfig) {
                 if (mainConfig.hasOwnProperty(key)) {
-                    const cleanKey = key.replace(/\|default/g, '');
-                    const displayLabel = sanitizeKeyForDisplay(key);
+                    const cleanKey = key.replace(/\|default/g, ''); // Remove |default for display ID
+                    const displayLabel = sanitizeKeyForDisplay(key); // Use original key for display label
                     let inputHtml = '';
                     let value = mainConfig[key];
 
+                    // Store the original key in a data attribute for form updates
                     const dataOriginalKey = `data-original-key="${key}"`;
 
                     if (cleanKey.startsWith('$hotbar_number')) {
+                        // Hotbar numbers are strings
                         inputHtml = `<input type="text" id="${cleanKey}" ${dataOriginalKey} value="${value}" class="input-field w-auto min-w-[100px] text-center" />`;
                     } else if (cleanKey.endsWith('_item_id') || cleanKey.endsWith('_aux')) {
+                        // Item IDs and AUX values are numbers
                         inputHtml = `<input type="number" id="${cleanKey}" ${dataOriginalKey} value="${value}" class="input-field w-auto min-w-[120px] text-center" />`;
                     } else if (Array.isArray(value) && value.length === 2) {
+                        // Offset arrays [x, y]
                         inputHtml = `
                             <div class="flex gap-2">
                                 <input type="number" id="${cleanKey}_x" ${dataOriginalKey} value="${value[0]}" class="input-field w-24 text-center" placeholder="X" />
@@ -394,6 +627,7 @@
                             </div>
                         `;
                     } else if (typeof value === 'boolean') {
+                        // Boolean toggles
                         inputHtml = `
                             <label class="toggle-switch">
                                 <input type="checkbox" id="${cleanKey}" ${dataOriginalKey} ${value ? 'checked' : ''}>
@@ -401,6 +635,7 @@
                             </label>
                         `;
                     } else if (typeof value === 'number' && key.includes('opacity')) {
+                        // Opacity sliders (float from 0.0 to 1.0)
                         inputHtml = `
                             <div class="flex items-center gap-2 w-full max-w-[200px]">
                                 <input type="range" id="${cleanKey}_range" ${dataOriginalKey} min="0" max="1" step="0.01" value="${value}" class="flex-grow h-2 rounded-lg appearance-none cursor-pointer bg-color-primary/50" />
@@ -408,6 +643,7 @@
                             </div>
                         `;
                     } else if (typeof value === 'string' && key.includes('anchor')) {
+                        // Anchor dropdowns
                         const optionsHtml = anchorOptions.map(opt => `<option value="${opt}" ${value === opt ? 'selected' : ''}>${sanitizeKeyForDisplay(opt)}</option>`).join('');
                         inputHtml = `
                             <select id="${cleanKey}" ${dataOriginalKey} class="select-field w-auto min-w-[150px]">
@@ -427,8 +663,10 @@
                         const optionsHtml = Object.entries(mainhandDurabilityToggleOptions).map(([idx, label]) => `<option value="${idx}" ${value == idx ? 'selected' : ''}>${label}</option>`).join('');
                         inputHtml = `<select id="${cleanKey}" ${dataOriginalKey} class="select-field w-auto min-w-[150px]">${optionsHtml}</select>`;
                     } else if (typeof value === 'number') {
+                        // Generic numbers (like crosshair_default_preset_index)
                         inputHtml = `<input type="number" id="${cleanKey}" ${dataOriginalKey} value="${value}" class="input-field w-auto min-w-[100px] text-center" />`;
                     } else {
+                        // Fallback for any unhandled types (shouldn't happen with this JSON)
                         console.warn("Unhandled type for key:", key, value);
                         inputHtml = `<input type="text" id="${cleanKey}" ${dataOriginalKey} value="${JSON.stringify(value)}" class="input-field" disabled />`;
                     }
@@ -437,6 +675,7 @@
                 }
             }
 
+            // Render Pause Menu Config
             configForm.appendChild(createSectionHeader('Pause Menu Configuration'));
             for (const key in pauseMenuConfig) {
                 if (pauseMenuConfig.hasOwnProperty(key)) {
@@ -452,6 +691,7 @@
                 }
             }
 
+            // Render Container Config
             configForm.appendChild(createSectionHeader('Container Configuration'));
             for (const key in containerConfig) {
                 if (containerConfig.hasOwnProperty(key)) {
@@ -467,66 +707,77 @@
                 }
             }
 
+            // Attach event listeners to update config and editor
             configForm.addEventListener('input', updateConfigFromForm);
-            configForm.addEventListener('change', updateConfigFromForm);
+            configForm.addEventListener('change', updateConfigFromForm); // For checkboxes and selects
 
+            // Trigger animations for form elements after rendering
             const formAnimatedElements = configForm.querySelectorAll('.animate-fade-in-up');
             formAnimatedElements.forEach(element => {
                 element.classList.add('is-visible');
             });
         }
 
+        // --- Update Config from Form Inputs ---
         function updateConfigFromForm(event) {
             const target = event.target;
+            // Retrieve the original key from the data-original-key attribute
             const originalKey = target.dataset.originalKey || target.id;
             const value = target.value;
             const type = target.type;
 
-            let sectionKey = "mod_menu_config@gc.pnl";
+            let sectionKey = "mod_menu_config@gc.pnl"; // Default section
             if (originalKey.includes('pause_menu_config')) sectionKey = "pause_menu_config@gc.pnl";
             else if (originalKey.includes('container_config')) sectionKey = "container_config@gc.pnl";
 
             if (type === 'checkbox') {
                 currentConfig[sectionKey][originalKey] = target.checked;
             } else if (type === 'range' || (type === 'number' && originalKey.includes('opacity'))) {
+                // For opacity, the originalKey from data-attribute already includes |default if present
                 const numValue = parseFloat(value);
                 currentConfig[sectionKey][originalKey] = numValue;
+                // Update both range and number input for consistency
+                // Need to use the cleanKey for ID lookup
                 const cleanKey = originalKey.replace(/\|default/g, '');
                 document.getElementById(`${cleanKey}_range`).value = numValue;
                 document.getElementById(`${cleanKey}_number`).value = numValue;
             } else if (type === 'number' && (originalKey.endsWith('_item_id') || originalKey.endsWith('_aux') || originalKey.endsWith('_preset_index') || originalKey.endsWith('_toggle_index'))) {
                 currentConfig[sectionKey][originalKey] = parseInt(value, 10);
-            } else if (originalKey.endsWith('_offset|default')) {
+            } else if (originalKey.endsWith('_offset|default')) { // Specifically target offset arrays
                 const cleanKey = originalKey.replace(/\|default/g, '');
                 const xInput = document.querySelector(`[data-original-key="${originalKey}"][id="${cleanKey}_x"]`);
                 const yInput = document.querySelector(`[data-original-key="${originalKey}"][id="${cleanKey}_y"]`);
 
                 currentConfig[sectionKey][originalKey] = [parseFloat(xInput.value), parseFloat(yInput.value)];
             } else {
+                // Default for text, select (anchor, hotbar numbers)
                 currentConfig[sectionKey][originalKey] = value;
             }
 
             updateMonacoEditor();
         }
 
+        // --- Initialize Monaco Editor for Raw JSON View ---
         function initializeMonacoEditor() {
             require.config({ paths: { 'vs': 'https://cdn.jsdelivr.net/npm/monaco-editor@0.49.0/min/vs' } });
             require(['vs/editor/editor.main'], () => {
                 monacoEditor = monaco.editor.create(jsonEditorContainer, {
                     value: JSON.stringify(currentConfig, null, 4),
                     language: 'json',
-                    theme: 'vs-dark',
+                    theme: 'vs-dark', // Explicitly set to dark theme
                     readOnly: false,
-                    automaticLayout: false,
+                    automaticLayout: false, // Changed to false to prevent ResizeObserver loop errors
                     minimap: { enabled: false }
                 });
 
+                // Manually trigger layout on window resize
                 window.addEventListener('resize', () => {
                     if (monacoEditor) {
                         monacoEditor.layout();
                     }
                 });
 
+                // Debounce for Monaco to Form updates
                 let monacoUpdateTimeout;
                 monacoEditor.onDidChangeModelContent(() => {
                     clearTimeout(monacoUpdateTimeout);
@@ -534,20 +785,24 @@
                         const jsonText = monacoEditor.getValue();
                         try {
                             const parsedJson = JSON.parse(jsonText);
-                            currentConfig = parsedJson;
-                            renderConfigForm(currentConfig);
+                            currentConfig = parsedJson; // Update the main config object
+                            renderConfigForm(currentConfig); // Re-render the form
                         } catch (e) {
+                            // Only show error if JSON is not empty, to avoid initial parse error on load
                             if (jsonText.trim() !== "") {
+                                // console.error is still useful for debugging
                                 console.error("Invalid JSON format in editor. Form not updated.", e);
                             }
                         }
-                    }, 500);
+                    }, 500); // Debounce for 500ms
                 });
             });
         }
 
+        // --- Update Monaco Editor with current config ---
         function updateMonacoEditor() {
             if (monacoEditor) {
+                // Prevent infinite loop: only update if content is different
                 const currentEditorValue = monacoEditor.getValue();
                 const newEditorValue = JSON.stringify(currentConfig, null, 4);
                 if (currentEditorValue !== newEditorValue) {
@@ -556,6 +811,7 @@
             }
         }
 
+        // --- Download Config File ---
         downloadConfigBtn.addEventListener('click', () => {
             const blob = new Blob([JSON.stringify(currentConfig, null, 4)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
@@ -568,9 +824,11 @@
             URL.revokeObjectURL(url);
         });
 
+        // --- Copy JSON to Clipboard ---
         copyJsonBtn.addEventListener('click', () => {
             if (monacoEditor) {
                 const textToCopy = monacoEditor.getValue();
+                // Use a temporary textarea for copying to clipboard in iframes
                 const tempTextArea = document.createElement('textarea');
                 tempTextArea.value = textToCopy;
                 document.body.appendChild(tempTextArea);
@@ -584,24 +842,24 @@
             }
         });
 
-        window.onload = async () => {
+        // --- Initial Setup ---
+        window.onload = () => {
             try {
-                const response = await fetch('config.json');
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                currentConfig = await response.json();
+                // Remove comments from the JSON string before parsing
+                const cleanedConfigJsonString = initialConfigJsonString.replace(/\/\*[\s\S]*?\*\/|\/\/.*/g, '');
+                currentConfig = JSON.parse(cleanedConfigJsonString);
                 renderConfigForm(currentConfig);
                 initializeMonacoEditor();
 
+                // Apply initial animations to main panels
                 const mainPanels = document.querySelectorAll('.panel.animate-fade-in-up');
                 mainPanels.forEach(panel => {
                     panel.classList.add('is-visible');
                 });
 
             } catch (e) {
-                console.error("Error loading config.json:", e);
-                configForm.innerHTML = `<p class="text-red-500 text-center">Error loading configuration: ${e.message}</p>`;
+                console.error("Error parsing initial config JSON:", e);
+                configForm.innerHTML = `<p class="text-red-500 text-center">Error loading configuration: Invalid JSON.</p>`;
             }
         };
     </script>
