@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -313,7 +314,8 @@
             transform: translateY(0);
         }
 
-        .input-field, .select-field {
+        .input-field,
+        .select-field {
             background: var(--color-dark);
             color: var(--color-text);
             border: 2px solid var(--glass-border-color);
@@ -323,7 +325,8 @@
             transition: border-color 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
         }
 
-        .input-field:focus, .select-field:focus {
+        .input-field:focus,
+        .select-field:focus {
             outline: none;
             border-color: var(--color-primary);
             box-shadow: 0 0 10px rgba(114, 137, 218, 0.5);
@@ -366,15 +369,15 @@
             border-radius: 50%;
         }
 
-        input:checked + .slider {
+        input:checked+.slider {
             background-color: var(--toggle-on-bg);
         }
 
-        input:focus + .slider {
+        input:focus+.slider {
             box-shadow: 0 0 1px var(--toggle-on-bg);
         }
 
-        input:checked + .slider:before {
+        input:checked+.slider:before {
             transform: translateX(26px);
         }
 
@@ -487,11 +490,25 @@
             transform: translateY(0);
         }
 
-        .delay-1 { transition-delay: 0.1s; }
-        .delay-2 { transition-delay: 0.2s; }
-        .delay-3 { transition-delay: 0.3s; }
-        .delay-4 { transition-delay: 0.4s; }
-        .delay-5 { transition-delay: 0.5s; }
+        .delay-1 {
+            transition-delay: 0.1s;
+        }
+
+        .delay-2 {
+            transition-delay: 0.2s;
+        }
+
+        .delay-3 {
+            transition-delay: 0.3s;
+        }
+
+        .delay-4 {
+            transition-delay: 0.4s;
+        }
+
+        .delay-5 {
+            transition-delay: 0.5s;
+        }
 
         .animate-float {
             animation: float 3s ease-in-out infinite;
@@ -510,20 +527,116 @@
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-20px); }
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        /* New styles for version dropdown */
+        .version-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .version-dropdown-btn {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--color-text-alt);
+            border: 1px solid rgba(114, 137, 218, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius-pill);
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .version-dropdown-btn:hover {
+            background: rgba(114, 137, 218, 0.1);
+            color: var(--color-text);
+            transform: translateY(-2px);
+        }
+
+        .version-dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            margin-top: 0.5rem;
+            background: rgba(26, 26, 34, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(114, 137, 218, 0.2);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
+            min-width: 180px;
+            overflow: hidden;
+        }
+
+        .version-dropdown-content.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .version-dropdown-item {
+            display: block;
+            padding: 0.75rem 1rem;
+            color: var(--color-text-alt);
+            text-decoration: none;
+            transition: var(--transition);
+            border-bottom: 1px solid rgba(114, 137, 218, 0.1);
+        }
+
+        .version-dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .version-dropdown-item:hover {
+            background: rgba(114, 137, 218, 0.1);
+            color: var(--color-text);
+        }
+
+        .version-dropdown-item.active {
+            background: var(--color-primary);
+            color: var(--color-text);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         @media (max-width: 1024px) {
             .version-tabs {
                 gap: 0.25rem;
             }
-            
+
             .version-tab {
                 padding: 0.5rem 0.75rem;
                 font-size: 0.8rem;
@@ -534,11 +647,11 @@
             .header-container {
                 padding: 1rem;
             }
-            
+
             .mobile-menu-toggle {
                 display: block;
             }
-            
+
             .version-tabs {
                 position: fixed;
                 top: 0;
@@ -554,12 +667,14 @@
                 z-index: 999;
                 display: none;
                 gap: 1.5rem;
+                border-radius: var(--border-radius-lg);
+                /* Rounded corners for mobile menu */
             }
-            
+
             .version-tabs.active {
                 display: flex;
             }
-            
+
             .version-tab {
                 width: 80%;
                 max-width: 250px;
@@ -567,26 +682,39 @@
                 font-size: 1rem;
                 justify-content: center;
             }
-            
+
             .panel {
                 padding: 1.5rem;
             }
-            
+
             .panel h2 {
                 font-size: 1.5rem;
             }
-            
+
             .json-editor-container {
                 min-height: 400px;
             }
-            
+
             .disclaimer-panel {
                 padding: 1rem;
             }
-            
+
             .btn {
                 padding: 0.8rem 1.5rem;
                 font-size: 0.9rem;
+            }
+
+            /* Hide dropdown on mobile, show tabs instead */
+            .version-dropdown {
+                display: none;
+            }
+        }
+
+        @media (min-width: 769px) {
+
+            /* Hide tabs on desktop, show dropdown instead */
+            .version-tabs {
+                display: none;
             }
         }
 
@@ -594,22 +722,23 @@
             .main-header {
                 width: 95%;
             }
-            
+
             .container {
                 padding: 0 1rem;
             }
-            
+
             .footer-content {
                 flex-direction: column;
                 text-align: center;
             }
-            
+
             .footer-brand {
                 align-items: center;
             }
         }
     </style>
 </head>
+
 <body class="flex flex-col min-h-screen">
     <header class="main-header">
         <div class="container header-container">
@@ -617,19 +746,34 @@
                 <img src="assets/logo.png" alt="Glacier Client Logo" class="brand-logo" loading="lazy" />
                 <span class="brand-name">Glacier</span>
             </div>
-            
+
             <button class="mobile-menu-toggle" id="mobileMenuToggle">
                 <i class="fas fa-bars"></i>
             </button>
-            
+
+            <!-- Version Dropdown for Desktop -->
+            <div class="version-dropdown">
+                <button class="version-dropdown-btn" id="versionDropdownBtn">
+                    <i class="fas fa-code-branch"></i>
+                    <span id="selectedVersion">v6</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="version-dropdown-content" id="versionDropdownContent">
+                    <a href="#" class="version-dropdown-item" data-tab="v4">v4</a>
+                    <a href="#" class="version-dropdown-item" data-tab="v5">v5</a>
+                    <a href="#" class="version-dropdown-item active" data-tab="v6">v6</a>
+                </div>
+            </div>
+
+            <!-- Version Tabs for Mobile -->
             <div class="version-tabs" id="versionTabs">
-                <button class="version-tab active" data-tab="v4">
+                <button class="version-tab" data-tab="v4">
                     <i class="fas fa-code-branch"></i> v4
                 </button>
                 <button class="version-tab" data-tab="v5">
                     <i class="fas fa-code-branch"></i> v5
                 </button>
-                <button class="version-tab" data-tab="v6">
+                <button class="version-tab active" data-tab="v6">
                     <i class="fas fa-code-branch"></i> v6
                 </button>
             </div>
@@ -644,11 +788,15 @@
                     <h3 class="disclaimer-title">Important Disclaimer</h3>
                 </div>
                 <div class="disclaimer-content">
-                    <p>Only edit the anchor and offset if you have knowledge about JSON UI. Replace each value with either true (automatically on) or false (automatically off) to make the config work. Mods are saved when leaving the world or entering another dimension. Only toggle between true/false, change opacity, mod position (read disclaimer), or item id/aux. Changing anything else may break the pack.</p>
+                    <p>Only edit the anchor and offset if you have knowledge about JSON UI. Replace each value with
+                        either true (automatically on) or false (automatically off) to make the config work. Mods are
+                        saved when leaving the world or entering another dimension. Only toggle between true/false,
+                        change opacity, mod position (read disclaimer), or item id/aux. Changing anything else may break
+                        the pack.</p>
                 </div>
             </div>
-            
-            <div id="v4-tab-content" class="tab-content active">
+
+            <div id="v4-tab-content" class="tab-content">
                 <div class="w-full grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div class="panel flex flex-col animate-fade-in-up delay-1">
                         <h2 class="text-2xl font-bold mb-6">
@@ -673,7 +821,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div id="v5-tab-content" class="tab-content">
                 <div class="w-full grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div class="panel flex flex-col animate-fade-in-up delay-1">
@@ -699,8 +847,8 @@
                     </div>
                 </div>
             </div>
-            
-            <div id="v6-tab-content" class="tab-content">
+
+            <div id="v6-tab-content" class="tab-content active">
                 <div class="w-full grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div class="panel flex flex-col animate-fade-in-up delay-1">
                         <h2 class="text-2xl font-bold mb-6">
@@ -728,42 +876,61 @@
         </div>
     </main>
 
-<footer class="main-footer">
-  <div class="container footer-container">
-    <div class="footer-content">
-      <div class="footer-brand">
-        <img src="assets/logo.png" alt="Glacier Client Logo" class="footer-logo" loading="lazy" />
-        <span class="brand-name">Glacier Client</span>
-      </div>
-      <div class="footer-social">
-        <a href="https://dsc.gg/glacierclientmcbe" class="social-link" target="_blank"><i class="fab fa-discord"></i></a>
-        <a href="https://github.com/glacierclientmcbe" class="social-link" target="_blank"><i class="fab fa-github"></i></a>
-        <a href="https://youtube.com/@glacierclient" class="social-link" target="_blank"><i class="fab fa-youtube"></i></a>
-        <a href="https://x.com/glacierclientbe" class="social-link" target="_blank"><i class="fab fa-twitter"></i></a>
-        <a href="https://www.instagram.com/glacierclientmcbe" class="social-link" target="_blank"><i class="fab fa-instagram"></i></a>
-        <a href="https://www.tiktok.com/@glacierclientmcbe" class="social-link" target="_blank"><i class="fab fa-tiktok"></i></a>
-      </div>
-    </div>
-    <p class="copyright-text">
-      © <span id="currentYear"></span> Glacier Client. Not affiliated with Mojang/Microsoft
-    </p>
-  </div>
-</footer>
-    
+    <footer class="main-footer">
+        <div class="container footer-container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <img src="assets/logo.png" alt="Glacier Client Logo" class="footer-logo" loading="lazy" />
+                    <span class="brand-name">Glacier Client</span>
+                </div>
+                <div class="footer-social">
+                    <a href="https://dsc.gg/glacierclientmcbe" class="social-link" target="_blank"><i
+                            class="fab fa-discord"></i></a>
+                    <a href="https://github.com/glacierclientmcbe" class="social-link" target="_blank"><i
+                            class="fab fa-github"></i></a>
+                    <a href="https://youtube.com/@glacierclient" class="social-link" target="_blank"><i
+                            class="fab fa-youtube"></i></a>
+                    <a href="https://x.com/glacierclientbe" class="social-link" target="_blank"><i
+                            class="fab fa-twitter"></i></a>
+                    <a href="https://www.instagram.com/glacierclientmcbe" class="social-link" target="_blank"><i
+                            class="fab fa-instagram"></i></a>
+                    <a href="https://www.tiktok.com/@glacierclientmcbe" class="social-link" target="_blank"><i
+                            class="fab fa-tiktok"></i></a>
+                </div>
+            </div>
+            <p class="copyright-text">
+                © <span id="currentYear"></span> Glacier Client. Not affiliated with Mojang/Microsoft
+            </p>
+        </div>
+    </footer>
+
     <script type="module">
         const mobileMenuToggle = document.getElementById('mobileMenuToggle');
         const versionTabs = document.getElementById('versionTabs');
         const versionTabButtons = document.querySelectorAll('.version-tab');
         const tabContents = document.querySelectorAll('.tab-content');
-        
+
+        const versionDropdownBtn = document.getElementById('versionDropdownBtn');
+        const versionDropdownContent = document.getElementById('versionDropdownContent');
+        const versionDropdownItems = document.querySelectorAll('.version-dropdown-item');
+        const selectedVersionSpan = document.getElementById('selectedVersion');
         mobileMenuToggle.addEventListener('click', () => {
             versionTabs.classList.toggle('active');
-            mobileMenuToggle.innerHTML = versionTabs.classList.contains('active') 
-                ? '<i class="fas fa-times"></i>' 
+            mobileMenuToggle.innerHTML = versionTabs.classList.contains('active')
+                ? '<i class="fas fa-times"></i>'
                 : '<i class="fas fa-bars"></i>';
         });
-        
-        function switchTab(selectedTab) {
+
+        versionDropdownBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            versionDropdownContent.classList.toggle('show');
+        });
+
+        document.addEventListener('click', () => {
+            versionDropdownContent.classList.remove('show');
+        });
+
+        function switchTab(selectedTab) {     
             versionTabButtons.forEach(button => {
                 if (button.dataset.tab === selectedTab) {
                     button.classList.add('active');
@@ -771,7 +938,16 @@
                     button.classList.remove('active');
                 }
             });
-            
+
+            versionDropdownItems.forEach(item => {
+                if (item.dataset.tab === selectedTab) {
+                    item.classList.add('active');
+                    selectedVersionSpan.textContent = selectedTab;
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+
             tabContents.forEach(content => {
                 if (content.id === `${selectedTab}-tab-content`) {
                     content.classList.add('active');
@@ -779,25 +955,44 @@
                     content.classList.remove('active');
                 }
             });
-            
+
             if (!window.loadedConfigs) window.loadedConfigs = {};
-            
+
             if (!window.loadedConfigs[selectedTab]) {
                 loadConfigFromFile(selectedTab);
             }
-            
+
             if (window.innerWidth <= 768) {
                 versionTabs.classList.remove('active');
                 mobileMenuToggle.innerHTML = '<i class="fas fa-bars"></i>';
             }
+
+            versionDropdownContent.classList.remove('show');
         }
-        
+
         versionTabButtons.forEach(button => {
             button.addEventListener('click', () => {
                 switchTab(button.dataset.tab);
             });
         });
-        
+
+        versionDropdownItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                switchTab(item.dataset.tab);
+            });
+        });
+
+        function determineLatestVersion() {
+            const availableVersions = ['v4', 'v5', 'v6'];
+            return availableVersions[availableVersions.length - 1];
+        }
+
+        const latestVersion = determineLatestVersion();
+        document.addEventListener('DOMContentLoaded', () => {
+            switchTab(latestVersion);
+        });
+
         async function loadConfigFromFile(version) {
             try {
                 const response = await fetch(`configs/${version}.json`);
@@ -805,9 +1000,9 @@
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 const configData = await response.json();
-                
+
                 initializeConfigEditor(version, configData);
-                
+
                 window.loadedConfigs[version] = true;
             } catch (error) {
                 console.error(`Error loading ${version} config:`, error);
@@ -817,20 +1012,20 @@
                 }
             }
         }
-        
+
         function initializeConfigEditor(version, configData) {
             const configForm = document.getElementById(`config-form-${version}`);
             const jsonEditorContainer = document.getElementById(`json-editor-container-${version}`);
             const downloadConfigBtn = document.getElementById(`download-config-btn-${version}`);
             const copyJsonBtn = document.getElementById(`copy-json-btn-${version}`);
-            
+
             let currentConfig = configData;
             let monacoEditor;
-            
+
             function sanitizeKeyForDisplay(key) {
                 let displayKey = key.replace(/@gc\.pnl|\$|\|default/g, '')
-                                    .replace(/_/g, ' ')
-                                    .trim();
+                    .replace(/_/g, ' ')
+                    .trim();
                 return displayKey.replace(/\b\w/g, char => char.toUpperCase());
             }
 
@@ -1084,24 +1279,24 @@
             renderConfigForm(currentConfig);
             initializeMonacoEditor();
         }
-        
+
         window.onload = () => {
             document.getElementById('currentYear').textContent = new Date().getFullYear();
-            
+
             window.loadedConfigs = {};
-            
-            loadConfigFromFile('v4');
-            
+            loadConfigFromFile(latestVersion);
+
             const mainPanels = document.querySelectorAll('.panel.animate-fade-in-up');
             mainPanels.forEach(panel => {
                 panel.classList.add('is-visible');
             });
-            
+
             const disclaimerPanel = document.querySelector('.disclaimer-panel');
             disclaimerPanel.classList.add('is-visible');
         };
-        
+
         document.getElementById('currentYear').textContent = new Date().getFullYear();
     </script>
 </body>
+
 </html>
