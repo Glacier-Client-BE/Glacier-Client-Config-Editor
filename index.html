@@ -728,27 +728,28 @@
         </div>
     </main>
 
-    <footer class="main-footer">
-        <div class="container footer-container">
-            <div class="footer-content">
-                <div class="footer-brand">
-                    <img src="assets/logo.png" alt="Glacier Client Logo" class="footer-logo" loading="lazy" />
-                    <span class="brand-name">Glacier Client</span>
-                </div>
-                <div class="footer-social">
-                    <a href="https://dsc.gg/glacierclientmcbe" class="social-link" target="_blank"><i class="fab fa-discord"></i></a>
-                    <a href="https://github.com/glacierclientmcbe" class="social-link" target="_blank"><i class="fab fa-github"></i></a>
-                    <a href="https://youtube.com/@glacierclient" class="social-link" target="_blank"><i class="fab fa-youtube"></i></a>
-                    <a href="https://x.com/glacierclientbe" class="social-link" target="_blank"><i class="fab fa-twitter"></i></a>
-                    <a href="https://www.instagram.com/glacierclientmcbe" class="social-link" target="_blank"><i class="fab fa-instagram"></i></a>
-                </div>
-            </div>
-            <p class="copyright-text">
-                © <span id="currentYear"></span> Glacier Client. Not affiliated with Mojang/Microsoft
-            </p>
-        </div>
-    </footer>
-
+<footer class="main-footer">
+  <div class="container footer-container">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <img src="assets/logo.png" alt="Glacier Client Logo" class="footer-logo" loading="lazy" />
+        <span class="brand-name">Glacier Client</span>
+      </div>
+      <div class="footer-social">
+        <a href="https://dsc.gg/glacierclientmcbe" class="social-link" target="_blank"><i class="fab fa-discord"></i></a>
+        <a href="https://github.com/glacierclientmcbe" class="social-link" target="_blank"><i class="fab fa-github"></i></a>
+        <a href="https://youtube.com/@glacierclient" class="social-link" target="_blank"><i class="fab fa-youtube"></i></a>
+        <a href="https://x.com/glacierclientbe" class="social-link" target="_blank"><i class="fab fa-twitter"></i></a>
+        <a href="https://www.instagram.com/glacierclientmcbe" class="social-link" target="_blank"><i class="fab fa-instagram"></i></a>
+        <a href="https://www.tiktok.com/@glacierclientmcbe" class="social-link" target="_blank"><i class="fab fa-tiktok"></i></a>
+      </div>
+    </div>
+    <p class="copyright-text">
+      © <span id="currentYear"></span> Glacier Client. Not affiliated with Mojang/Microsoft
+    </p>
+  </div>
+</footer>
+    
     <script type="module">
         const mobileMenuToggle = document.getElementById('mobileMenuToggle');
         const versionTabs = document.getElementById('versionTabs');
@@ -1099,6 +1100,8 @@
             const disclaimerPanel = document.querySelector('.disclaimer-panel');
             disclaimerPanel.classList.add('is-visible');
         };
+        
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
     </script>
 </body>
 </html>
