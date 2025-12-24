@@ -1045,122 +1045,129 @@ function initializeConfigEditor(version, configData) {
         return h3;
     };
 
-    function renderConfigForm(config) {
-        configForm.innerHTML = '';
-        const mainConfig = config["mod_menu_config@gc.pnl"];
-        const pauseMenuConfig = config["pause_menu_config@gc.pnl"];
-        const containerConfig = config["container_config@gc.pnl"];
-        const startScreenConfig = mainConfig['start_screen_config@gc.pnl'] || {};
+function renderConfigForm(config) {
+    configForm.innerHTML = '';
+    const mainConfig = config["mod_menu_config@gc.pnl"];
+    const pauseMenuConfig = config["pause_menu_config@gc.pnl"];
+    const containerConfig = config["container_config@gc.pnl"];
+    const startScreenConfig = mainConfig['start_screen_config@gc.pnl'] || {};
 
-        configForm.appendChild(createSectionHeader('Modules Configuration'));
-        for (const key in mainConfig) {
-            if (key === 'start_screen_config@gc.pnl') continue;
-            const cleanKey = key.replace(/\|default/g, '');
-            const displayLabel = sanitizeKeyForDisplay(key);
-            let inputHtml = '';
-            let value = mainConfig[key];
-            const dataOriginalKey = `data-original-key="${key}"`;
+    configForm.appendChild(createSectionHeader('Modules Configuration'));
+    for (const key in mainConfig) {
+        if (key === 'start_screen_config@gc.pnl') continue;
+        const cleanKey = key.replace(/\|default/g, '');
+        const displayLabel = sanitizeKeyForDisplay(key);
+        let inputHtml = '';
+        let value = mainConfig[key];
+        const dataOriginalKey = `data-original-key="${key}"`;
 
-            if (cleanKey.startsWith('$hotbar_number')) {
-                inputHtml = `<input type="text" id="${cleanKey}" ${dataOriginalKey} value="${value}" class="input-field w-auto min-w-[100px] text-center" />`;
-            } else if (cleanKey.endsWith('_item_id') || cleanKey.endsWith('_aux')) {
-                inputHtml = `<input type="number" id="${cleanKey}" ${dataOriginalKey} value="${value}" class="input-field w-auto min-w-[120px] text-center" />`;
-            } else if (Array.isArray(value) && value.length === 2) {
-                inputHtml = `<div class="flex gap-2">
-                    <input type="number" id="${cleanKey}_x" ${dataOriginalKey} value="${value[0]}" class="input-field w-24 text-center" placeholder="X" />
-                    <input type="number" id="${cleanKey}_y" ${dataOriginalKey} value="${value[1]}" class="input-field w-24 text-center" placeholder="Y" />
-                </div>`;
-            } else if (typeof value === 'boolean') {
-                inputHtml = `<label class="toggle-switch"><input type="checkbox" id="${cleanKey}" ${dataOriginalKey} ${value ? 'checked' : ''}><span class="slider"></span></label>`;
-            } else if (typeof value === 'number' && key.includes('opacity')) {
-                inputHtml = `<div class="flex items-center gap-2 w-full max-w-[200px]">
-                    <input type="range" id="${cleanKey}_range" ${dataOriginalKey} min="0" max="1" step="0.01" value="${value}" class="flex-grow h-2 rounded-lg appearance-none cursor-pointer bg-color-primary/50" />
-                    <input type="number" id="${cleanKey}_number" ${dataOriginalKey} min="0" max="1" step="0.01" value="${value}" class="input-field w-20 text-center" />
-                </div>`;
-            } else if (typeof value === 'string' && key.includes('anchor')) {
-                const optionsHtml = anchorOptions.map(opt => `<option value="${opt}" ${value === opt ? 'selected' : ''}>${sanitizeKeyForDisplay(opt)}</option>`).join('');
-                inputHtml = `<select id="${cleanKey}" ${dataOriginalKey} class="select-field w-auto min-w-[150px]">${optionsHtml}</select>`;
-            } else if (['$chat_toggle_index', '$hotbar_toggle_index', '$inventoryhud_toggle_index', '$mainhand_durability_toggle_index'].includes(cleanKey)) {
-                let opts = chatToggleOptions;
-                if (cleanKey === '$hotbar_toggle_index') opts = hotbarToggleOptions;
-                if (cleanKey === '$inventoryhud_toggle_index') opts = inventoryHudToggleOptions;
-                if (cleanKey === '$mainhand_durability_toggle_index') opts = mainhandDurabilityToggleOptions;
-                const optionsHtml = Object.entries(opts).map(([idx, label]) => `<option value="${idx}" ${value == idx ? 'selected' : ''}>${label}</option>`).join('');
-                inputHtml = `<select id="${cleanKey}" ${dataOriginalKey} class="select-field w-auto min-w-[150px]">${optionsHtml}</select>`;
-            } else if (typeof value === 'number') {
-                inputHtml = `<input type="number" id="${cleanKey}" ${dataOriginalKey} value="${value}" class="input-field w-auto min-w-[100px] text-center" />`;
-            }
-            configForm.appendChild(createFormGroup(displayLabel, inputHtml));
+        if (cleanKey.endsWith('_item_id') || cleanKey.endsWith('_id') || cleanKey.endsWith('_aux')) {
+            inputHtml = `<input type="number" id="${cleanKey}" ${dataOriginalKey} value="${value}" class="input-field w-auto min-w-[120px] text-center" />`;
+        } else if (cleanKey.startsWith('$hotbar_number')) {
+            inputHtml = `<input type="text" id="${cleanKey}" ${dataOriginalKey} value="${value}" class="input-field w-auto min-w-[100px] text-center" />`;
+        } else if (Array.isArray(value) && value.length === 2) {
+            inputHtml = `<div class="flex gap-2">
+                <input type="number" id="${cleanKey}_x" ${dataOriginalKey} value="${value[0]}" class="input-field w-24 text-center" placeholder="X" />
+                <input type="number" id="${cleanKey}_y" ${dataOriginalKey} value="${value[1]}" class="input-field w-24 text-center" placeholder="Y" />
+            </div>`;
+        } else if (typeof value === 'boolean') {
+            inputHtml = `<label class="toggle-switch"><input type="checkbox" id="${cleanKey}" ${dataOriginalKey} ${value ? 'checked' : ''}><span class="slider"></span></label>`;
+        } else if (typeof value === 'number' && key.includes('opacity')) {
+            inputHtml = `<div class="flex items-center gap-2 w-full max-w-[200px]">
+                <input type="range" id="${cleanKey}_range" ${dataOriginalKey} min="0" max="1" step="0.01" value="${value}" class="flex-grow h-2 rounded-lg appearance-none cursor-pointer bg-color-primary/50" />
+                <input type="number" id="${cleanKey}_number" ${dataOriginalKey} min="0" max="1" step="0.01" value="${value}" class="input-field w-20 text-center" />
+            </div>`;
+        } else if (typeof value === 'string' && key.includes('anchor')) {
+            const optionsHtml = anchorOptions.map(opt => `<option value="${opt}" ${value === opt ? 'selected' : ''}>${sanitizeKeyForDisplay(opt)}</option>`).join('');
+            inputHtml = `<select id="${cleanKey}" ${dataOriginalKey} class="select-field w-auto min-w-[150px]">${optionsHtml}</select>`;
+        } else if (['$chat_toggle_index', '$hotbar_toggle_index', '$inventoryhud_toggle_index', '$mainhand_durability_toggle_index'].includes(cleanKey)) {
+            let opts = chatToggleOptions;
+            if (cleanKey === '$hotbar_toggle_index') opts = hotbarToggleOptions;
+            if (cleanKey === '$inventoryhud_toggle_index') opts = inventoryHudToggleOptions;
+            if (cleanKey === '$mainhand_durability_toggle_index') opts = mainhandDurabilityToggleOptions;
+            const optionsHtml = Object.entries(opts).map(([idx, label]) => `<option value="${idx}" ${value == idx ? 'selected' : ''}>${label}</option>`).join('');
+            inputHtml = `<select id="${cleanKey}" ${dataOriginalKey} class="select-field w-auto min-w-[150px]">${optionsHtml}</select>`;
+        } else if (typeof value === 'number') {
+            inputHtml = `<input type="number" id="${cleanKey}" ${dataOriginalKey} value="${value}" class="input-field w-auto min-w-[100px] text-center" />`;
         }
-
-        configForm.appendChild(createSectionHeader('Start Screen Configuration'));
-        for (const key in startScreenConfig) {
-            const displayLabel = sanitizeKeyForDisplay(key);
-            const value = startScreenConfig[key];
-            const dataOriginalKey = `data-original-key="start_screen_config@gc.pnl.${key}"`;
-            let inputHtml = (typeof value === 'number') 
-                ? `<input type="number" id="start_screen_${key}" ${dataOriginalKey} value="${value}" class="input-field w-auto min-w-[120px] text-center" />`
-                : `<label class="toggle-switch"><input type="checkbox" id="start_screen_${key}" ${dataOriginalKey} ${value ? 'checked' : ''}><span class="slider"></span></label>`;
-            configForm.appendChild(createFormGroup(displayLabel, inputHtml));
-        }
-
-        configForm.appendChild(createSectionHeader('Pause Menu Configuration'));
-        for (const key in pauseMenuConfig) {
-            const displayLabel = sanitizeKeyForDisplay(key);
-            const value = pauseMenuConfig[key];
-            const inputHtml = `<label class="toggle-switch"><input type="checkbox" id="${key}" data-original-key="${key}" ${value ? 'checked' : ''}><span class="slider"></span></label>`;
-            configForm.appendChild(createFormGroup(displayLabel, inputHtml));
-        }
-
-        configForm.appendChild(createSectionHeader('Container Configuration'));
-        for (const key in containerConfig) {
-            const displayLabel = sanitizeKeyForDisplay(key);
-            const value = containerConfig[key];
-            const dataOriginalKey = `data-original-key="${key}"`;
-            let inputHtml = (key.endsWith('_item_id') || key.endsWith('_aux'))
-                ? `<input type="number" id="${key}" ${dataOriginalKey} value="${value}" class="input-field w-auto min-w-[120px] text-center" />`
-                : `<label class="toggle-switch"><input type="checkbox" id="${key}" ${dataOriginalKey} ${value ? 'checked' : ''}><span class="slider"></span></label>`;
-            configForm.appendChild(createFormGroup(displayLabel, inputHtml));
-        }
+        configForm.appendChild(createFormGroup(displayLabel, inputHtml));
     }
 
-    function updateConfigFromForm(event) {
-        const target = event.target;
-        const originalKey = target.dataset.originalKey || target.id;
-        const type = target.type;
-        let value = type === 'checkbox' ? target.checked : target.value;
-
-        if (originalKey.includes('start_screen_config@gc.pnl.')) {
-            const key = originalKey.split('.')[1];
-            currentConfig["mod_menu_config@gc.pnl"]["start_screen_config@gc.pnl"][key] = (type === 'number') ? parseInt(value, 10) : value;
+    configForm.appendChild(createSectionHeader('Start Screen Configuration'));
+    for (const key in startScreenConfig) {
+        const displayLabel = sanitizeKeyForDisplay(key);
+        const value = startScreenConfig[key];
+        const dataOriginalKey = `data-original-key="start_screen_config@gc.pnl.${key}"`;
+        
+        let inputHtml = '';
+        if (key.endsWith('_item_id') || key.endsWith('_id') || key.endsWith('_aux')) {
+            inputHtml = `<input type="number" id="start_screen_${key}" ${dataOriginalKey} value="${value}" class="input-field w-auto min-w-[120px] text-center" />`;
         } else {
-            let sectionKey = "mod_menu_config@gc.pnl";
-            if (originalKey.includes('pause_menu_config')) sectionKey = "pause_menu_config@gc.pnl";
-            else if (originalKey.includes('container_config')) sectionKey = "container_config@gc.pnl";
-
-            if (type === 'checkbox') {
-                currentConfig[sectionKey][originalKey] = target.checked;
-            } else if (type === 'range' || (type === 'number' && originalKey.includes('opacity'))) {
-                const numValue = parseFloat(value);
-                currentConfig[sectionKey][originalKey] = numValue;
-                const cleanKey = originalKey.replace(/\|default/g, '');
-                const rangeInput = document.getElementById(`${cleanKey}_range`);
-                const numInput = document.getElementById(`${cleanKey}_number`);
-                if (rangeInput) rangeInput.value = numValue;
-                if (numInput) numInput.value = numValue;
-            } else if (type === 'number' || target.tagName === 'SELECT') {
-                currentConfig[sectionKey][originalKey] = (originalKey.includes('anchor')) ? value : parseInt(value, 10);
-            } else if (originalKey.endsWith('_offset|default')) {
-                const cleanKey = originalKey.replace(/\|default/g, '');
-                const xInput = document.querySelector(`[data-original-key="${originalKey}"][id="${cleanKey}_x"]`);
-                const yInput = document.querySelector(`[data-original-key="${originalKey}"][id="${cleanKey}_y"]`);
-                currentConfig[sectionKey][originalKey] = [parseFloat(xInput.value), parseFloat(yInput.value)];
-            } else {
-                currentConfig[sectionKey][originalKey] = value;
-            }
+            inputHtml = `<label class="toggle-switch"><input type="checkbox" id="start_screen_${key}" ${dataOriginalKey} ${value ? 'checked' : ''}><span class="slider"></span></label>`;
         }
-        updateMonacoEditor();
+        configForm.appendChild(createFormGroup(displayLabel, inputHtml));
     }
+
+    configForm.appendChild(createSectionHeader('Pause Menu Configuration'));
+    for (const key in pauseMenuConfig) {
+        const displayLabel = sanitizeKeyForDisplay(key);
+        const value = pauseMenuConfig[key];
+        const inputHtml = `<label class="toggle-switch"><input type="checkbox" id="${key}" data-original-key="${key}" ${value ? 'checked' : ''}><span class="slider"></span></label>`;
+        configForm.appendChild(createFormGroup(displayLabel, inputHtml));
+    }
+
+    configForm.appendChild(createSectionHeader('Container Configuration'));
+    for (const key in containerConfig) {
+        const displayLabel = sanitizeKeyForDisplay(key);
+        const value = containerConfig[key];
+        const dataOriginalKey = `data-original-key="${key}"`;
+        let inputHtml = (key.endsWith('_item_id') || key.endsWith('_id') || key.endsWith('_aux'))
+            ? `<input type="number" id="${key}" ${dataOriginalKey} value="${value}" class="input-field w-auto min-w-[120px] text-center" />`
+            : `<label class="toggle-switch"><input type="checkbox" id="${key}" ${dataOriginalKey} ${value ? 'checked' : ''}><span class="slider"></span></label>`;
+        configForm.appendChild(createFormGroup(displayLabel, inputHtml));
+    }
+}
+
+function updateConfigFromForm(event) {
+    const target = event.target;
+    const originalKey = target.dataset.originalKey || target.id;
+    const type = target.type;
+    let value = type === 'checkbox' ? target.checked : target.value;
+
+    if (originalKey.includes('start_screen_config@gc.pnl.')) {
+        const key = originalKey.split('.')[1];
+        const isNumeric = key.endsWith('_item_id') || key.endsWith('_id') || key.endsWith('_aux');
+        currentConfig["mod_menu_config@gc.pnl"]["start_screen_config@gc.pnl"][key] = isNumeric ? parseInt(value, 10) : value;
+    } else {
+        let sectionKey = "mod_menu_config@gc.pnl";
+        if (originalKey.includes('pause_menu_config')) sectionKey = "pause_menu_config@gc.pnl";
+        else if (originalKey.includes('container_config')) sectionKey = "container_config@gc.pnl";
+
+        if (type === 'checkbox') {
+            currentConfig[sectionKey][originalKey] = target.checked;
+        } else if (type === 'range' || (type === 'number' && originalKey.includes('opacity'))) {
+            const numValue = parseFloat(value);
+            currentConfig[sectionKey][originalKey] = numValue;
+            const cleanKey = originalKey.replace(/\|default/g, '');
+            const rangeInput = document.getElementById(`${cleanKey}_range`);
+            const numInput = document.getElementById(`${cleanKey}_number`);
+            if (rangeInput) rangeInput.value = numValue;
+            if (numInput) numInput.value = numValue;
+        } else if (type === 'number' || originalKey.endsWith('_item_id') || originalKey.endsWith('_id') || originalKey.endsWith('_aux')) {
+            currentConfig[sectionKey][originalKey] = parseInt(value, 10);
+        } else if (target.tagName === 'SELECT') {
+            currentConfig[sectionKey][originalKey] = originalKey.includes('anchor') ? value : parseInt(value, 10);
+        } else if (originalKey.endsWith('_offset|default')) {
+            const cleanKey = originalKey.replace(/\|default/g, '');
+            const xInput = document.querySelector(`[data-original-key="${originalKey}"][id="${cleanKey}_x"]`);
+            const yInput = document.querySelector(`[data-original-key="${originalKey}"][id="${cleanKey}_y"]`);
+            currentConfig[sectionKey][originalKey] = [parseFloat(xInput.value), parseFloat(yInput.value)];
+        } else {
+            currentConfig[sectionKey][originalKey] = value;
+        }
+    }
+    updateMonacoEditor();
+}
 
     configForm.addEventListener('input', updateConfigFromForm);
 
