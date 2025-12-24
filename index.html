@@ -1144,29 +1144,60 @@
                     }
                 }
 
-                configForm.appendChild(createSectionHeader('Container Configuration'));
-                for (const key in containerConfig) {
-                    if (containerConfig.hasOwnProperty(key)) {
-                        const displayLabel = sanitizeKeyForDisplay(key);
-                        const value = containerConfig[key];
-                        const inputHtml = `
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="${key}" data-original-key="${key}" ${value ? 'checked' : ''}>
-                                <span class="slider"></span>
-                            </label>
-                        `;
-                        configForm.appendChild(createFormGroup(displayLabel, inputHtml));
-                    }
-                }
+configForm.appendChild(createSectionHeader('Start Screen Configuration'));
+const startScreenConfig = mainConfig['start_screen_config@gc.pnl'] || {};
+for (const key in startScreenConfig) {
+    if (startScreenConfig.hasOwnProperty(key)) {
+        const displayLabel = sanitizeKeyForDisplay(key);
+        const value = startScreenConfig[key];
+        const dataOriginalKey = `data-original-key="start_screen_config@gc.pnl.${key}"`;
+        
+        let inputHtml = '';
+        if (typeof value === 'number') {
+            inputHtml = `<input type="number" id="start_screen_${key}" ${dataOriginalKey} value="${value}" class="input-field w-auto min-w-[120px] text-center" />`;
+        } else {
+            inputHtml = `
+                <label class="toggle-switch">
+                    <input type="checkbox" id="start_screen_${key}" ${dataOriginalKey} ${value ? 'checked' : ''}>
+                    <span class="slider"></span>
+                </label>
+            `;
+        }
+        configForm.appendChild(createFormGroup(displayLabel, inputHtml));
+    }
+}
 
-                configForm.addEventListener('input', updateConfigFromForm);
-                configForm.addEventListener('change', updateConfigFromForm);
+configForm.appendChild(createSectionHeader('Container Configuration'));
+for (const key in containerConfig) {
+    if (containerConfig.hasOwnProperty(key)) {
+        const displayLabel = sanitizeKeyForDisplay(key);
+        const value = containerConfig[key];
+        const cleanKey = key; 
+        const dataOriginalKey = `data-original-key="${key}"`;
+        let inputHtml = '';
 
-                const formAnimatedElements = configForm.querySelectorAll('.animate-fade-in-up');
+        if (cleanKey.endsWith('_item_id') || cleanKey.endsWith('_aux')) {
+            inputHtml = `<input type="number" id="${cleanKey}" ${dataOriginalKey} value="${value}" class="input-field w-auto min-w-[120px] text-center" />`;
+        } else {
+            inputHtml = `
+                <label class="toggle-switch">
+                    <input type="checkbox" id="${key}" data-original-key="${key}" ${value ? 'checked' : ''}>
+                    <span class="slider"></span>
+                </label>
+            `;
+        }
+
+        configForm.appendChild(createFormGroup(displayLabel, inputHtml));
+    }
+}
+
+            configForm.addEventListener('input', updateConfigFromForm);
+            configForm.addEventListener('change', updateConfigFromForm);
+
+            const formAnimatedElements = configForm.querySelectorAll('.animate-fade-in-up');
                 formAnimatedElements.forEach(element => {
-                    element.classList.add('is-visible');
-                });
-            }
+                element.classList.add('is-visible');
+            });
 
             function updateConfigFromForm(event) {
                 const target = event.target;
