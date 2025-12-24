@@ -1,7 +1,5 @@
 {
-/*DISCLAIMER: Only edit the anchor and offset if you have knowledge about JSON UI. Replace each value with either true (automatically on) or false (automatically off) to make the config work. Mods are saved when leaving the world or entering another dimension. Only toggle between true/false, change opacity, mod position (read disclaimer), or item id/aux. Changing anything else may break the pack.*/
     "mod_menu_config@gc.pnl": {
-        /* Modules Config */
         "$armorhud": false,
         "$armorhud_anchor|default": "right_middle",
         "$armorhud_offset|default": [ -5, -10 ],
@@ -199,7 +197,6 @@
         "$walkdistance_offset|default": [ -1, -55 ],
         "$walkdistance_opacity|default": 0.7,
 
-        /* Elements Config */
         "$hide_item_name_text": false,
         "$hide_jukebox_text": false,
         "$hide_tip_text": false,
@@ -216,7 +213,6 @@
         "$hide_scoreboard": false,
         "$hide_scoreboard_numbers": false,
         
-        /* Editor Config */
         "$hotbar": true,
         "$hide_hotbar_item_count": false,
         "$hide_inventory_button": false,
@@ -265,13 +261,6 @@
         "$hide_hover_item_aux_id": false,
         "$hide_suspicious_stew_info": false,
         
-/*DISCLAIMER: Do not touch these Item IDs or the pack can break, this is only for the Devs to edit. If you edit them and complain then you'll be talking to a wall. */
-       /* Furnace, Smoker, Blast Furnace */
-/* DISCLAIMER: Do not touch these Item IDs or the pack can break.
-   This is only for the Devs to edit. If you edit them and complain
-   then you'll be talking to a wall. */
-
-        /* Furnace, Smoker, Blast Furnace */
         "$furnace_food_tab_item_id": 304,
         "$furnace_ore_tab_item_id": 56,
         "$furnace_block_tab_item_id": 1,
@@ -363,7 +352,6 @@
         "$bamboo_item_id": -163,
         "$scaffolding_item_id": -165,
 
-        /* Anvil */
         "$wooden_tools_material_item_id": 5,
         "$shields_item_id": 387,
         "$shield_material_item_id": 5,
@@ -396,7 +384,6 @@
         "$wolf_armor_item_id": 747,
         "$wolf_armor_material_item_id": 746,
 
-        /* Smithing Armor */
         "$leather_helmet_item_id": 367,
         "$leather_chestplate_item_id": 368,
         "$leather_leggings_item_id": 369,
@@ -427,7 +414,6 @@
         "$netherite_leggings_item_id": 654,
         "$netherite_boots_item_id": 655,
 
-        /* Smithing Templates and Trims */
         "$netherite_upgrade_item_id": 723,
         "$sentry_trim_item_id": 724,
         "$vex_trim_item_id": 730,
@@ -448,7 +434,6 @@
         "$flow_trim_item_id": 740,
         "$bolt_trim_item_id": 741,
 
-        /* Materials */
         "$amethyst_shard_item_id": 666,
         "$copper_ingot_item_id": 544,
         "$diamond_item_id": 335,
@@ -461,13 +446,10 @@
         "$redstone_dust_item_id": 405,
         "$resin_brick_item_id": 752,
 
-        /* Enchanting */
         "$enchanted_book_item_id": 560,
 
-        /* Brewing */
         "$slime_block_item_id": 165,
 
-        /* Suspicious Stew */
         "$suspicious_stew_id": 631
     },
     "namespace": "gc"
