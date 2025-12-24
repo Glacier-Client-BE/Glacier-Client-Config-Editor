@@ -1045,6 +1045,7 @@
                 const mainConfig = config["mod_menu_config@gc.pnl"];
                 const pauseMenuConfig = config["pause_menu_config@gc.pnl"];
                 const containerConfig = config["container_config@gc.pnl"];
+                const startScreenConfig = config["start_screen_config@gc.pnl"] || {}; // Add this
 
                 const createFormGroup = (label, inputHtml) => {
                     const div = document.createElement('div');
@@ -1202,13 +1203,25 @@ for (const key in containerConfig) {
             function updateConfigFromForm(event) {
                 const target = event.target;
                 const originalKey = target.dataset.originalKey || target.id;
-                const value = target.value;
-                const type = target.type;
+                let value = target.type === 'checkbox' ? target.checked : target.value;
 
+                if (originalKey.includes('.')) {
+                    // Handle nested paths like "start_screen_config@gc.pnl.$ui_switcher_toggle_index"
+                    const parts = originalKey.split('.');
+                    const section = parts[0];
+                    const key = parts[1];
+        
+                    if (target.type === 'number') {
+                        currentConfig[section][key] = parseInt(value, 10);
+                    } else {
+                        currentConfig[section][key] = value;
+                    }
+                } else {
+                    // Handle standard flat keys
                 let sectionKey = "mod_menu_config@gc.pnl";
                 if (originalKey.includes('pause_menu_config')) sectionKey = "pause_menu_config@gc.pnl";
                 else if (originalKey.includes('container_config')) sectionKey = "container_config@gc.pnl";
-
+        
                 if (type === 'checkbox') {
                     currentConfig[sectionKey][originalKey] = target.checked;
                 } else if (type === 'range' || (type === 'number' && originalKey.includes('opacity'))) {
