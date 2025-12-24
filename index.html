@@ -1044,7 +1044,6 @@ function initializeConfigEditor(version, configData) {
         h3.textContent = title;
         return h3;
     };
-
 function renderConfigForm(config) {
     configForm.innerHTML = '';
     const mainConfig = config["mod_menu_config@gc.pnl"];
@@ -1100,7 +1099,9 @@ function renderConfigForm(config) {
         const dataOriginalKey = `data-original-key="start_screen_config@gc.pnl.${key}"`;
         
         let inputHtml = '';
-        if (key.endsWith('_item_id') || key.endsWith('_id') || key.endsWith('_aux')) {
+        if (key === '$ui_switcher_toggle_index') {
+            inputHtml = `<label class="toggle-switch"><input type="checkbox" id="start_screen_${key}" ${dataOriginalKey} ${value === 1 ? 'checked' : ''}><span class="slider"></span></label>`;
+        } else if (key.endsWith('_item_id') || key.endsWith('_id') || key.endsWith('_aux')) {
             inputHtml = `<input type="number" id="start_screen_${key}" ${dataOriginalKey} value="${value}" class="input-field w-auto min-w-[120px] text-center" />`;
         } else {
             inputHtml = `<label class="toggle-switch"><input type="checkbox" id="start_screen_${key}" ${dataOriginalKey} ${value ? 'checked' : ''}><span class="slider"></span></label>`;
@@ -1136,8 +1137,12 @@ function updateConfigFromForm(event) {
 
     if (originalKey.includes('start_screen_config@gc.pnl.')) {
         const key = originalKey.split('.')[1];
-        const isNumeric = key.endsWith('_item_id') || key.endsWith('_id') || key.endsWith('_aux');
-        currentConfig["mod_menu_config@gc.pnl"]["start_screen_config@gc.pnl"][key] = isNumeric ? parseInt(value, 10) : value;
+        if (key === '$ui_switcher_toggle_index') {
+            currentConfig["mod_menu_config@gc.pnl"]["start_screen_config@gc.pnl"][key] = value ? 1 : 0;
+        } else {
+            const isNumeric = key.endsWith('_item_id') || key.endsWith('_id') || key.endsWith('_aux');
+            currentConfig["mod_menu_config@gc.pnl"]["start_screen_config@gc.pnl"][key] = isNumeric ? parseInt(value, 10) : value;
+        }
     } else {
         let sectionKey = "mod_menu_config@gc.pnl";
         if (originalKey.includes('pause_menu_config')) sectionKey = "pause_menu_config@gc.pnl";
