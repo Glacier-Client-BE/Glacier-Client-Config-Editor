@@ -1,0 +1,198 @@
+{
+/*DISCLAIMER: Only edit the anchor and offset if you have knowledge about JSON UI. Replace each value with either true (automatically on) or false (automatically off) to make the config work. Mods are saved when leaving the world or entering another dimension. Only toggle between true/false, change opacity, mod position (read disclaimer), or item id/aux. Changing anything else may break the pack.*/
+    "mod_menu_config@gc.pnl": {
+        /* Modules Config */
+        /*The opacity value can range from 0.0 to 1.0, allowing you to choose any value according to your preference.*/
+        "$armorhud": false,
+        "$armorhud_anchor|default": "bottom_right",
+        "$armorhud_offset|default": [ 0, -108 ],
+        
+        /* Chat */
+        "$chat": true,
+        /*Set the $chat variable to true or the chat won't show.*/
+        "$chat_opacity|default": 0.7,
+        "$chat_toggle_index": 0, /* Bottom Chat is 0 and Top Chat is 1 */
+
+        "$coordinates": true,
+        "$coordinates_opacity|default": 0.7,
+        /*Set the $coordinates variable to true or the coordinates won't show.*/
+        "$hide_chunkcoordinates": true,
+        "$hide_nethercoordinates": true,
+        "$hide_nethercoordinates_in_overworld": true,
+        "$hide_vanillacordinates": false,
+        
+        "$creeperrange": false,
+        "$creeperrange_anchor|default": "bottom_right",
+        "$creeperrange_offset|default": [ -1, -75 ],
+        "$creeperrange_opacity|default": 0.7,
+
+        "$daycounter": false,
+        "$daycounter_anchor|default": "bottom_left",
+        "$daycounter_offset|default": [ 1, -20 ],
+        "$daycounter_opacity|default": 0.7,
+
+        "$dayevent": false,
+        "$dayevent_anchor|default": "bottom_left",
+        "$dayevent_offset|default": [ 62, -20 ],
+        "$dayevent_opacity|default": 0.7,
+
+        "$directionhud": false,
+        "$directionhud_rotation": false,
+        "$directionhud_anchor|default": "top_middle",
+        "$directionhud_offset|default": [ 0, 20 ],
+        "$directionhud_opacity|default": 0.7,
+        
+        "$expcalculator": false,
+        "$expcalculator_anchor|default": "bottom_left",
+        "$expcalculator_offset|default": [ 1, -1 ],
+        "$expcalculator_opacity|default": 0.7,
+        
+        "$forcecoords": false,
+        "$forcecoords_anchor|default": "top_right",
+        "$forcecoords_offset|default": [ -1, 1 ],
+        "$forcecoords_opacity|default": 0.7,
+
+        "$fpscounter": false,
+        "$fpscounter_anchor|default": "bottom_left",
+        "$fpscounter_offset|default": [ 1, -39 ],
+        "$fpscounter_opacity|default": 0.7,
+        
+        "$hudpopup": true,
+
+        "$inventoryhud": false,
+        "$inventoryhud_anchor|default": "bottom_right",
+        "$inventoryhud_offset|default" : [ 0, -1 ],
+        "$inventoryhud_opacity|default": 0.7,
+        "$hide_inventoryhud_durability": false,
+        "$hide_inventoryhud_stack": false,
+        
+        /* Item Counter */
+        /*Set the $itemcounters variable to true or the counters won't show.*/
+        "$itemcounters": false,
+        /*Update the item id whenever there are changes during updates or when using an addon. Remember to revert the changes once you exit the addon world and return to the normal gameplay.*/
+        "$potioncounter": true,
+        "$lingering_potion_counter_item_id": 595,
+        "$potion_counter_item_id": 453,
+        "$splash_potion_counter_item_id": 594,
+               
+        "$totemcounter": true,
+        "$totem_counter_item_id": 601,
+        
+        "$arrowcounter": true,
+        "$arrow_counter_item_id": 325,
+        
+        "$lowdurability": false,
+        "$lowdurability_anchor|default": "bottom_right",
+        "$lowdurability_offset|default": [ -1, -94 ],
+        "$lowdurability_opacity|default": 0.7,
+
+        "$mainhandhud": false,
+        "$hide_mainhandhud_durability": false,
+        "$hide_mainhandhud_stack": false,
+        "$mainhandhud_slot_opacity": 1.0,
+
+        "$offhandhud": false,
+        "$offhandhud_anchor|default": "bottom_middle",
+        "$offhandhud_offset|default":[ -100, -1 ],
+
+        "$playerlist": false,
+
+        "$slotcounter": false,
+        "$slotcounter_anchor|default": "bottom_left",
+        "$slotcounter_offset|default" : [ 62, -39 ],
+        "$slotcounter_opacity|default": 0.7,
+
+        "$speedometer": false,
+        "$speedometer_anchor|default": "top_middle",
+        "$speedometer_offset|default": [ 0, 39 ],
+        "$speedometer_opacity|default": 0.7,
+
+        "$statushud": false,
+        "$statushud_anchor|default": "bottom_left",
+        "$statushud_offset|default": [ 1, -58 ],
+        "$statushud_opacity|default": 0.7,
+
+        "$targethud": false,
+        "$targethud_anchor|default": "top_right",
+        "$targethud_offset|default": [ -1, 47 ], 
+        "$targethud_opacity|default": 0.7,
+
+        "$timerhud": false,
+        "$timerhud_anchor|default": "bottom_left",
+        "$timerhud_offset|default": [ 62, -58 ],
+        "$timerhud_opacity|default": 0.7,
+        
+        "$walkdistance": false,
+        "$walkdistance_anchor|default": "bottom_right",
+        "$walkdistance_offset|default": [ -1, -56 ],
+        "$walkdistance_opacity|default": 0.7,
+        
+        
+        /* Elements Config */
+        /* HUD Factories */
+        "$hide_item_name_text": false,
+        "$hide_jukebox_text": false,
+        "$hide_tip_text": false,
+        "$hide_actionbar_text": false,
+        
+        /* HUD Elements*/
+        "$show_safezone": false,
+        
+        /* Clock & Compass */
+        "$show_clock_compass": false,
+        /*Update the item aux whenever there are changes during updates or when using an addon. Remember to revert the changes once you exit the addon world and return to the normal gameplay.*/
+        "$compass_aux": 22609920,  
+        "$clock_aux": 22740992,
+        "$recovery_compass_aux": 44695552,
+        
+        /* Bossbar */
+        "$hide_bossname": false,
+        "$hide_bossbar": false,
+        "$show_boss_health": false,
+        
+        /* Scoreboard */
+        "$hide_scoreboard": false,
+        "$hide_scoreboard_numbers": false,
+        
+        /* Hotbar Bar */
+        "$hide_hotbar_item_count": false,
+        "$hide_creative_xp_bar": false,
+        "$show_xp_percentage": false,       
+        /* Hotbar Numbers Config */
+        "$show_hotbar_numbers": false,
+        /*Customize the numbers using symbols like ∆, •, ¶, etc., or letters like A, X, Z, etc.*/
+        "$hotbar_number1": "1",
+        "$hotbar_number2": "2",
+        "$hotbar_number3": "3",
+        "$hotbar_number4": "4",
+        "$hotbar_number5": "5",
+        "$hotbar_number6": "6",
+        "$hotbar_number7": "7",
+        "$hotbar_number8": "8",
+        "$hotbar_number9": "9",
+        
+        /* Crosshair Config */
+        /*To save a crosshair, you need to remember its corresponding number and then place that number next to `$crosshair_default_preset_index`.*/
+        "$crosshair_default_preset_index": 1,
+        "$hide_crosshair": false,
+        "$rgb_crosshair": false,
+        
+        /* Saturation Config */
+        "$brighter": false,
+        "$aqua_saturation": false,
+        "$red_saturation": false,
+        "$yellow_saturation": false,
+        "$blue_saturation": false,
+        "$nightshift": false
+    },
+    "pause_menu_config@gc.pnl": {
+        "$glacier_playername": false,
+        "$glacier_worldname": false
+    },
+    "container_config@gc.pnl": {
+        "$force_autoplace_mode": false,
+        "$hide_hover_item_id": false,
+        "$hide_hover_item_aux_id": false        
+    },
+    "namespace": "gc"
+}
