@@ -905,441 +905,320 @@
     </footer>
 
     <script type="module">
-        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
-        const versionTabs = document.getElementById('versionTabs');
-        const versionTabButtons = document.querySelectorAll('.version-tab');
-        const tabContents = document.querySelectorAll('.tab-content');
+const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+const versionTabs = document.getElementById('versionTabs');
+const versionTabButtons = document.querySelectorAll('.version-tab');
+const tabContents = document.querySelectorAll('.tab-content');
 
-        const versionDropdownBtn = document.getElementById('versionDropdownBtn');
-        const versionDropdownContent = document.getElementById('versionDropdownContent');
-        const versionDropdownItems = document.querySelectorAll('.version-dropdown-item');
-        const selectedVersionSpan = document.getElementById('selectedVersion');
-        mobileMenuToggle.addEventListener('click', () => {
-            versionTabs.classList.toggle('active');
-            mobileMenuToggle.innerHTML = versionTabs.classList.contains('active')
-                ? '<i class="fas fa-times"></i>'
-                : '<i class="fas fa-bars"></i>';
-        });
+const versionDropdownBtn = document.getElementById('versionDropdownBtn');
+const versionDropdownContent = document.getElementById('versionDropdownContent');
+const versionDropdownItems = document.querySelectorAll('.version-dropdown-item');
+const selectedVersionSpan = document.getElementById('selectedVersion');
 
-        versionDropdownBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            versionDropdownContent.classList.toggle('show');
-        });
+mobileMenuToggle.addEventListener('click', () => {
+    versionTabs.classList.toggle('active');
+    mobileMenuToggle.innerHTML = versionTabs.classList.contains('active')
+        ? '<i class="fas fa-times"></i>'
+        : '<i class="fas fa-bars"></i>';
+});
 
-        document.addEventListener('click', () => {
-            versionDropdownContent.classList.remove('show');
-        });
+versionDropdownBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    versionDropdownContent.classList.toggle('show');
+});
 
-        function switchTab(selectedTab) {     
-            versionTabButtons.forEach(button => {
-                if (button.dataset.tab === selectedTab) {
-                    button.classList.add('active');
-                } else {
-                    button.classList.remove('active');
-                }
-            });
+document.addEventListener('click', () => {
+    versionDropdownContent.classList.remove('show');
+});
 
-            versionDropdownItems.forEach(item => {
-                if (item.dataset.tab === selectedTab) {
-                    item.classList.add('active');
-                    selectedVersionSpan.textContent = selectedTab;
-                } else {
-                    item.classList.remove('active');
-                }
-            });
+function switchTab(selectedTab) {     
+    versionTabButtons.forEach(button => {
+        button.classList.toggle('active', button.dataset.tab === selectedTab);
+    });
 
-            tabContents.forEach(content => {
-                if (content.id === `${selectedTab}-tab-content`) {
-                    content.classList.add('active');
-                } else {
-                    content.classList.remove('active');
-                }
-            });
-
-            if (!window.loadedConfigs) window.loadedConfigs = {};
-
-            if (!window.loadedConfigs[selectedTab]) {
-                loadConfigFromFile(selectedTab);
-            }
-
-            if (window.innerWidth <= 768) {
-                versionTabs.classList.remove('active');
-                mobileMenuToggle.innerHTML = '<i class="fas fa-bars"></i>';
-            }
-
-            versionDropdownContent.classList.remove('show');
-        }
-
-        versionTabButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                switchTab(button.dataset.tab);
-            });
-        });
-
-        versionDropdownItems.forEach(item => {
-            item.addEventListener('click', (e) => {
-                e.preventDefault();
-                switchTab(item.dataset.tab);
-            });
-        });
-
-        function determineLatestVersion() {
-            const availableVersions = ['v4', 'v5', 'v6'];
-            return availableVersions[availableVersions.length - 1];
-        }
-
-        const latestVersion = determineLatestVersion();
-        document.addEventListener('DOMContentLoaded', () => {
-            switchTab(latestVersion);
-        });
-
-        async function loadConfigFromFile(version) {
-            try {
-                const response = await fetch(`configs/${version}.json`);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                const configData = await response.json();
-
-                initializeConfigEditor(version, configData);
-
-                window.loadedConfigs[version] = true;
-            } catch (error) {
-                console.error(`Error loading ${version} config:`, error);
-                const configForm = document.getElementById(`config-form-${version}`);
-                if (configForm) {
-                    configForm.innerHTML = `<p class="text-color-text-alt text-center">Error loading configuration for ${version.toUpperCase()}. Please try again later.</p>`;
-                }
-            }
-        }
-
-        function initializeConfigEditor(version, configData) {
-            const configForm = document.getElementById(`config-form-${version}`);
-            const jsonEditorContainer = document.getElementById(`json-editor-container-${version}`);
-            const downloadConfigBtn = document.getElementById(`download-config-btn-${version}`);
-            const copyJsonBtn = document.getElementById(`copy-json-btn-${version}`);
-
-            let currentConfig = configData;
-            let monacoEditor;
-
-            function sanitizeKeyForDisplay(key) {
-                let displayKey = key.replace(/@gc\.pnl|\$|\|default/g, '')
-                    .replace(/_/g, ' ')
-                    .trim();
-                return displayKey.replace(/\b\w/g, char => char.toUpperCase());
-            }
-
-            const anchorOptions = [
-                "top_left", "top_middle", "top_right",
-                "left_middle", "center", "right_middle",
-                "bottom_left", "bottom_middle", "bottom_right"
-            ];
-
-            const chatToggleOptions = { 0: "Bottom Chat", 1: "Top Chat" };
-            const hotbarToggleOptions = { 0: "Default", 1: "Connected", 2: "RGB" };
-            const inventoryHudToggleOptions = { 0: "Horizontal", 1: "Vertical" };
-            const mainhandDurabilityToggleOptions = { 0: "Absolute", 1: "Percentage" };
-
-            function renderConfigForm(config) {
-                configForm.innerHTML = '';
-                const mainConfig = config["mod_menu_config@gc.pnl"];
-                const pauseMenuConfig = config["pause_menu_config@gc.pnl"];
-                const containerConfig = config["container_config@gc.pnl"];
-                const startScreenConfig = config["start_screen_config@gc.pnl"] || {}; // Add this
-
-                const createFormGroup = (label, inputHtml) => {
-                    const div = document.createElement('div');
-                    div.className = 'flex items-center justify-between gap-4';
-                    const labelElem = document.createElement('label');
-                    labelElem.className = 'text-color-text text-lg font-medium flex-grow';
-                    labelElem.textContent = label;
-                    div.appendChild(labelElem);
-                    div.innerHTML += inputHtml;
-                    return div;
-                };
-
-                const createSectionHeader = (title) => {
-                    const h3 = document.createElement('h3');
-                    h3.className = 'text-xl font-semibold text-color-primary mt-6 mb-4 border-b border-glass-border-color pb-2';
-                    h3.textContent = title;
-                    return h3;
-                };
-
-                configForm.appendChild(createSectionHeader('Modules Configuration'));
-                for (const key in mainConfig) {
-                    if (mainConfig.hasOwnProperty(key)) {
-                        const cleanKey = key.replace(/\|default/g, '');
-                        const displayLabel = sanitizeKeyForDisplay(key);
-                        let inputHtml = '';
-                        let value = mainConfig[key];
-
-                        const dataOriginalKey = `data-original-key="${key}"`;
-
-                        if (cleanKey.startsWith('$hotbar_number')) {
-                            inputHtml = `<input type="text" id="${cleanKey}" ${dataOriginalKey} value="${value}" class="input-field w-auto min-w-[100px] text-center" />`;
-                        } else if (cleanKey.endsWith('_item_id') || cleanKey.endsWith('_aux')) {
-                            inputHtml = `<input type="number" id="${cleanKey}" ${dataOriginalKey} value="${value}" class="input-field w-auto min-w-[120px] text-center" />`;
-                        } else if (Array.isArray(value) && value.length === 2) {
-                            inputHtml = `
-                                <div class="flex gap-2">
-                                    <input type="number" id="${cleanKey}_x" ${dataOriginalKey} value="${value[0]}" class="input-field w-24 text-center" placeholder="X" />
-                                    <input type="number" id="${cleanKey}_y" ${dataOriginalKey} value="${value[1]}" class="input-field w-24 text-center" placeholder="Y" />
-                                </div>
-                            `;
-                        } else if (typeof value === 'boolean') {
-                            inputHtml = `
-                                <label class="toggle-switch">
-                                    <input type="checkbox" id="${cleanKey}" ${dataOriginalKey} ${value ? 'checked' : ''}>
-                                    <span class="slider"></span>
-                                </label>
-                            `;
-                        } else if (typeof value === 'number' && key.includes('opacity')) {
-                            inputHtml = `
-                                <div class="flex items-center gap-2 w-full max-w-[200px]">
-                                    <input type="range" id="${cleanKey}_range" ${dataOriginalKey} min="0" max="1" step="0.01" value="${value}" class="flex-grow h-2 rounded-lg appearance-none cursor-pointer bg-color-primary/50" />
-                                    <input type="number" id="${cleanKey}_number" ${dataOriginalKey} min="0" max="1" step="0.01" value="${value}" class="input-field w-20 text-center" />
-                                </div>
-                            `;
-                        } else if (typeof value === 'string' && key.includes('anchor')) {
-                            const optionsHtml = anchorOptions.map(opt => `<option value="${opt}" ${value === opt ? 'selected' : ''}>${sanitizeKeyForDisplay(opt)}</option>`).join('');
-                            inputHtml = `
-                                <select id="${cleanKey}" ${dataOriginalKey} class="select-field w-auto min-w-[150px]">
-                                    ${optionsHtml}
-                                </select>
-                            `;
-                        } else if (cleanKey === '$chat_toggle_index') {
-                            const optionsHtml = Object.entries(chatToggleOptions).map(([idx, label]) => `<option value="${idx}" ${value == idx ? 'selected' : ''}>${label}</option>`).join('');
-                            inputHtml = `<select id="${cleanKey}" ${dataOriginalKey} class="select-field w-auto min-w-[150px]">${optionsHtml}</select>`;
-                        } else if (cleanKey === '$hotbar_toggle_index') {
-                            const optionsHtml = Object.entries(hotbarToggleOptions).map(([idx, label]) => `<option value="${idx}" ${value == idx ? 'selected' : ''}>${label}</option>`).join('');
-                            inputHtml = `<select id="${cleanKey}" ${dataOriginalKey} class="select-field w-auto min-w-[150px]">${optionsHtml}</select>`;
-                        } else if (cleanKey === '$inventoryhud_toggle_index') {
-                            const optionsHtml = Object.entries(inventoryHudToggleOptions).map(([idx, label]) => `<option value="${idx}" ${value == idx ? 'selected' : ''}>${label}</option>`).join('');
-                            inputHtml = `<select id="${cleanKey}" ${dataOriginalKey} class="select-field w-auto min-w-[150px]">${optionsHtml}</select>`;
-                        } else if (cleanKey === '$mainhand_durability_toggle_index') {
-                            const optionsHtml = Object.entries(mainhandDurabilityToggleOptions).map(([idx, label]) => `<option value="${idx}" ${value == idx ? 'selected' : ''}>${label}</option>`).join('');
-                            inputHtml = `<select id="${cleanKey}" ${dataOriginalKey} class="select-field w-auto min-w-[150px]">${optionsHtml}</select>`;
-                        } else if (typeof value === 'number') {
-                            inputHtml = `<input type="number" id="${cleanKey}" ${dataOriginalKey} value="${value}" class="input-field w-auto min-w-[100px] text-center" />`;
-                        } else {
-                            console.warn("Unhandled type for key:", key, value);
-                            inputHtml = `<input type="text" id="${cleanKey}" ${dataOriginalKey} value="${JSON.stringify(value)}" class="input-field" disabled />`;
-                        }
-
-                        configForm.appendChild(createFormGroup(displayLabel, inputHtml));
-                    }
-                }
-
-                configForm.appendChild(createSectionHeader('Pause Menu Configuration'));
-                for (const key in pauseMenuConfig) {
-                    if (pauseMenuConfig.hasOwnProperty(key)) {
-                        const displayLabel = sanitizeKeyForDisplay(key);
-                        const value = pauseMenuConfig[key];
-                        const inputHtml = `
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="${key}" data-original-key="${key}" ${value ? 'checked' : ''}>
-                                <span class="slider"></span>
-                            </label>
-                        `;
-                        configForm.appendChild(createFormGroup(displayLabel, inputHtml));
-                    }
-                }
-
-configForm.appendChild(createSectionHeader('Start Screen Configuration'));
-const startScreenConfig = mainConfig['start_screen_config@gc.pnl'] || {};
-for (const key in startScreenConfig) {
-    if (startScreenConfig.hasOwnProperty(key)) {
-        const displayLabel = sanitizeKeyForDisplay(key);
-        const value = startScreenConfig[key];
-        const dataOriginalKey = `data-original-key="start_screen_config@gc.pnl.${key}"`;
-        
-        let inputHtml = '';
-        if (typeof value === 'number') {
-            inputHtml = `<input type="number" id="start_screen_${key}" ${dataOriginalKey} value="${value}" class="input-field w-auto min-w-[120px] text-center" />`;
+    versionDropdownItems.forEach(item => {
+        if (item.dataset.tab === selectedTab) {
+            item.classList.add('active');
+            selectedVersionSpan.textContent = selectedTab;
         } else {
-            inputHtml = `
-                <label class="toggle-switch">
-                    <input type="checkbox" id="start_screen_${key}" ${dataOriginalKey} ${value ? 'checked' : ''}>
-                    <span class="slider"></span>
-                </label>
-            `;
+            item.classList.remove('active');
         }
-        configForm.appendChild(createFormGroup(displayLabel, inputHtml));
+    });
+
+    tabContents.forEach(content => {
+        content.classList.toggle('active', content.id === `${selectedTab}-tab-content`);
+    });
+
+    if (!window.loadedConfigs) window.loadedConfigs = {};
+
+    if (!window.loadedConfigs[selectedTab]) {
+        loadConfigFromFile(selectedTab);
+    }
+
+    if (window.innerWidth <= 768) {
+        versionTabs.classList.remove('active');
+        mobileMenuToggle.innerHTML = '<i class="fas fa-bars"></i>';
+    }
+
+    versionDropdownContent.classList.remove('show');
+}
+
+versionTabButtons.forEach(button => {
+    button.addEventListener('click', () => switchTab(button.dataset.tab));
+});
+
+versionDropdownItems.forEach(item => {
+    item.addEventListener('click', (e) => {
+        e.preventDefault();
+        switchTab(item.dataset.tab);
+    });
+});
+
+function determineLatestVersion() {
+    const availableVersions = ['v4', 'v5', 'v6'];
+    return availableVersions[availableVersions.length - 1];
+}
+
+const latestVersion = determineLatestVersion();
+
+async function loadConfigFromFile(version) {
+    try {
+        const response = await fetch(`configs/${version}.json`);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const configData = await response.json();
+
+        initializeConfigEditor(version, configData);
+        window.loadedConfigs[version] = true;
+    } catch (error) {
+        console.error(`Error loading ${version} config:`, error);
+        const configForm = document.getElementById(`config-form-${version}`);
+        if (configForm) {
+            configForm.innerHTML = `<p class="text-color-text-alt text-center">Error loading configuration for ${version.toUpperCase()}. Please try again later.</p>`;
+        }
     }
 }
 
-configForm.appendChild(createSectionHeader('Container Configuration'));
-for (const key in containerConfig) {
-    if (containerConfig.hasOwnProperty(key)) {
-        const displayLabel = sanitizeKeyForDisplay(key);
-        const value = containerConfig[key];
-        const cleanKey = key; 
-        const dataOriginalKey = `data-original-key="${key}"`;
-        let inputHtml = '';
+function initializeConfigEditor(version, configData) {
+    const configForm = document.getElementById(`config-form-${version}`);
+    const jsonEditorContainer = document.getElementById(`json-editor-container-${version}`);
+    const downloadConfigBtn = document.getElementById(`download-config-btn-${version}`);
+    const copyJsonBtn = document.getElementById(`copy-json-btn-${version}`);
 
-        if (cleanKey.endsWith('_item_id') || cleanKey.endsWith('_aux')) {
-            inputHtml = `<input type="number" id="${cleanKey}" ${dataOriginalKey} value="${value}" class="input-field w-auto min-w-[120px] text-center" />`;
-        } else {
-            inputHtml = `
-                <label class="toggle-switch">
-                    <input type="checkbox" id="${key}" data-original-key="${key}" ${value ? 'checked' : ''}>
-                    <span class="slider"></span>
-                </label>
-            `;
+    let currentConfig = configData;
+    let monacoEditor;
+
+    function sanitizeKeyForDisplay(key) {
+        return key.replace(/@gc\.pnl|\$|\|default/g, '')
+            .replace(/_/g, ' ')
+            .trim()
+            .replace(/\b\w/g, char => char.toUpperCase());
+    }
+
+    const anchorOptions = [
+        "top_left", "top_middle", "top_right",
+        "left_middle", "center", "right_middle",
+        "bottom_left", "bottom_middle", "bottom_right"
+    ];
+
+    const chatToggleOptions = { 0: "Bottom Chat", 1: "Top Chat" };
+    const hotbarToggleOptions = { 0: "Default", 1: "Connected", 2: "RGB" };
+    const inventoryHudToggleOptions = { 0: "Horizontal", 1: "Vertical" };
+    const mainhandDurabilityToggleOptions = { 0: "Absolute", 1: "Percentage" };
+
+    const createFormGroup = (label, inputHtml) => {
+        const div = document.createElement('div');
+        div.className = 'flex items-center justify-between gap-4 mb-2';
+        const labelElem = document.createElement('label');
+        labelElem.className = 'text-color-text text-lg font-medium flex-grow';
+        labelElem.textContent = label;
+        div.appendChild(labelElem);
+        const inputWrapper = document.createElement('div');
+        inputWrapper.innerHTML = inputHtml;
+        div.appendChild(inputWrapper);
+        return div;
+    };
+
+    const createSectionHeader = (title) => {
+        const h3 = document.createElement('h3');
+        h3.className = 'text-xl font-semibold text-color-primary mt-6 mb-4 border-b border-glass-border-color pb-2';
+        h3.textContent = title;
+        return h3;
+    };
+
+    function renderConfigForm(config) {
+        configForm.innerHTML = '';
+        const mainConfig = config["mod_menu_config@gc.pnl"];
+        const pauseMenuConfig = config["pause_menu_config@gc.pnl"];
+        const containerConfig = config["container_config@gc.pnl"];
+        const startScreenConfig = mainConfig['start_screen_config@gc.pnl'] || {};
+
+        configForm.appendChild(createSectionHeader('Modules Configuration'));
+        for (const key in mainConfig) {
+            if (key === 'start_screen_config@gc.pnl') continue;
+            const cleanKey = key.replace(/\|default/g, '');
+            const displayLabel = sanitizeKeyForDisplay(key);
+            let inputHtml = '';
+            let value = mainConfig[key];
+            const dataOriginalKey = `data-original-key="${key}"`;
+
+            if (cleanKey.startsWith('$hotbar_number')) {
+                inputHtml = `<input type="text" id="${cleanKey}" ${dataOriginalKey} value="${value}" class="input-field w-auto min-w-[100px] text-center" />`;
+            } else if (cleanKey.endsWith('_item_id') || cleanKey.endsWith('_aux')) {
+                inputHtml = `<input type="number" id="${cleanKey}" ${dataOriginalKey} value="${value}" class="input-field w-auto min-w-[120px] text-center" />`;
+            } else if (Array.isArray(value) && value.length === 2) {
+                inputHtml = `<div class="flex gap-2">
+                    <input type="number" id="${cleanKey}_x" ${dataOriginalKey} value="${value[0]}" class="input-field w-24 text-center" placeholder="X" />
+                    <input type="number" id="${cleanKey}_y" ${dataOriginalKey} value="${value[1]}" class="input-field w-24 text-center" placeholder="Y" />
+                </div>`;
+            } else if (typeof value === 'boolean') {
+                inputHtml = `<label class="toggle-switch"><input type="checkbox" id="${cleanKey}" ${dataOriginalKey} ${value ? 'checked' : ''}><span class="slider"></span></label>`;
+            } else if (typeof value === 'number' && key.includes('opacity')) {
+                inputHtml = `<div class="flex items-center gap-2 w-full max-w-[200px]">
+                    <input type="range" id="${cleanKey}_range" ${dataOriginalKey} min="0" max="1" step="0.01" value="${value}" class="flex-grow h-2 rounded-lg appearance-none cursor-pointer bg-color-primary/50" />
+                    <input type="number" id="${cleanKey}_number" ${dataOriginalKey} min="0" max="1" step="0.01" value="${value}" class="input-field w-20 text-center" />
+                </div>`;
+            } else if (typeof value === 'string' && key.includes('anchor')) {
+                const optionsHtml = anchorOptions.map(opt => `<option value="${opt}" ${value === opt ? 'selected' : ''}>${sanitizeKeyForDisplay(opt)}</option>`).join('');
+                inputHtml = `<select id="${cleanKey}" ${dataOriginalKey} class="select-field w-auto min-w-[150px]">${optionsHtml}</select>`;
+            } else if (['$chat_toggle_index', '$hotbar_toggle_index', '$inventoryhud_toggle_index', '$mainhand_durability_toggle_index'].includes(cleanKey)) {
+                let opts = chatToggleOptions;
+                if (cleanKey === '$hotbar_toggle_index') opts = hotbarToggleOptions;
+                if (cleanKey === '$inventoryhud_toggle_index') opts = inventoryHudToggleOptions;
+                if (cleanKey === '$mainhand_durability_toggle_index') opts = mainhandDurabilityToggleOptions;
+                const optionsHtml = Object.entries(opts).map(([idx, label]) => `<option value="${idx}" ${value == idx ? 'selected' : ''}>${label}</option>`).join('');
+                inputHtml = `<select id="${cleanKey}" ${dataOriginalKey} class="select-field w-auto min-w-[150px]">${optionsHtml}</select>`;
+            } else if (typeof value === 'number') {
+                inputHtml = `<input type="number" id="${cleanKey}" ${dataOriginalKey} value="${value}" class="input-field w-auto min-w-[100px] text-center" />`;
+            }
+            configForm.appendChild(createFormGroup(displayLabel, inputHtml));
         }
 
-        configForm.appendChild(createFormGroup(displayLabel, inputHtml));
+        configForm.appendChild(createSectionHeader('Start Screen Configuration'));
+        for (const key in startScreenConfig) {
+            const displayLabel = sanitizeKeyForDisplay(key);
+            const value = startScreenConfig[key];
+            const dataOriginalKey = `data-original-key="start_screen_config@gc.pnl.${key}"`;
+            let inputHtml = (typeof value === 'number') 
+                ? `<input type="number" id="start_screen_${key}" ${dataOriginalKey} value="${value}" class="input-field w-auto min-w-[120px] text-center" />`
+                : `<label class="toggle-switch"><input type="checkbox" id="start_screen_${key}" ${dataOriginalKey} ${value ? 'checked' : ''}><span class="slider"></span></label>`;
+            configForm.appendChild(createFormGroup(displayLabel, inputHtml));
+        }
+
+        configForm.appendChild(createSectionHeader('Pause Menu Configuration'));
+        for (const key in pauseMenuConfig) {
+            const displayLabel = sanitizeKeyForDisplay(key);
+            const value = pauseMenuConfig[key];
+            const inputHtml = `<label class="toggle-switch"><input type="checkbox" id="${key}" data-original-key="${key}" ${value ? 'checked' : ''}><span class="slider"></span></label>`;
+            configForm.appendChild(createFormGroup(displayLabel, inputHtml));
+        }
+
+        configForm.appendChild(createSectionHeader('Container Configuration'));
+        for (const key in containerConfig) {
+            const displayLabel = sanitizeKeyForDisplay(key);
+            const value = containerConfig[key];
+            const dataOriginalKey = `data-original-key="${key}"`;
+            let inputHtml = (key.endsWith('_item_id') || key.endsWith('_aux'))
+                ? `<input type="number" id="${key}" ${dataOriginalKey} value="${value}" class="input-field w-auto min-w-[120px] text-center" />`
+                : `<label class="toggle-switch"><input type="checkbox" id="${key}" ${dataOriginalKey} ${value ? 'checked' : ''}><span class="slider"></span></label>`;
+            configForm.appendChild(createFormGroup(displayLabel, inputHtml));
+        }
     }
-}
 
-            configForm.addEventListener('input', updateConfigFromForm);
-            configForm.addEventListener('change', updateConfigFromForm);
+    function updateConfigFromForm(event) {
+        const target = event.target;
+        const originalKey = target.dataset.originalKey || target.id;
+        const type = target.type;
+        let value = type === 'checkbox' ? target.checked : target.value;
 
-            const formAnimatedElements = configForm.querySelectorAll('.animate-fade-in-up');
-                formAnimatedElements.forEach(element => {
-                element.classList.add('is-visible');
+        if (originalKey.includes('start_screen_config@gc.pnl.')) {
+            const key = originalKey.split('.')[1];
+            currentConfig["mod_menu_config@gc.pnl"]["start_screen_config@gc.pnl"][key] = (type === 'number') ? parseInt(value, 10) : value;
+        } else {
+            let sectionKey = "mod_menu_config@gc.pnl";
+            if (originalKey.includes('pause_menu_config')) sectionKey = "pause_menu_config@gc.pnl";
+            else if (originalKey.includes('container_config')) sectionKey = "container_config@gc.pnl";
+
+            if (type === 'checkbox') {
+                currentConfig[sectionKey][originalKey] = target.checked;
+            } else if (type === 'range' || (type === 'number' && originalKey.includes('opacity'))) {
+                const numValue = parseFloat(value);
+                currentConfig[sectionKey][originalKey] = numValue;
+                const cleanKey = originalKey.replace(/\|default/g, '');
+                const rangeInput = document.getElementById(`${cleanKey}_range`);
+                const numInput = document.getElementById(`${cleanKey}_number`);
+                if (rangeInput) rangeInput.value = numValue;
+                if (numInput) numInput.value = numValue;
+            } else if (type === 'number' || target.tagName === 'SELECT') {
+                currentConfig[sectionKey][originalKey] = (originalKey.includes('anchor')) ? value : parseInt(value, 10);
+            } else if (originalKey.endsWith('_offset|default')) {
+                const cleanKey = originalKey.replace(/\|default/g, '');
+                const xInput = document.querySelector(`[data-original-key="${originalKey}"][id="${cleanKey}_x"]`);
+                const yInput = document.querySelector(`[data-original-key="${originalKey}"][id="${cleanKey}_y"]`);
+                currentConfig[sectionKey][originalKey] = [parseFloat(xInput.value), parseFloat(yInput.value)];
+            } else {
+                currentConfig[sectionKey][originalKey] = value;
+            }
+        }
+        updateMonacoEditor();
+    }
+
+    configForm.addEventListener('input', updateConfigFromForm);
+
+    function initializeMonacoEditor() {
+        require.config({ paths: { 'vs': 'https://cdn.jsdelivr.net/npm/monaco-editor@0.49.0/min/vs' } });
+        require(['vs/editor/editor.main'], () => {
+            monacoEditor = monaco.editor.create(jsonEditorContainer, {
+                value: JSON.stringify(currentConfig, null, 4),
+                language: 'json',
+                theme: 'vs-dark',
+                automaticLayout: true,
+                minimap: { enabled: false }
             });
 
-            function updateConfigFromForm(event) {
-                const target = event.target;
-                const originalKey = target.dataset.originalKey || target.id;
-                let value = target.type === 'checkbox' ? target.checked : target.value;
-
-                if (originalKey.includes('.')) {
-                    // Handle nested paths like "start_screen_config@gc.pnl.$ui_switcher_toggle_index"
-                    const parts = originalKey.split('.');
-                    const section = parts[0];
-                    const key = parts[1];
-        
-                    if (target.type === 'number') {
-                        currentConfig[section][key] = parseInt(value, 10);
-                    } else {
-                        currentConfig[section][key] = value;
-                    }
-                } else {
-                    // Handle standard flat keys
-                let sectionKey = "mod_menu_config@gc.pnl";
-                if (originalKey.includes('pause_menu_config')) sectionKey = "pause_menu_config@gc.pnl";
-                else if (originalKey.includes('container_config')) sectionKey = "container_config@gc.pnl";
-        
-                if (type === 'checkbox') {
-                    currentConfig[sectionKey][originalKey] = target.checked;
-                } else if (type === 'range' || (type === 'number' && originalKey.includes('opacity'))) {
-                    const numValue = parseFloat(value);
-                    currentConfig[sectionKey][originalKey] = numValue;
-                    const cleanKey = originalKey.replace(/\|default/g, '');
-                    document.getElementById(`${cleanKey}_range`).value = numValue;
-                    document.getElementById(`${cleanKey}_number`).value = numValue;
-                } else if (type === 'number' && (originalKey.endsWith('_item_id') || originalKey.endsWith('_aux') || originalKey.endsWith('_preset_index') || originalKey.endsWith('_toggle_index'))) {
-                    currentConfig[sectionKey][originalKey] = parseInt(value, 10);
-                } else if (originalKey.endsWith('_offset|default')) {
-                    const cleanKey = originalKey.replace(/\|default/g, '');
-                    const xInput = document.querySelector(`[data-original-key="${originalKey}"][id="${cleanKey}_x"]`);
-                    const yInput = document.querySelector(`[data-original-key="${originalKey}"][id="${cleanKey}_y"]`);
-
-                    currentConfig[sectionKey][originalKey] = [parseFloat(xInput.value), parseFloat(yInput.value)];
-                } else {
-                    currentConfig[sectionKey][originalKey] = value;
-                }
-
-                updateMonacoEditor();
-            }
-
-            function initializeMonacoEditor() {
-                require.config({ paths: { 'vs': 'https://cdn.jsdelivr.net/npm/monaco-editor@0.49.0/min/vs' } });
-                require(['vs/editor/editor.main'], () => {
-                    monacoEditor = monaco.editor.create(jsonEditorContainer, {
-                        value: JSON.stringify(currentConfig, null, 4),
-                        language: 'json',
-                        theme: 'vs-dark',
-                        readOnly: false,
-                        automaticLayout: false,
-                        minimap: { enabled: false }
-                    });
-
-                    window.addEventListener('resize', () => {
-                        if (monacoEditor) {
-                            monacoEditor.layout();
-                        }
-                    });
-
-                    let monacoUpdateTimeout;
-                    monacoEditor.onDidChangeModelContent(() => {
-                        clearTimeout(monacoUpdateTimeout);
-                        monacoUpdateTimeout = setTimeout(() => {
-                            const jsonText = monacoEditor.getValue();
-                            try {
-                                const parsedJson = JSON.parse(jsonText);
-                                currentConfig = parsedJson;
-                                renderConfigForm(currentConfig);
-                            } catch (e) {
-                                if (jsonText.trim() !== "") {
-                                    console.error("Invalid JSON format in editor. Form not updated.", e);
-                                }
-                            }
-                        }, 500);
-                    });
-                });
-            }
-
-            function updateMonacoEditor() {
-                if (monacoEditor) {
-                    const currentEditorValue = monacoEditor.getValue();
-                    const newEditorValue = JSON.stringify(currentConfig, null, 4);
-                    if (currentEditorValue !== newEditorValue) {
-                        monacoEditor.setValue(newEditorValue);
-                    }
-                }
-            }
-
-            downloadConfigBtn.addEventListener('click', () => {
-                const blob = new Blob([JSON.stringify(currentConfig, null, 4)], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'config.json';
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-            });
-
-            copyJsonBtn.addEventListener('click', () => {
-                if (monacoEditor) {
-                    const textToCopy = monacoEditor.getValue();
-                    const tempTextArea = document.createElement('textarea');
-                    tempTextArea.value = textToCopy;
-                    document.body.appendChild(tempTextArea);
-                    tempTextArea.select();
+            let monacoUpdateTimeout;
+            monacoEditor.onDidChangeModelContent(() => {
+                clearTimeout(monacoUpdateTimeout);
+                monacoUpdateTimeout = setTimeout(() => {
                     try {
-                        document.execCommand('copy');
-                    } catch (err) {
-                        console.error('Failed to copy text: ', err);
-                    }
-                    document.body.removeChild(tempTextArea);
-                }
+                        currentConfig = JSON.parse(monacoEditor.getValue());
+                        renderConfigForm(currentConfig);
+                    } catch (e) {}
+                }, 500);
             });
+        });
+    }
 
-            renderConfigForm(currentConfig);
-            initializeMonacoEditor();
+    function updateMonacoEditor() {
+        if (monacoEditor) {
+            const newVal = JSON.stringify(currentConfig, null, 4);
+            if (monacoEditor.getValue() !== newVal) monacoEditor.setValue(newVal);
         }
+    }
 
-        window.onload = () => {
-            document.getElementById('currentYear').textContent = new Date().getFullYear();
+    downloadConfigBtn.addEventListener('click', () => {
+        const blob = new Blob([JSON.stringify(currentConfig, null, 4)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = 'config.json';
+        document.body.appendChild(a); a.click();
+        document.body.removeChild(a); URL.revokeObjectURL(url);
+    });
 
-            window.loadedConfigs = {};
-            loadConfigFromFile(latestVersion);
+    copyJsonBtn.addEventListener('click', () => {
+        if (monacoEditor) {
+            navigator.clipboard.writeText(monacoEditor.getValue());
+        }
+    });
 
-            const mainPanels = document.querySelectorAll('.panel.animate-fade-in-up');
-            mainPanels.forEach(panel => {
-                panel.classList.add('is-visible');
-            });
+    renderConfigForm(currentConfig);
+    initializeMonacoEditor();
+}
 
-            const disclaimerPanel = document.querySelector('.disclaimer-panel');
-            disclaimerPanel.classList.add('is-visible');
-        };
-
-        document.getElementById('currentYear').textContent = new Date().getFullYear();
+window.onload = () => {
+    document.getElementById('currentYear').textContent = new Date().getFullYear();
+    switchTab(latestVersion);
+    document.querySelectorAll('.panel.animate-fade-in-up, .disclaimer-panel').forEach(p => p.classList.add('is-visible'));
+};
     </script>
 </body>
 
