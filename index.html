@@ -15,44 +15,41 @@
     <meta name="twitter:title" content="Glacier Client Config Editor" />
     <meta name="twitter:description" content="Configure your Glacier Client modules and settings online." />
     <meta name="twitter:image" content="https://placehold.co/1200x675/7289DA/FFFFFF?text=Glacier+Config+Editor" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    
+    <!-- Fonts and Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Monaco Editor -->
     <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.49.0/min/vs/loader.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    
     <style>
         :root {
-            --color-primary: #7289DA;
-            --color-primary-dark: #5b6eae;
-            --color-dark: #0F0F13;
-            --color-dark-alt: #1A1A22;
-            --color-darker: #0A0A0E;
-            --color-text: #FFFFFF;
-            --color-text-alt: #B0B0C0;
-            --color-text-muted: #8A8A9A;
-            --border-radius: 16px;
-            --border-radius-sm: 8px;
-            --border-radius-lg: 24px;
-            --border-radius-pill: 50px;
-            --transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            --shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
-            --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.3);
+            --discord-blurple: #7289da;
+            --discord-dark: #424549;
+            --discord-darker: #36393e;
+            --discord-darkest: #282b30;
+            --discord-black: #1e2124;
+            --discord-green: #57f287;
+            --discord-yellow: #fee75c;
+            --discord-red: #ed4245;
+            --discord-pink: #eb459e;
+            --discord-blue-glow: rgba(114, 137, 218, 0.6);
+            --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            --border-radius: 12px;
+            --border-radius-pill: 9999px;
+            --shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            --shadow-hover: 0 12px 24px rgba(0, 0, 0, 0.4);
             --shadow-glow: 0 0 20px rgba(114, 137, 218, 0.4);
-            --container-width: 1200px;
-            --glass-border-color: rgba(114, 137, 218, 0.2);
-            --hover-bg: rgba(114, 137, 218, 0.1);
-            --active-bg: rgba(114, 137, 218, 0.2);
-            --input-bg: rgba(255, 255, 255, 0.1);
-            --shadow-color: rgba(0, 0, 0, 0.3);
-            --toggle-off-bg: #4A4A5E;
-            --toggle-on-bg: var(--color-primary);
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
         }
 
         html {
@@ -60,133 +57,303 @@
         }
 
         body {
-            background: var(--color-dark);
-            color: var(--color-text);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--discord-darkest);
+            color: #fff;
             line-height: 1.6;
             overflow-x: hidden;
-            font-weight: 400;
-            display: flex;
-            flex-direction: column;
+            background: linear-gradient(135deg, var(--discord-darkest) 0%, var(--discord-black) 100%);
             min-height: 100vh;
         }
 
-        .container {
-            max-width: var(--container-width);
-            margin: 0 auto;
-            padding: 0 1.5rem;
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(circle at 20% 80%, rgba(114, 137, 218, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(87, 242, 135, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(235, 69, 158, 0.02) 0%, transparent 50%);
+            z-index: -1;
+            animation: backgroundPulse 20s ease-in-out infinite alternate;
         }
 
-        .main-header {
-            position: fixed;
-            top: 1.5rem;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 95%;
+        @keyframes backgroundPulse {
+            0% { opacity: 0.5; transform: scale(1); }
+            100% { opacity: 1; transform: scale(1.05); }
+        }
+
+        .container {
+            width: 100%;
             max-width: 1200px;
-            background: rgba(26, 26, 34, 0.95);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(114, 137, 218, 0.2);
-            border-radius: var(--border-radius-pill);
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styles */
+        header {
+            background-color: rgba(54, 57, 62, 0.95);
+            backdrop-filter: blur(10px);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
             z-index: 1000;
-            transition: var(--transition);
-            box-shadow: var(--shadow);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            transition: all var(--transition-normal);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        header.scrolled {
+            background-color: rgba(30, 33, 36, 0.95);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+            padding: 5px 0;
         }
 
         .header-container {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0.75rem 1.5rem;
-            height: 60px;
+            padding: 15px 20px;
+            transition: padding var(--transition-normal);
         }
 
-        .brand {
+        .logo {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            z-index: 1001;
+            gap: 12px;
+            text-decoration: none;
+            color: white;
+            transition: all var(--transition-normal);
+            position: relative;
         }
 
-        .brand-logo {
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
-            transition: var(--transition);
+        .logo:hover { transform: translateY(-2px); }
+
+        .logo-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            transition: all var(--transition-normal);
+            border: 2px solid transparent;
+            box-shadow: 0 0 10px rgba(114, 137, 218, 0.3);
         }
 
-        .brand:hover .brand-logo {
-            transform: rotate(5deg) scale(1.05);
+        .logo:hover .logo-img {
+            transform: rotate(10deg) scale(1.1);
+            box-shadow: 0 0 20px rgba(114, 137, 218, 0.6);
+            border-color: var(--discord-blurple);
         }
 
-        .brand-name {
-            font-weight: 700;
-            font-size: 1.25rem;
-            color: var(--color-text);
-            background: linear-gradient(90deg, var(--color-text), var(--color-primary));
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, var(--discord-blurple), #9ba9ff);
             -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
             background-clip: text;
+            color: transparent;
+            position: relative;
+            padding: 5px 0;
         }
 
+        .logo-text::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--discord-blurple), #9ba9ff);
+            transition: width var(--transition-normal);
+        }
+
+        .logo:hover .logo-text::after { width: 100%; }
+
+        /* Navigation */
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 8px;
+            background-color: rgba(66, 69, 73, 0.7);
+            padding: 10px;
+            border-radius: var(--border-radius-pill);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-item { position: relative; }
+
+        .nav-link {
+            display: block;
+            padding: 15px;
+            text-decoration: none;
+            color: #b9bbbe;
+            font-weight: 500;
+            border-radius: var(--border-radius-pill);
+            transition: all var(--transition-fast);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, var(--discord-blurple), transparent);
+            opacity: 0;
+            transition: opacity var(--transition-normal);
+            z-index: -1;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--discord-blurple), #9ba9ff);
+            border-radius: 3px;
+            transition: width var(--transition-normal);
+        }
+
+        .nav-link:hover {
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(114, 137, 218, 0.2);
+        }
+
+        .nav-link:hover::before { opacity: 0.2; }
+        .nav-link:hover::after { width: 70%; }
+
+        .nav-link.active {
+            background-color: var(--discord-blurple);
+            color: white;
+            box-shadow: 0 4px 20px rgba(114, 137, 218, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .nav-link.active:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 25px rgba(114, 137, 218, 0.5);
+        }
+
+        /* Main Content */
+        main {
+            margin-top: 80px;
+            padding: 40px 0;
+            min-height: calc(100vh - 200px);
+        }
+
+        /* Tab Navigation */
         .version-tabs {
             display: flex;
-            gap: 0.5rem;
-            align-items: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            background-color: rgba(66, 69, 73, 0.7);
+            padding: 15px;
+            border-radius: var(--border-radius);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .version-tab {
-            background: rgba(255, 255, 255, 0.05);
-            color: var(--color-text-alt);
-            border: 1px solid rgba(114, 137, 218, 0.2);
-            padding: 0.5rem 1rem;
+            padding: 12px 24px;
+            background-color: rgba(30, 33, 36, 0.7);
+            border: none;
             border-radius: var(--border-radius-pill);
-            font-size: 0.85rem;
-            font-weight: 500;
+            color: #b9bbbe;
+            font-weight: 600;
             cursor: pointer;
-            transition: var(--transition);
+            transition: all var(--transition-normal);
+            position: relative;
+            overflow: hidden;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 8px;
+        }
+
+        .version-tab::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--discord-blurple);
+            opacity: 0;
+            transition: opacity var(--transition-normal);
+            z-index: -1;
         }
 
         .version-tab:hover {
-            background: rgba(114, 137, 218, 0.1);
-            color: var(--color-text);
+            background-color: rgba(114, 137, 218, 0.2);
+            color: white;
             transform: translateY(-2px);
         }
 
         .version-tab.active {
-            background: var(--color-primary);
-            color: var(--color-text);
-            border-color: var(--color-primary);
-            box-shadow: 0 4px 12px rgba(114, 137, 218, 0.3);
+            background-color: var(--discord-blurple);
+            color: white;
+            box-shadow: 0 4px 15px rgba(114, 137, 218, 0.4);
         }
 
-        .mobile-menu-toggle {
+        .version-tab.active:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(114, 137, 218, 0.6);
+        }
+
+        /* Tab Content */
+        .tab-content {
             display: none;
-            background: none;
-            border: none;
-            color: var(--color-text);
-            font-size: 1.5rem;
-            cursor: pointer;
-            padding: 0.5rem;
-            z-index: 1001;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Config Panel */
+        .config-panel {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 1024px) {
+            .config-panel {
+                grid-template-columns: 1fr;
+            }
         }
 
         .panel {
-            background: var(--color-dark-alt);
-            padding: 2.5rem;
+            background-color: rgba(66, 69, 73, 0.7);
             border-radius: var(--border-radius);
-            text-align: center;
-            transition: var(--transition);
-            border: 1px solid rgba(114, 137, 218, 0.1);
+            padding: 30px;
             box-shadow: var(--shadow);
+            transition: all var(--transition-normal);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
             position: relative;
             overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
+            z-index: 1;
         }
 
         .panel::before {
@@ -195,143 +362,145 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: 4px;
-            background: linear-gradient(90deg, var(--color-primary), transparent);
-            transform: scaleX(0);
-            transform-origin: left;
-            transition: transform 0.5s ease;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(114, 137, 218, 0.05), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s;
+            z-index: -1;
         }
 
         .panel:hover::before {
-            transform: scaleX(1);
+            transform: translateX(100%);
         }
 
         .panel:hover {
-            transform: translateY(-10px);
-            box-shadow: var(--shadow-lg);
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
             border-color: rgba(114, 137, 218, 0.3);
         }
 
-        .disclaimer-panel {
-            background: var(--color-dark-alt);
-            padding: 1.5rem;
-            border-radius: var(--border-radius);
-            border: 1px solid rgba(114, 137, 218, 0.1);
-            box-shadow: var(--shadow);
-            margin-bottom: 2rem;
-        }
-
-        .disclaimer-header {
+        .panel-header {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 1rem;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .disclaimer-icon {
-            color: var(--color-primary);
+        .panel-icon {
             font-size: 1.5rem;
+            color: var(--discord-blurple);
         }
 
-        .disclaimer-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: var(--color-text);
+        .panel-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
         }
 
-        .disclaimer-content {
-            color: var(--color-text-alt);
-            font-size: 0.9rem;
-            line-height: 1.6;
+        /* Config Form */
+        .config-form {
+            max-height: 600px;
+            overflow-y: auto;
+            padding-right: 10px;
         }
 
-        .btn {
-            padding: 1rem 2rem;
-            border: none;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            display: inline-flex;
+        .config-form::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .config-form::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+        }
+
+        .config-form::-webkit-scrollbar-thumb {
+            background: var(--discord-blurple);
+            border-radius: 3px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            padding: 20px;
+            background: rgba(30, 33, 36, 0.5);
+            border-radius: var(--border-radius);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all var(--transition-fast);
+        }
+
+        .form-group:hover {
+            border-color: rgba(114, 137, 218, 0.3);
+            background: rgba(30, 33, 36, 0.7);
+        }
+
+        .form-label {
+            display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 0.75rem;
-            transition: var(--transition);
-            text-decoration: none;
-            position: relative;
-            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .label-text {
+            font-weight: 600;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .label-hint {
+            font-size: 0.85rem;
+            color: #b9bbbe;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2px 8px;
             border-radius: var(--border-radius-pill);
         }
 
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.7s ease;
+        .form-control {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
         }
 
-        .btn:hover::before {
-            left: 100%;
-        }
-
-        .btn-primary {
-            background: var(--color-primary);
-            color: var(--color-text);
-            box-shadow: 0 5px 15px rgba(114, 137, 218, 0.4);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(114, 137, 218, 0.6);
-            background: var(--color-primary-dark);
-        }
-
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.1);
-            color: var(--color-text);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .btn-secondary:hover {
-            transform: translateY(-5px);
-            background: rgba(255, 255, 255, 0.15);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-        }
-
-        .tab-content {
-            display: none;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.5s ease, transform 0.5s ease;
-        }
-
-        .tab-content.active {
-            display: block;
-            opacity: 1;
-            transform: translateY(0);
-        }
-
+        /* Input Fields */
         .input-field,
         .select-field {
-            background: var(--color-dark);
-            color: var(--color-text);
-            border: 2px solid var(--glass-border-color);
-            padding: 0.8rem 1rem;
+            background: rgba(30, 33, 36, 0.7);
+            color: white;
+            border: 2px solid rgba(114, 137, 218, 0.2);
+            padding: 12px 15px;
             border-radius: 8px;
             width: 100%;
-            transition: border-color 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+            transition: all var(--transition-normal);
+            font-size: 0.95rem;
         }
 
         .input-field:focus,
         .select-field:focus {
             outline: none;
-            border-color: var(--color-primary);
-            box-shadow: 0 0 10px rgba(114, 137, 218, 0.5);
+            border-color: var(--discord-blurple);
+            box-shadow: 0 0 0 3px rgba(114, 137, 218, 0.2);
         }
 
+        .input-field.small {
+            width: 120px;
+        }
+
+        .input-field.medium {
+            width: 200px;
+        }
+
+        .coordinate-inputs {
+            display: flex;
+            gap: 10px;
+        }
+
+        .coordinate-inputs .input-field {
+            width: 100px;
+            text-align: center;
+        }
+
+        /* Toggle Switch */
         .toggle-switch {
             position: relative;
             display: inline-block;
@@ -345,19 +514,19 @@
             height: 0;
         }
 
-        .slider {
+        .toggle-slider {
             position: absolute;
             cursor: pointer;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: var(--toggle-off-bg);
+            background-color: var(--discord-dark);
             transition: .4s;
             border-radius: 34px;
         }
 
-        .slider:before {
+        .toggle-slider:before {
             position: absolute;
             content: "";
             height: 26px;
@@ -369,869 +538,1261 @@
             border-radius: 50%;
         }
 
-        input:checked+.slider {
-            background-color: var(--toggle-on-bg);
+        input:checked + .toggle-slider {
+            background-color: var(--discord-blurple);
         }
 
-        input:focus+.slider {
-            box-shadow: 0 0 1px var(--toggle-on-bg);
-        }
-
-        input:checked+.slider:before {
+        input:checked + .toggle-slider:before {
             transform: translateX(26px);
         }
 
+        /* Range Input */
+        .range-input {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            width: 100%;
+        }
+
+        .range-slider {
+            flex: 1;
+            height: 6px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: rgba(30, 33, 36, 0.7);
+            border-radius: 3px;
+            outline: none;
+        }
+
+        .range-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--discord-blurple);
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .range-value {
+            min-width: 60px;
+            text-align: center;
+            font-weight: 600;
+            color: var(--discord-blurple);
+        }
+
+        /* JSON Editor Container */
         .json-editor-container {
+            height: 500px;
             border-radius: var(--border-radius);
             overflow: hidden;
-            border: 1px solid var(--glass-border-color);
-            box-shadow: var(--shadow);
-            transition: border-color 0.5s ease-in-out, box-shadow 0.5s ease-in-out;
-            min-height: 600px;
+            border: 2px solid rgba(114, 137, 218, 0.2);
+            background: #1e1e1e;
+            transition: all var(--transition-normal);
         }
 
-        .panel h2 {
-            color: var(--color-text);
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 1.5rem;
-            border-bottom: 2px solid var(--glass-border-color);
-            padding-bottom: 0.8rem;
-            display: flex;
+        .json-editor-container:hover {
+            border-color: var(--discord-blurple);
+            box-shadow: 0 8px 25px rgba(114, 137, 218, 0.2);
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
             align-items: center;
-        }
-
-        .panel h2 i {
-            color: var(--color-primary);
-            margin-right: 0.75rem;
-            transition: transform 0.3s ease;
-        }
-
-        .main-footer {
-            border-top: 1px solid rgba(114, 137, 218, 0.2);
-            padding: 3rem 0 2rem;
-            background: var(--color-darker);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 2rem;
+            justify-content: center;
+            gap: 10px;
+            padding: 14px 28px;
+            border-radius: var(--border-radius-pill);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            border: none;
+            cursor: pointer;
+            transition: all var(--transition-normal);
             position: relative;
-            margin-top: auto;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s;
+            z-index: -1;
+        }
+
+        .btn:hover::before {
+            transform: translateX(100%);
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, var(--discord-blurple), #5b6eae);
+            color: white;
+            box-shadow: 0 4px 15px rgba(114, 137, 218, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(90deg, #5b6eae, var(--discord-blurple));
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(114, 137, 218, 0.6);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: white;
+            border: 2px solid var(--discord-blurple);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-secondary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--discord-blurple);
+            opacity: 0;
+            transition: opacity var(--transition-normal);
+            z-index: -1;
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--discord-blurple);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(114, 137, 218, 0.4);
+        }
+
+        .btn-secondary:hover::before {
+            opacity: 1;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        /* Disclaimer */
+        .disclaimer-panel {
+            background-color: rgba(66, 69, 73, 0.7);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-left: 4px solid var(--discord-blurple);
+        }
+
+        .disclaimer-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .disclaimer-icon {
+            font-size: 1.5rem;
+            color: var(--discord-blurple);
+        }
+
+        .disclaimer-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .disclaimer-content {
+            color: #b9bbbe;
+            line-height: 1.6;
+        }
+
+        /* Footer */
+        footer {
+            background-color: rgba(30, 33, 36, 0.95);
+            padding: 40px 0 20px;
+            margin-top: 60px;
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .footer-container {
-            text-align: center;
-            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
         }
 
         .footer-content {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            width: 100%;
             flex-wrap: wrap;
-            gap: 2rem;
-            margin-bottom: 2rem;
+            gap: 20px;
         }
 
         .footer-brand {
             display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 1rem;
+            align-items: center;
+            gap: 12px;
+            transition: all var(--transition-normal);
+        }
+
+        .footer-brand:hover {
+            transform: translateY(-3px);
         }
 
         .footer-logo {
             width: 40px;
             height: 40px;
-            border-radius: 10px;
+            border-radius: 50%;
+            object-fit: cover;
+            transition: all var(--transition-normal);
+            border: 2px solid transparent;
+            box-shadow: 0 0 10px rgba(114, 137, 218, 0.3);
+        }
+
+        .footer-brand:hover .footer-logo {
+            transform: rotate(10deg) scale(1.1);
+            box-shadow: 0 0 20px rgba(114, 137, 218, 0.6);
+            border-color: var(--discord-blurple);
+        }
+
+        .brand-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: white;
+            background: linear-gradient(90deg, var(--discord-blurple), #9ba9ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
         }
 
         .footer-social {
             display: flex;
-            gap: 1.5rem;
+            gap: 15px;
         }
 
         .social-link {
-            color: var(--color-text-alt);
-            font-size: 1.5rem;
-            transition: var(--transition);
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: rgba(255, 255, 255, 0.05);
-            text-decoration: none;
-        }
-
-        .social-link:hover {
-            color: var(--color-primary);
-            transform: translateY(-3px);
-            background: rgba(114, 137, 218, 0.1);
-        }
-
-        .copyright-text {
-            color: var(--color-text-muted);
-            font-size: 0.9rem;
-            padding-top: 2rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-            width: 100%;
-        }
-
-        .animate-fade-in-up {
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-        }
-
-        .animate-fade-in-up.is-visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .delay-1 {
-            transition-delay: 0.1s;
-        }
-
-        .delay-2 {
-            transition-delay: 0.2s;
-        }
-
-        .delay-3 {
-            transition-delay: 0.3s;
-        }
-
-        .delay-4 {
-            transition-delay: 0.4s;
-        }
-
-        .delay-5 {
-            transition-delay: 0.5s;
-        }
-
-        .animate-float {
-            animation: float 3s ease-in-out infinite;
-        }
-
-        .spinner {
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-top: 4px solid var(--color-primary);
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            animation: spin 1s linear infinite;
-            display: inline-block;
-            vertical-align: middle;
-            margin-left: 0.5rem;
-        }
-
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-
-        @keyframes float {
-
-            0%,
-            100% {
-                transform: translateY(0);
-            }
-
-            50% {
-                transform: translateY(-20px);
-            }
-        }
-
-        /* New styles for version dropdown */
-        .version-dropdown {
+            background-color: rgba(54, 57, 62, 0.7);
+            color: white;
+            text-decoration: none;
+            font-size: 1.2rem;
+            transition: all var(--transition-normal);
             position: relative;
-            display: inline-block;
-        }
-
-        .version-dropdown-btn {
-            background: rgba(255, 255, 255, 0.05);
-            color: var(--color-text-alt);
-            border: 1px solid rgba(114, 137, 218, 0.2);
-            padding: 0.5rem 1rem;
-            border-radius: var(--border-radius-pill);
-            font-size: 0.85rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .version-dropdown-btn:hover {
-            background: rgba(114, 137, 218, 0.1);
-            color: var(--color-text);
-            transform: translateY(-2px);
-        }
-
-        .version-dropdown-content {
-            display: none;
-            position: absolute;
-            right: 0;
-            top: 100%;
-            margin-top: 0.5rem;
-            background: rgba(26, 26, 34, 0.95);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(114, 137, 218, 0.2);
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow-lg);
-            z-index: 1000;
-            min-width: 180px;
             overflow: hidden;
         }
 
-        .version-dropdown-content.show {
-            display: block;
-            animation: fadeIn 0.3s ease;
+        .social-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: currentColor;
+            opacity: 0;
+            transition: opacity var(--transition-normal);
+            z-index: -1;
         }
 
-        .version-dropdown-item {
-            display: block;
-            padding: 0.75rem 1rem;
-            color: var(--color-text-alt);
-            text-decoration: none;
-            transition: var(--transition);
-            border-bottom: 1px solid rgba(114, 137, 218, 0.1);
+        .social-link:hover {
+            transform: translateY(-3px) scale(1.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
 
-        .version-dropdown-item:last-child {
-            border-bottom: none;
+        .social-link:hover::before {
+            opacity: 0.2;
         }
 
-        .version-dropdown-item:hover {
-            background: rgba(114, 137, 218, 0.1);
-            color: var(--color-text);
+        .copyright-text {
+            color: #b9bbbe;
+            text-align: center;
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 20px;
+            width: 100%;
         }
 
-        .version-dropdown-item.active {
-            background: var(--color-primary);
-            color: var(--color-text);
+        /* Mobile Menu */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: var(--border-radius);
+            transition: all var(--transition-fast);
+            position: relative;
+            overflow: hidden;
         }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .mobile-menu-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--discord-blurple);
+            opacity: 0;
+            transition: opacity var(--transition-normal);
+            z-index: -1;
         }
 
-        @media (max-width: 1024px) {
-            .version-tabs {
-                gap: 0.25rem;
-            }
-
-            .version-tab {
-                padding: 0.5rem 0.75rem;
-                font-size: 0.8rem;
-            }
+        .mobile-menu-btn:hover {
+            color: white;
+            transform: scale(1.1);
         }
 
+        .mobile-menu-btn:hover::before {
+            opacity: 0.2;
+        }
+
+        /* Responsive Design */
         @media (max-width: 768px) {
             .header-container {
-                padding: 1rem;
+                flex-wrap: wrap;
             }
 
-            .mobile-menu-toggle {
-                display: block;
-            }
-
-            .version-tabs {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100vh;
-                background: rgba(15, 15, 19, 0.98);
-                backdrop-filter: blur(20px);
-                -webkit-backdrop-filter: blur(20px);
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                z-index: 999;
+            .nav-menu {
                 display: none;
-                gap: 1.5rem;
-                border-radius: var(--border-radius-lg);
-                /* Rounded corners for mobile menu */
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                flex-direction: column;
+                background-color: rgba(54, 57, 62, 0.95);
+                padding: 15px;
+                border-radius: 0 0 var(--border-radius) var(--border-radius);
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+                z-index: 999;
+                backdrop-filter: blur(10px);
+                border-top: 1px solid rgba(255, 255, 255, 0.05);
+                animation: slideDown 0.3s ease-out;
             }
 
-            .version-tabs.active {
+            @keyframes slideDown {
+                from {
+                    opacity: 0;
+                    transform: translateY(-10px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            .nav-menu.active {
                 display: flex;
             }
 
-            .version-tab {
-                width: 80%;
-                max-width: 250px;
-                padding: 1rem 1.5rem;
-                font-size: 1rem;
-                justify-content: center;
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .config-panel {
+                grid-template-columns: 1fr;
             }
 
             .panel {
-                padding: 1.5rem;
+                padding: 20px;
             }
 
-            .panel h2 {
-                font-size: 1.5rem;
-            }
-
-            .json-editor-container {
-                min-height: 400px;
-            }
-
-            .disclaimer-panel {
-                padding: 1rem;
+            .btn-group {
+                flex-direction: column;
             }
 
             .btn {
-                padding: 0.8rem 1.5rem;
-                font-size: 0.9rem;
-            }
-
-            /* Hide dropdown on mobile, show tabs instead */
-            .version-dropdown {
-                display: none;
-            }
-        }
-
-        @media (min-width: 769px) {
-
-            /* Hide tabs on desktop, show dropdown instead */
-            .version-tabs {
-                display: none;
-            }
-        }
-
-        @media (max-width: 640px) {
-            .main-header {
-                width: 95%;
-            }
-
-            .container {
-                padding: 0 1rem;
+                width: 100%;
             }
 
             .footer-content {
                 flex-direction: column;
                 text-align: center;
             }
+        }
 
-            .footer-brand {
-                align-items: center;
+        @media (max-width: 480px) {
+            .panel-title {
+                font-size: 1.5rem;
             }
+
+            .form-control {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .input-field.small,
+            .input-field.medium {
+                width: 100%;
+            }
+
+            .coordinate-inputs {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .coordinate-inputs .input-field {
+                width: calc(50% - 5px);
+            }
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--discord-blurple);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: rgba(30, 33, 36, 0.9);
+            color: white;
+            text-align: center;
+            padding: 10px;
+            border-radius: var(--border-radius);
+            position: absolute;
+            z-index: 1000;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity var(--transition-normal);
+            font-size: 0.9rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: var(--shadow);
+        }
+
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Section Headers */
+        .section-header {
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(114, 137, 218, 0.2);
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--discord-blurple);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
         }
     </style>
 </head>
 
-<body class="flex flex-col min-h-screen">
-    <header class="main-header">
-        <div class="container header-container">
-            <div class="brand">
-                <img src="assets/logo.png" alt="Glacier Client Logo" class="brand-logo" loading="lazy" />
-                <span class="brand-name">Glacier</span>
-            </div>
+<body>
+    <!-- Header -->
+    <header id="mainHeader">
+        <div class="header-container container">
+            <a href="https://glacierclient.xyz" class="logo">
+                <img src="https://glacierclient.xyz/assets/logo.png" alt="Glacier Client Logo" class="logo-img" />
+                <span class="logo-text">Glacier Client</span>
+            </a>
 
-            <button class="mobile-menu-toggle" id="mobileMenuToggle">
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
                 <i class="fas fa-bars"></i>
             </button>
 
-            <!-- Version Dropdown for Desktop -->
-            <div class="version-dropdown">
-                <button class="version-dropdown-btn" id="versionDropdownBtn">
-                    <i class="fas fa-code-branch"></i>
-                    <span id="selectedVersion">v6</span>
-                    <i class="fas fa-chevron-down"></i>
-                </button>
-                <div class="version-dropdown-content" id="versionDropdownContent">
-                    <a href="#" class="version-dropdown-item" data-tab="v4">v4</a>
-                    <a href="#" class="version-dropdown-item" data-tab="v5">v5</a>
-                    <a href="#" class="version-dropdown-item active" data-tab="v6">v6</a>
-                </div>
-            </div>
-
-            <!-- Version Tabs for Mobile -->
-            <div class="version-tabs" id="versionTabs">
-                <button class="version-tab" data-tab="v4">
-                    <i class="fas fa-code-branch"></i> v4
-                </button>
-                <button class="version-tab" data-tab="v5">
-                    <i class="fas fa-code-branch"></i> v5
-                </button>
-                <button class="version-tab active" data-tab="v6">
-                    <i class="fas fa-code-branch"></i> v6
-                </button>
-            </div>
+            <ul class="nav-menu" id="navMenu">
+                <li class="nav-item">
+                    <a href="https://glacierclient.xyz" class="nav-link">
+                        <i class="fas fa-home"></i> Home
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link active">
+                        <i class="fas fa-sliders-h"></i> Config Editor
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="https://glacierclient.xyz/#downloads" class="nav-link">
+                        <i class="fas fa-download"></i> Downloads
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="https://dsc.gg/glacierclientmcbe" class="nav-link" target="_blank">
+                        <i class="fab fa-discord"></i> Discord
+                    </a>
+                </li>
+            </ul>
         </div>
     </header>
 
-    <main class="flex-grow pt-32 pb-12">
+    <!-- Main Content -->
+    <main>
         <div class="container">
-            <div class="disclaimer-panel animate-fade-in-up">
+            <!-- Disclaimer -->
+            <div class="disclaimer-panel">
                 <div class="disclaimer-header">
                     <i class="fas fa-exclamation-triangle disclaimer-icon"></i>
                     <h3 class="disclaimer-title">Important Disclaimer</h3>
                 </div>
                 <div class="disclaimer-content">
-                    <p>Only edit the anchor and offset if you have knowledge about JSON UI. Replace each value with
-                        either true (automatically on) or false (automatically off) to make the config work. Mods are
-                        saved when leaving the world or entering another dimension. Only toggle between true/false,
-                        change opacity, mod position (read disclaimer), or item id/aux. Changing anything else may break
-                        the pack.</p>
+                    <p>Only edit the anchor and offset if you have knowledge about JSON UI. Replace each value with either true (automatically on) or false (automatically off) to make the config work. Mods are saved when leaving the world or entering another dimension. Only toggle between true/false, change opacity, mod position (read disclaimer), or item id/aux. Changing anything else may break the pack.</p>
                 </div>
             </div>
 
-            <div id="v4-tab-content" class="tab-content">
-                <div class="w-full grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div class="panel flex flex-col animate-fade-in-up delay-1">
-                        <h2 class="text-2xl font-bold mb-6">
-                            <i class="fas fa-sliders-h mr-2"></i>Module Configuration (v4)
-                        </h2>
-                        <div id="config-form-v4" class="space-y-6 overflow-auto max-h-[70vh] pr-4">
-                            <p class="text-color-text-alt italic text-center">Loading configuration...</p>
-                        </div>
-                        <button id="download-config-btn-v4" class="btn btn-primary mt-8">
-                            <i class="fas fa-download mr-2"></i> Download config.json
-                        </button>
-                    </div>
-
-                    <div class="panel flex flex-col animate-fade-in-up delay-2">
-                        <h2 class="text-2xl font-bold mb-6">
-                            <i class="fas fa-code mr-2"></i>Raw config.json (v4)
-                        </h2>
-                        <div id="json-editor-container-v4" class="json-editor-container flex-grow"></div>
-                        <button id="copy-json-btn-v4" class="btn btn-primary mt-4">
-                            <i class="fas fa-copy mr-2"></i> Copy JSON
-                        </button>
-                    </div>
-                </div>
+            <!-- Version Tabs -->
+            <div class="version-tabs">
+                <button class="version-tab active" data-tab="v6">
+                    <i class="fas fa-code-branch"></i> Glacier v6
+                </button>
+                <button class="version-tab" data-tab="v5">
+                    <i class="fas fa-code-branch"></i> Glacier v5
+                </button>
+                <button class="version-tab" data-tab="v4">
+                    <i class="fas fa-code-branch"></i> Glacier v4
+                </button>
             </div>
 
-            <div id="v5-tab-content" class="tab-content">
-                <div class="w-full grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div class="panel flex flex-col animate-fade-in-up delay-1">
-                        <h2 class="text-2xl font-bold mb-6">
-                            <i class="fas fa-sliders-h mr-2"></i>Module Configuration (v5)
-                        </h2>
-                        <div id="config-form-v5" class="space-y-6 overflow-auto max-h-[70vh] pr-4">
-                            <p class="text-color-text-alt italic text-center">Loading configuration...</p>
-                        </div>
-                        <button id="download-config-btn-v5" class="btn btn-primary mt-8">
-                            <i class="fas fa-download mr-2"></i> Download config.json
-                        </button>
-                    </div>
-
-                    <div class="panel flex flex-col animate-fade-in-up delay-2">
-                        <h2 class="text-2xl font-bold mb-6">
-                            <i class="fas fa-code mr-2"></i>Raw config.json (v5)
-                        </h2>
-                        <div id="json-editor-container-v5" class="json-editor-container flex-grow"></div>
-                        <button id="copy-json-btn-v5" class="btn btn-primary mt-4">
-                            <i class="fas fa-copy mr-2"></i> Copy JSON
-                        </button>
-                    </div>
-                </div>
-            </div>
-
+            <!-- v6 Config Editor -->
             <div id="v6-tab-content" class="tab-content active">
-                <div class="w-full grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div class="panel flex flex-col animate-fade-in-up delay-1">
-                        <h2 class="text-2xl font-bold mb-6">
-                            <i class="fas fa-sliders-h mr-2"></i>Module Configuration (v6)
-                        </h2>
-                        <div id="config-form-v6" class="space-y-6 overflow-auto max-h-[70vh] pr-4">
-                            <p class="text-color-text-alt italic text-center">Loading configuration...</p>
+                <div class="config-panel">
+                    <!-- Module Configuration Panel -->
+                    <div class="panel">
+                        <div class="panel-header">
+                            <i class="fas fa-sliders-h panel-icon"></i>
+                            <h2 class="panel-title">Module Configuration (v6)</h2>
                         </div>
-                        <button id="download-config-btn-v6" class="btn btn-primary mt-8">
-                            <i class="fas fa-download mr-2"></i> Download config.json
-                        </button>
+                        <div id="config-form-v6" class="config-form">
+                            <div class="form-loading">
+                                <p style="text-align: center; color: #b9bbbe; padding: 40px;">
+                                    <i class="fas fa-spinner fa-spin" style="margin-right: 10px;"></i>
+                                    Loading configuration...
+                                </p>
+                            </div>
+                        </div>
+                        <div class="btn-group">
+                            <button id="download-config-btn-v6" class="btn btn-primary">
+                                <i class="fas fa-download"></i> Download config.json
+                            </button>
+                            <button id="reset-config-btn-v6" class="btn btn-secondary">
+                                <i class="fas fa-redo"></i> Reset to Default
+                            </button>
+                        </div>
                     </div>
 
-                    <div class="panel flex flex-col animate-fade-in-up delay-2">
-                        <h2 class="text-2xl font-bold mb-6">
-                            <i class="fas fa-code mr-2"></i>Raw config.json (v6)
-                        </h2>
-                        <div id="json-editor-container-v6" class="json-editor-container flex-grow"></div>
-                        <button id="copy-json-btn-v6" class="btn btn-primary mt-4">
-                            <i class="fas fa-copy mr-2"></i> Copy JSON
-                        </button>
+                    <!-- JSON Editor Panel -->
+                    <div class="panel">
+                        <div class="panel-header">
+                            <i class="fas fa-code panel-icon"></i>
+                            <h2 class="panel-title">Raw config.json (v6)</h2>
+                        </div>
+                        <div id="json-editor-container-v6" class="json-editor-container"></div>
+                        <div class="btn-group">
+                            <button id="copy-json-btn-v6" class="btn btn-primary">
+                                <i class="fas fa-copy"></i> Copy JSON
+                            </button>
+                            <button id="save-json-btn-v6" class="btn btn-secondary">
+                                <i class="fas fa-save"></i> Save Changes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- v5 Config Editor -->
+            <div id="v5-tab-content" class="tab-content">
+                <div class="config-panel">
+                    <div class="panel">
+                        <div class="panel-header">
+                            <i class="fas fa-sliders-h panel-icon"></i>
+                            <h2 class="panel-title">Module Configuration (v5)</h2>
+                        </div>
+                        <div id="config-form-v5" class="config-form">
+                            <div class="form-loading">
+                                <p style="text-align: center; color: #b9bbbe; padding: 40px;">
+                                    <i class="fas fa-spinner fa-spin" style="margin-right: 10px;"></i>
+                                    Loading configuration...
+                                </p>
+                            </div>
+                        </div>
+                        <div class="btn-group">
+                            <button id="download-config-btn-v5" class="btn btn-primary">
+                                <i class="fas fa-download"></i> Download config.json
+                            </button>
+                            <button id="reset-config-btn-v5" class="btn btn-secondary">
+                                <i class="fas fa-redo"></i> Reset to Default
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="panel">
+                        <div class="panel-header">
+                            <i class="fas fa-code panel-icon"></i>
+                            <h2 class="panel-title">Raw config.json (v5)</h2>
+                        </div>
+                        <div id="json-editor-container-v5" class="json-editor-container"></div>
+                        <div class="btn-group">
+                            <button id="copy-json-btn-v5" class="btn btn-primary">
+                                <i class="fas fa-copy"></i> Copy JSON
+                            </button>
+                            <button id="save-json-btn-v5" class="btn btn-secondary">
+                                <i class="fas fa-save"></i> Save Changes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- v4 Config Editor -->
+            <div id="v4-tab-content" class="tab-content">
+                <div class="config-panel">
+                    <div class="panel">
+                        <div class="panel-header">
+                            <i class="fas fa-sliders-h panel-icon"></i>
+                            <h2 class="panel-title">Module Configuration (v4)</h2>
+                        </div>
+                        <div id="config-form-v4" class="config-form">
+                            <div class="form-loading">
+                                <p style="text-align: center; color: #b9bbbe; padding: 40px;">
+                                    <i class="fas fa-spinner fa-spin" style="margin-right: 10px;"></i>
+                                    Loading configuration...
+                                </p>
+                            </div>
+                        </div>
+                        <div class="btn-group">
+                            <button id="download-config-btn-v4" class="btn btn-primary">
+                                <i class="fas fa-download"></i> Download config.json
+                            </button>
+                            <button id="reset-config-btn-v4" class="btn btn-secondary">
+                                <i class="fas fa-redo"></i> Reset to Default
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="panel">
+                        <div class="panel-header">
+                            <i class="fas fa-code panel-icon"></i>
+                            <h2 class="panel-title">Raw config.json (v4)</h2>
+                        </div>
+                        <div id="json-editor-container-v4" class="json-editor-container"></div>
+                        <div class="btn-group">
+                            <button id="copy-json-btn-v4" class="btn btn-primary">
+                                <i class="fas fa-copy"></i> Copy JSON
+                            </button>
+                            <button id="save-json-btn-v4" class="btn btn-secondary">
+                                <i class="fas fa-save"></i> Save Changes
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </main>
 
+    <!-- Footer -->
     <footer class="main-footer">
         <div class="container footer-container">
             <div class="footer-content">
                 <div class="footer-brand">
-                    <img src="assets/logo.png" alt="Glacier Client Logo" class="footer-logo" loading="lazy" />
+                    <img src="https://glacierclient.xyz/assets/logo.png" alt="Glacier Client Logo" class="footer-logo" />
                     <span class="brand-name">Glacier Client</span>
                 </div>
+
                 <div class="footer-social">
-                    <a href="https://dsc.gg/glacierclientmcbe" class="social-link" target="_blank"><i
-                            class="fab fa-discord"></i></a>
-                    <a href="https://github.com/glacierclientmcbe" class="social-link" target="_blank"><i
-                            class="fab fa-github"></i></a>
-                    <a href="https://youtube.com/@glacierclient" class="social-link" target="_blank"><i
-                            class="fab fa-youtube"></i></a>
-                    <a href="https://x.com/glacierclientbe" class="social-link" target="_blank"><i
-                            class="fab fa-twitter"></i></a>
-                    <a href="https://www.instagram.com/glacierclientmcbe" class="social-link" target="_blank"><i
-                            class="fab fa-instagram"></i></a>
-                    <a href="https://www.tiktok.com/@glacierclientmcbe" class="social-link" target="_blank"><i
-                            class="fab fa-tiktok"></i></a>
+                    <a href="https://dsc.gg/glacierclientmcbe" class="social-link" target="_blank">
+                        <i class="fab fa-discord"></i>
+                    </a>
+                    <a href="https://github.com/glacierclientmcbe" class="social-link" target="_blank">
+                        <i class="fab fa-github"></i>
+                    </a>
+                    <a href="https://youtube.com/@glacierclient" class="social-link" target="_blank">
+                        <i class="fab fa-youtube"></i>
+                    </a>
+                    <a href="https://x.com/glacierclientbe" class="social-link" target="_blank">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="https://www.instagram.com/glacierclientmcbe" class="social-link" target="_blank">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="https://www.tiktok.com/@glacierclientmcbe" class="social-link" target="_blank">
+                        <i class="fab fa-tiktok"></i>
+                    </a>
                 </div>
             </div>
+
             <p class="copyright-text">
                 © <span id="currentYear"></span> Glacier Client. Not affiliated with Mojang/Microsoft
             </p>
         </div>
     </footer>
 
-    <script type="module">
-const mobileMenuToggle = document.getElementById('mobileMenuToggle');
-const versionTabs = document.getElementById('versionTabs');
-const versionTabButtons = document.querySelectorAll('.version-tab');
-const tabContents = document.querySelectorAll('.tab-content');
+    <script>
+        // DOM Elements
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const navMenu = document.getElementById('navMenu');
+        const versionTabs = document.querySelectorAll('.version-tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const currentYearSpan = document.getElementById('currentYear');
 
-const versionDropdownBtn = document.getElementById('versionDropdownBtn');
-const versionDropdownContent = document.getElementById('versionDropdownContent');
-const versionDropdownItems = document.querySelectorAll('.version-dropdown-item');
-const selectedVersionSpan = document.getElementById('selectedVersion');
+        // Configuration data
+        const configUrls = {
+            v6: 'configs/v6.json',
+            v5: 'configs/v5.json',
+            v4: 'configs/v4.json'
+        };
 
-mobileMenuToggle.addEventListener('click', () => {
-    versionTabs.classList.toggle('active');
-    mobileMenuToggle.innerHTML = versionTabs.classList.contains('active')
-        ? '<i class="fas fa-times"></i>'
-        : '<i class="fas fa-bars"></i>';
-});
+        const loadedConfigs = {};
+        const monacoEditors = {};
 
-versionDropdownBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    versionDropdownContent.classList.toggle('show');
-});
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set current year
+            currentYearSpan.textContent = new Date().getFullYear();
 
-document.addEventListener('click', () => {
-    versionDropdownContent.classList.remove('show');
-});
+            // Setup mobile menu
+            setupMobileMenu();
 
-function switchTab(selectedTab) {     
-    versionTabButtons.forEach(button => {
-        button.classList.toggle('active', button.dataset.tab === selectedTab);
-    });
+            // Setup tab switching
+            setupTabs();
 
-    versionDropdownItems.forEach(item => {
-        if (item.dataset.tab === selectedTab) {
-            item.classList.add('active');
-            selectedVersionSpan.textContent = selectedTab;
-        } else {
-            item.classList.remove('active');
-        }
-    });
+            // Setup header scroll effect
+            setupHeaderScroll();
 
-    tabContents.forEach(content => {
-        content.classList.toggle('active', content.id === `${selectedTab}-tab-content`);
-    });
-
-    if (!window.loadedConfigs) window.loadedConfigs = {};
-
-    if (!window.loadedConfigs[selectedTab]) {
-        loadConfigFromFile(selectedTab);
-    }
-
-    if (window.innerWidth <= 768) {
-        versionTabs.classList.remove('active');
-        mobileMenuToggle.innerHTML = '<i class="fas fa-bars"></i>';
-    }
-
-    versionDropdownContent.classList.remove('show');
-}
-
-versionTabButtons.forEach(button => {
-    button.addEventListener('click', () => switchTab(button.dataset.tab));
-});
-
-versionDropdownItems.forEach(item => {
-    item.addEventListener('click', (e) => {
-        e.preventDefault();
-        switchTab(item.dataset.tab);
-    });
-});
-
-function determineLatestVersion() {
-    const availableVersions = ['v4', 'v5', 'v6'];
-    return availableVersions[availableVersions.length - 1];
-}
-
-const latestVersion = determineLatestVersion();
-
-async function loadConfigFromFile(version) {
-    try {
-        const response = await fetch(`configs/${version}.json`);
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        const configData = await response.json();
-
-        initializeConfigEditor(version, configData);
-        window.loadedConfigs[version] = true;
-    } catch (error) {
-        console.error(`Error loading ${version} config:`, error);
-        const configForm = document.getElementById(`config-form-${version}`);
-        if (configForm) {
-            configForm.innerHTML = `<p class="text-color-text-alt text-center">Error loading configuration for ${version.toUpperCase()}. Please try again later.</p>`;
-        }
-    }
-}
-
-function initializeConfigEditor(version, configData) {
-    const configForm = document.getElementById(`config-form-${version}`);
-    const jsonEditorContainer = document.getElementById(`json-editor-container-${version}`);
-    const downloadConfigBtn = document.getElementById(`download-config-btn-${version}`);
-    const copyJsonBtn = document.getElementById(`copy-json-btn-${version}`);
-
-    let currentConfig = configData;
-    let monacoEditor;
-
-    function sanitizeKeyForDisplay(key) {
-        return key.replace(/@gc\.pnl|\$|\|default/g, '')
-            .replace(/_/g, ' ')
-            .trim()
-            .replace(/\b\w/g, char => char.toUpperCase());
-    }
-
-    const anchorOptions = [
-        "top_left", "top_middle", "top_right",
-        "left_middle", "center", "right_middle",
-        "bottom_left", "bottom_middle", "bottom_right"
-    ];
-
-    const chatToggleOptions = { 0: "Bottom Chat", 1: "Top Chat" };
-    const hotbarToggleOptions = { 0: "Default", 1: "Connected", 2: "RGB" };
-    const inventoryHudToggleOptions = { 0: "Horizontal", 1: "Vertical" };
-    const mainhandDurabilityToggleOptions = { 0: "Absolute", 1: "Percentage" };
-
-    const createFormGroup = (label, inputHtml) => {
-        const div = document.createElement('div');
-        div.className = 'flex items-center justify-between gap-4 mb-2';
-        const labelElem = document.createElement('label');
-        labelElem.className = 'text-color-text text-lg font-medium flex-grow';
-        labelElem.textContent = label;
-        div.appendChild(labelElem);
-        const inputWrapper = document.createElement('div');
-        inputWrapper.innerHTML = inputHtml;
-        div.appendChild(inputWrapper);
-        return div;
-    };
-
-    const createSectionHeader = (title) => {
-        const h3 = document.createElement('h3');
-        h3.className = 'text-xl font-semibold text-color-primary mt-6 mb-4 border-b border-glass-border-color pb-2';
-        h3.textContent = title;
-        return h3;
-    };
-function renderConfigForm(config) {
-    configForm.innerHTML = '';
-    const mainConfig = config["mod_menu_config@gc.pnl"];
-    const pauseMenuConfig = config["pause_menu_config@gc.pnl"];
-    const containerConfig = config["container_config@gc.pnl"];
-    const startScreenConfig = mainConfig['start_screen_config@gc.pnl'] || {};
-
-    configForm.appendChild(createSectionHeader('Modules Configuration'));
-    for (const key in mainConfig) {
-        if (key === 'start_screen_config@gc.pnl') continue;
-        const cleanKey = key.replace(/\|default/g, '');
-        const displayLabel = sanitizeKeyForDisplay(key);
-        let inputHtml = '';
-        let value = mainConfig[key];
-        const dataOriginalKey = `data-original-key="${key}"`;
-
-        if (cleanKey.endsWith('_item_id') || cleanKey.endsWith('_id') || cleanKey.endsWith('_aux')) {
-            inputHtml = `<input type="number" id="${cleanKey}" ${dataOriginalKey} value="${value}" class="input-field w-auto min-w-[120px] text-center" />`;
-        } else if (cleanKey.startsWith('$hotbar_number')) {
-            inputHtml = `<input type="text" id="${cleanKey}" ${dataOriginalKey} value="${value}" class="input-field w-auto min-w-[100px] text-center" />`;
-        } else if (Array.isArray(value) && value.length === 2) {
-            inputHtml = `<div class="flex gap-2">
-                <input type="number" id="${cleanKey}_x" ${dataOriginalKey} value="${value[0]}" class="input-field w-24 text-center" placeholder="X" />
-                <input type="number" id="${cleanKey}_y" ${dataOriginalKey} value="${value[1]}" class="input-field w-24 text-center" placeholder="Y" />
-            </div>`;
-        } else if (typeof value === 'boolean') {
-            inputHtml = `<label class="toggle-switch"><input type="checkbox" id="${cleanKey}" ${dataOriginalKey} ${value ? 'checked' : ''}><span class="slider"></span></label>`;
-        } else if (typeof value === 'number' && key.includes('opacity')) {
-            inputHtml = `<div class="flex items-center gap-2 w-full max-w-[200px]">
-                <input type="range" id="${cleanKey}_range" ${dataOriginalKey} min="0" max="1" step="0.01" value="${value}" class="flex-grow h-2 rounded-lg appearance-none cursor-pointer bg-color-primary/50" />
-                <input type="number" id="${cleanKey}_number" ${dataOriginalKey} min="0" max="1" step="0.01" value="${value}" class="input-field w-20 text-center" />
-            </div>`;
-        } else if (typeof value === 'string' && key.includes('anchor')) {
-            const optionsHtml = anchorOptions.map(opt => `<option value="${opt}" ${value === opt ? 'selected' : ''}>${sanitizeKeyForDisplay(opt)}</option>`).join('');
-            inputHtml = `<select id="${cleanKey}" ${dataOriginalKey} class="select-field w-auto min-w-[150px]">${optionsHtml}</select>`;
-        } else if (['$chat_toggle_index', '$hotbar_toggle_index', '$inventoryhud_toggle_index', '$mainhand_durability_toggle_index'].includes(cleanKey)) {
-            let opts = chatToggleOptions;
-            if (cleanKey === '$hotbar_toggle_index') opts = hotbarToggleOptions;
-            if (cleanKey === '$inventoryhud_toggle_index') opts = inventoryHudToggleOptions;
-            if (cleanKey === '$mainhand_durability_toggle_index') opts = mainhandDurabilityToggleOptions;
-            const optionsHtml = Object.entries(opts).map(([idx, label]) => `<option value="${idx}" ${value == idx ? 'selected' : ''}>${label}</option>`).join('');
-            inputHtml = `<select id="${cleanKey}" ${dataOriginalKey} class="select-field w-auto min-w-[150px]">${optionsHtml}</select>`;
-        } else if (typeof value === 'number') {
-            inputHtml = `<input type="number" id="${cleanKey}" ${dataOriginalKey} value="${value}" class="input-field w-auto min-w-[100px] text-center" />`;
-        }
-        configForm.appendChild(createFormGroup(displayLabel, inputHtml));
-    }
-
-    configForm.appendChild(createSectionHeader('Start Screen Configuration'));
-    for (const key in startScreenConfig) {
-        const displayLabel = sanitizeKeyForDisplay(key);
-        const value = startScreenConfig[key];
-        const dataOriginalKey = `data-original-key="start_screen_config@gc.pnl.${key}"`;
-        
-        let inputHtml = '';
-        if (key === '$ui_switcher_toggle_index') {
-            inputHtml = `<label class="toggle-switch"><input type="checkbox" id="start_screen_${key}" ${dataOriginalKey} ${value === 1 ? 'checked' : ''}><span class="slider"></span></label>`;
-        } else if (key.endsWith('_item_id') || key.endsWith('_id') || key.endsWith('_aux')) {
-            inputHtml = `<input type="number" id="start_screen_${key}" ${dataOriginalKey} value="${value}" class="input-field w-auto min-w-[120px] text-center" />`;
-        } else {
-            inputHtml = `<label class="toggle-switch"><input type="checkbox" id="start_screen_${key}" ${dataOriginalKey} ${value ? 'checked' : ''}><span class="slider"></span></label>`;
-        }
-        configForm.appendChild(createFormGroup(displayLabel, inputHtml));
-    }
-
-    configForm.appendChild(createSectionHeader('Pause Menu Configuration'));
-    for (const key in pauseMenuConfig) {
-        const displayLabel = sanitizeKeyForDisplay(key);
-        const value = pauseMenuConfig[key];
-        const inputHtml = `<label class="toggle-switch"><input type="checkbox" id="${key}" data-original-key="${key}" ${value ? 'checked' : ''}><span class="slider"></span></label>`;
-        configForm.appendChild(createFormGroup(displayLabel, inputHtml));
-    }
-
-    configForm.appendChild(createSectionHeader('Container Configuration'));
-    for (const key in containerConfig) {
-        const displayLabel = sanitizeKeyForDisplay(key);
-        const value = containerConfig[key];
-        const dataOriginalKey = `data-original-key="${key}"`;
-        let inputHtml = (key.endsWith('_item_id') || key.endsWith('_id') || key.endsWith('_aux'))
-            ? `<input type="number" id="${key}" ${dataOriginalKey} value="${value}" class="input-field w-auto min-w-[120px] text-center" />`
-            : `<label class="toggle-switch"><input type="checkbox" id="${key}" ${dataOriginalKey} ${value ? 'checked' : ''}><span class="slider"></span></label>`;
-        configForm.appendChild(createFormGroup(displayLabel, inputHtml));
-    }
-}
-
-function updateConfigFromForm(event) {
-    const target = event.target;
-    const originalKey = target.dataset.originalKey || target.id;
-    const type = target.type;
-    let value = type === 'checkbox' ? target.checked : target.value;
-
-    if (originalKey.includes('start_screen_config@gc.pnl.')) {
-        const key = originalKey.split('.')[1];
-        if (key === '$ui_switcher_toggle_index') {
-            currentConfig["mod_menu_config@gc.pnl"]["start_screen_config@gc.pnl"][key] = value ? 1 : 0;
-        } else {
-            const isNumeric = key.endsWith('_item_id') || key.endsWith('_id') || key.endsWith('_aux');
-            currentConfig["mod_menu_config@gc.pnl"]["start_screen_config@gc.pnl"][key] = isNumeric ? parseInt(value, 10) : value;
-        }
-    } else {
-        let sectionKey = "mod_menu_config@gc.pnl";
-        if (originalKey.includes('pause_menu_config')) sectionKey = "pause_menu_config@gc.pnl";
-        else if (originalKey.includes('container_config')) sectionKey = "container_config@gc.pnl";
-
-        if (type === 'checkbox') {
-            currentConfig[sectionKey][originalKey] = target.checked;
-        } else if (type === 'range' || (type === 'number' && originalKey.includes('opacity'))) {
-            const numValue = parseFloat(value);
-            currentConfig[sectionKey][originalKey] = numValue;
-            const cleanKey = originalKey.replace(/\|default/g, '');
-            const rangeInput = document.getElementById(`${cleanKey}_range`);
-            const numInput = document.getElementById(`${cleanKey}_number`);
-            if (rangeInput) rangeInput.value = numValue;
-            if (numInput) numInput.value = numValue;
-        } else if (type === 'number' || originalKey.endsWith('_item_id') || originalKey.endsWith('_id') || originalKey.endsWith('_aux')) {
-            currentConfig[sectionKey][originalKey] = parseInt(value, 10);
-        } else if (target.tagName === 'SELECT') {
-            currentConfig[sectionKey][originalKey] = originalKey.includes('anchor') ? value : parseInt(value, 10);
-        } else if (originalKey.endsWith('_offset|default')) {
-            const cleanKey = originalKey.replace(/\|default/g, '');
-            const xInput = document.querySelector(`[data-original-key="${originalKey}"][id="${cleanKey}_x"]`);
-            const yInput = document.querySelector(`[data-original-key="${originalKey}"][id="${cleanKey}_y"]`);
-            currentConfig[sectionKey][originalKey] = [parseFloat(xInput.value), parseFloat(yInput.value)];
-        } else {
-            currentConfig[sectionKey][originalKey] = value;
-        }
-    }
-    updateMonacoEditor();
-}
-
-    configForm.addEventListener('input', updateConfigFromForm);
-
-    function initializeMonacoEditor() {
-        require.config({ paths: { 'vs': 'https://cdn.jsdelivr.net/npm/monaco-editor@0.49.0/min/vs' } });
-        require(['vs/editor/editor.main'], () => {
-            monacoEditor = monaco.editor.create(jsonEditorContainer, {
-                value: JSON.stringify(currentConfig, null, 4),
-                language: 'json',
-                theme: 'vs-dark',
-                automaticLayout: true,
-                minimap: { enabled: false }
-            });
-
-            let monacoUpdateTimeout;
-            monacoEditor.onDidChangeModelContent(() => {
-                clearTimeout(monacoUpdateTimeout);
-                monacoUpdateTimeout = setTimeout(() => {
-                    try {
-                        currentConfig = JSON.parse(monacoEditor.getValue());
-                        renderConfigForm(currentConfig);
-                    } catch (e) {}
-                }, 500);
-            });
+            // Load default tab (v6)
+            loadConfig('v6');
         });
-    }
 
-    function updateMonacoEditor() {
-        if (monacoEditor) {
-            const newVal = JSON.stringify(currentConfig, null, 4);
-            if (monacoEditor.getValue() !== newVal) monacoEditor.setValue(newVal);
+        // Mobile Menu
+        function setupMobileMenu() {
+            mobileMenuBtn.addEventListener('click', () => {
+                navMenu.classList.toggle('active');
+                mobileMenuBtn.innerHTML = navMenu.classList.contains('active') 
+                    ? '<i class="fas fa-times"></i>' 
+                    : '<i class="fas fa-bars"></i>';
+            });
+
+            // Close menu when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!navMenu.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
+                    navMenu.classList.remove('active');
+                    mobileMenuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                }
+            });
         }
-    }
 
-    downloadConfigBtn.addEventListener('click', () => {
-        const blob = new Blob([JSON.stringify(currentConfig, null, 4)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url; a.download = 'config.json';
-        document.body.appendChild(a); a.click();
-        document.body.removeChild(a); URL.revokeObjectURL(url);
-    });
-
-    copyJsonBtn.addEventListener('click', () => {
-        if (monacoEditor) {
-            navigator.clipboard.writeText(monacoEditor.getValue());
+        // Tab Switching
+        function setupTabs() {
+            versionTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabId = tab.dataset.tab;
+                    
+                    // Update active tab
+                    versionTabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    
+                    // Show corresponding content
+                    tabContents.forEach(content => {
+                        content.classList.remove('active');
+                        if (content.id === `${tabId}-tab-content`) {
+                            content.classList.add('active');
+                        }
+                    });
+                    
+                    // Load config if not already loaded
+                    if (!loadedConfigs[tabId]) {
+                        loadConfig(tabId);
+                    }
+                });
+            });
         }
-    });
 
-    renderConfigForm(currentConfig);
-    initializeMonacoEditor();
-}
+        // Header Scroll Effect
+        function setupHeaderScroll() {
+            const header = document.getElementById('mainHeader');
+            window.addEventListener('scroll', () => {
+                header.classList.toggle('scrolled', window.scrollY > 50);
+            });
+        }
 
-window.onload = () => {
-    document.getElementById('currentYear').textContent = new Date().getFullYear();
-    switchTab(latestVersion);
-    document.querySelectorAll('.panel.animate-fade-in-up, .disclaimer-panel').forEach(p => p.classList.add('is-visible'));
-};
+        // Load Configuration
+        async function loadConfig(version) {
+            try {
+                const formElement = document.getElementById(`config-form-${version}`);
+                const loadingElement = formElement.querySelector('.form-loading');
+                
+                // Show loading state
+                loadingElement.style.display = 'block';
+                formElement.innerHTML = '';
+                formElement.appendChild(loadingElement);
+                
+                // Load config data
+                const response = await fetch(configUrls[version]);
+                const configData = await response.json();
+                
+                // Store loaded config
+                loadedConfigs[version] = configData;
+                
+                // Render form
+                renderConfigForm(version, configData);
+                
+                // Initialize Monaco editor
+                initializeMonacoEditor(version, configData);
+                
+                // Setup form buttons
+                setupFormButtons(version);
+                
+            } catch (error) {
+                console.error(`Error loading ${version} config:`, error);
+                const formElement = document.getElementById(`config-form-${version}`);
+                formElement.innerHTML = `
+                    <div class="form-error" style="text-align: center; padding: 40px; color: var(--discord-red);">
+                        <i class="fas fa-exclamation-circle" style="font-size: 3rem; margin-bottom: 20px;"></i>
+                        <p>Failed to load configuration for ${version.toUpperCase()}</p>
+                        <p style="font-size: 0.9rem; margin-top: 10px;">Please try again later</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Render Configuration Form
+        function renderConfigForm(version, configData) {
+            const formElement = document.getElementById(`config-form-${version}`);
+            formElement.innerHTML = '';
+            
+            // Process config data and create form elements
+            const mainConfig = configData["mod_menu_config@gc.pnl"] || {};
+            const pauseConfig = configData["pause_menu_config@gc.pnl"] || {};
+            const containerConfig = configData["container_config@gc.pnl"] || {};
+            
+            // Create form sections
+            if (Object.keys(mainConfig).length > 0) {
+                createFormSection(formElement, 'Main Configuration', mainConfig, version);
+            }
+            
+            if (Object.keys(pauseConfig).length > 0) {
+                createFormSection(formElement, 'Pause Menu Configuration', pauseConfig, version);
+            }
+            
+            if (Object.keys(containerConfig).length > 0) {
+                createFormSection(formElement, 'Container Configuration', containerConfig, version);
+            }
+        }
+
+        // Create Form Section
+        function createFormSection(container, title, config, version) {
+            const section = document.createElement('div');
+            section.className = 'form-section';
+            
+            // Section header
+            const header = document.createElement('div');
+            header.className = 'section-header';
+            header.innerHTML = `<h3 class="section-title">${title}</h3>`;
+            section.appendChild(header);
+            
+            // Create form groups for each config item
+            for (const [key, value] of Object.entries(config)) {
+                if (key.startsWith('$') || key.includes('@gc.pnl')) {
+                    const formGroup = createFormGroup(key, value, version);
+                    section.appendChild(formGroup);
+                }
+            }
+            
+            container.appendChild(section);
+        }
+
+        // Create Form Group
+        function createFormGroup(key, value, version) {
+            const formGroup = document.createElement('div');
+            formGroup.className = 'form-group';
+            formGroup.dataset.key = key;
+            
+            // Create label
+            const label = document.createElement('div');
+            label.className = 'form-label';
+            
+            const labelText = document.createElement('span');
+            labelText.className = 'label-text';
+            labelText.textContent = formatKeyName(key);
+            
+            const labelHint = document.createElement('span');
+            labelHint.className = 'label-hint';
+            labelHint.textContent = getValueType(value);
+            
+            label.appendChild(labelText);
+            label.appendChild(labelHint);
+            formGroup.appendChild(label);
+            
+            // Create control based on value type
+            const control = document.createElement('div');
+            control.className = 'form-control';
+            
+            if (typeof value === 'boolean') {
+                control.appendChild(createToggleSwitch(key, value, version));
+            } else if (typeof value === 'number') {
+                if (key.includes('opacity')) {
+                    control.appendChild(createRangeInput(key, value, version));
+                } else {
+                    control.appendChild(createNumberInput(key, value, version));
+                }
+            } else if (typeof value === 'string') {
+                if (key.includes('anchor')) {
+                    control.appendChild(createSelectInput(key, value, version, getAnchorOptions()));
+                } else {
+                    control.appendChild(createTextInput(key, value, version));
+                }
+            } else if (Array.isArray(value) && value.length === 2) {
+                control.appendChild(createCoordinateInputs(key, value, version));
+            }
+            
+            formGroup.appendChild(control);
+            return formGroup;
+        }
+
+        // Form Element Creators
+        function createToggleSwitch(key, value, version) {
+            const container = document.createElement('label');
+            container.className = 'toggle-switch';
+            
+            const input = document.createElement('input');
+            input.type = 'checkbox';
+            input.checked = value;
+            input.dataset.key = key;
+            input.dataset.version = version;
+            
+            const slider = document.createElement('span');
+            slider.className = 'toggle-slider';
+            
+            container.appendChild(input);
+            container.appendChild(slider);
+            
+            // Add change event
+            input.addEventListener('change', () => {
+                updateConfigValue(version, key, input.checked);
+            });
+            
+            return container;
+        }
+
+        function createNumberInput(key, value, version) {
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.className = 'input-field small';
+            input.value = value;
+            input.dataset.key = key;
+            input.dataset.version = version;
+            
+            input.addEventListener('input', () => {
+                updateConfigValue(version, key, parseFloat(input.value) || 0);
+            });
+            
+            return input;
+        }
+
+        function createRangeInput(key, value, version) {
+            const container = document.createElement('div');
+            container.className = 'range-input';
+            
+            const input = document.createElement('input');
+            input.type = 'range';
+            input.className = 'range-slider';
+            input.min = 0;
+            input.max = 1;
+            input.step = 0.01;
+            input.value = value;
+            input.dataset.key = key;
+            input.dataset.version = version;
+            
+            const valueDisplay = document.createElement('span');
+            valueDisplay.className = 'range-value';
+            valueDisplay.textContent = value.toFixed(2);
+            
+            input.addEventListener('input', () => {
+                const floatValue = parseFloat(input.value);
+                valueDisplay.textContent = floatValue.toFixed(2);
+                updateConfigValue(version, key, floatValue);
+            });
+            
+            container.appendChild(input);
+            container.appendChild(valueDisplay);
+            return container;
+        }
+
+        function createSelectInput(key, value, version, options) {
+            const select = document.createElement('select');
+            select.className = 'select-field medium';
+            select.dataset.key = key;
+            select.dataset.version = version;
+            
+            options.forEach(option => {
+                const optionElement = document.createElement('option');
+                optionElement.value = option.value;
+                optionElement.textContent = option.label;
+                optionElement.selected = option.value === value;
+                select.appendChild(optionElement);
+            });
+            
+            select.addEventListener('change', () => {
+                updateConfigValue(version, key, select.value);
+            });
+            
+            return select;
+        }
+
+        function createCoordinateInputs(key, value, version) {
+            const container = document.createElement('div');
+            container.className = 'coordinate-inputs';
+            
+            const xInput = document.createElement('input');
+            xInput.type = 'number';
+            xInput.className = 'input-field';
+            xInput.placeholder = 'X';
+            xInput.value = value[0];
+            xInput.dataset.key = key;
+            xInput.dataset.coord = 'x';
+            xInput.dataset.version = version;
+            
+            const yInput = document.createElement('input');
+            yInput.type = 'number';
+            yInput.className = 'input-field';
+            yInput.placeholder = 'Y';
+            yInput.value = value[1];
+            yInput.dataset.key = key;
+            yInput.dataset.coord = 'y';
+            yInput.dataset.version = version;
+            
+            const updateHandler = () => {
+                const newValue = [parseFloat(xInput.value) || 0, parseFloat(yInput.value) || 0];
+                updateConfigValue(version, key, newValue);
+            };
+            
+            xInput.addEventListener('input', updateHandler);
+            yInput.addEventListener('input', updateHandler);
+            
+            container.appendChild(xInput);
+            container.appendChild(yInput);
+            return container;
+        }
+
+        // Helper Functions
+        function formatKeyName(key) {
+            return key
+                .replace(/@gc\.pnl/g, '')
+                .replace(/[\$|_]/g, ' ')
+                .trim()
+                .replace(/\b\w/g, c => c.toUpperCase());
+        }
+
+        function getValueType(value) {
+            if (typeof value === 'boolean') return 'Boolean';
+            if (typeof value === 'number') return 'Number';
+            if (typeof value === 'string') return 'String';
+            if (Array.isArray(value)) return 'Array';
+            return typeof value;
+        }
+
+        function getAnchorOptions() {
+            return [
+                { value: 'top_left', label: 'Top Left' },
+                { value: 'top_middle', label: 'Top Middle' },
+                { value: 'top_right', label: 'Top Right' },
+                { value: 'left_middle', label: 'Left Middle' },
+                { value: 'center', label: 'Center' },
+                { value: 'right_middle', label: 'Right Middle' },
+                { value: 'bottom_left', label: 'Bottom Left' },
+                { value: 'bottom_middle', label: 'Bottom Middle' },
+                { value: 'bottom_right', label: 'Bottom Right' }
+            ];
+        }
+
+        // Update Configuration Value
+        function updateConfigValue(version, key, newValue) {
+            if (!loadedConfigs[version]) return;
+            
+            // Update config object
+            const config = loadedConfigs[version];
+            const keyParts = key.split('.');
+            let current = config;
+            
+            for (let i = 0; i < keyParts.length - 1; i++) {
+                current = current[keyParts[i]];
+            }
+            
+            current[keyParts[keyParts.length - 1]] = newValue;
+            
+            // Update Monaco editor
+            if (monacoEditors[version]) {
+                monacoEditors[version].setValue(JSON.stringify(config, null, 2));
+            }
+        }
+
+        // Initialize Monaco Editor
+        function initializeMonacoEditor(version, configData) {
+            require.config({ paths: { vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.49.0/min/vs' } });
+            
+            require(['vs/editor/editor.main'], () => {
+                const container = document.getElementById(`json-editor-container-${version}`);
+                const editor = monaco.editor.create(container, {
+                    value: JSON.stringify(configData, null, 2),
+                    language: 'json',
+                    theme: 'vs-dark',
+                    automaticLayout: true,
+                    minimap: { enabled: false },
+                    scrollBeyondLastLine: false,
+                    fontSize: 14,
+                    lineNumbers: 'on',
+                    renderLineHighlight: 'all',
+                    scrollbar: {
+                        vertical: 'visible',
+                        horizontal: 'visible',
+                        useShadows: false
+                    }
+                });
+                
+                monacoEditors[version] = editor;
+                
+                // Update config when editor content changes
+                editor.onDidChangeModelContent(() => {
+                    try {
+                        const newConfig = JSON.parse(editor.getValue());
+                        loadedConfigs[version] = newConfig;
+                        renderConfigForm(version, newConfig);
+                    } catch (e) {
+                        console.error('Invalid JSON:', e);
+                    }
+                });
+            });
+        }
+
+        // Setup Form Buttons
+        function setupFormButtons(version) {
+            // Download button
+            const downloadBtn = document.getElementById(`download-config-btn-${version}`);
+            if (downloadBtn) {
+                downloadBtn.addEventListener('click', () => {
+                    downloadConfig(version);
+                });
+            }
+            
+            // Reset button
+            const resetBtn = document.getElementById(`reset-config-btn-${version}`);
+            if (resetBtn) {
+                resetBtn.addEventListener('click', async () => {
+                    if (confirm('Are you sure you want to reset to default configuration?')) {
+                        await loadConfig(version);
+                    }
+                });
+            }
+            
+            // Copy JSON button
+            const copyBtn = document.getElementById(`copy-json-btn-${version}`);
+            if (copyBtn) {
+                copyBtn.addEventListener('click', () => {
+                    copyToClipboard(version);
+                });
+            }
+            
+            // Save button
+            const saveBtn = document.getElementById(`save-json-btn-${version}`);
+            if (saveBtn) {
+                saveBtn.addEventListener('click', () => {
+                    saveConfig(version);
+                });
+            }
+        }
+
+        // Download Configuration
+        function downloadConfig(version) {
+            const config = loadedConfigs[version];
+            if (!config) return;
+            
+            const jsonStr = JSON.stringify(config, null, 2);
+            const blob = new Blob([jsonStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `glacier-config-${version}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Copy to Clipboard
+        function copyToClipboard(version) {
+            const config = loadedConfigs[version];
+            if (!config) return;
+            
+            const jsonStr = JSON.stringify(config, null, 2);
+            
+            navigator.clipboard.writeText(jsonStr).then(() => {
+                // Show success message
+                const btn = document.getElementById(`copy-json-btn-${version}`);
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                btn.style.background = 'var(--discord-green)';
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.style.background = '';
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                alert('Failed to copy to clipboard');
+            });
+        }
+
+        // Save Configuration
+        function saveConfig(version) {
+            // In a real application, this would save to a server
+            // For now, we'll just show a success message
+            const btn = document.getElementById(`save-json-btn-${version}`);
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check"></i> Saved!';
+            btn.style.background = 'var(--discord-green)';
+            
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.style.background = '';
+            }, 2000);
+        }
     </script>
 </body>
-
 </html>
