@@ -155,7 +155,7 @@ const App: React.FC = () => {
           <div className="flex items-center gap-3">
             <img src="https://glacierclient.xyz/assets/logo.png" className="w-8 h-8 md:w-10 md:h-10 rounded-full border border-white/10" alt="Logo" />
             <h1 className="text-lg md:text-xl font-extrabold tracking-tight bg-gradient-to-r from-[#7289da] to-[#9ba9ff] bg-clip-text text-transparent">
-              Glacier <span className="hidden sm:inline">Suite</span>
+              Glacier <span className="hidden sm:inline">Editor</span>
             </h1>
           </div>
           
