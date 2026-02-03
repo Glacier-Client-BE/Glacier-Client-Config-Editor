@@ -1,0 +1,5 @@
+{
+  "name": "Glacier Client Config Suite",
+  "description": "A high-performance web-based configuration editor for Minecraft Bedrock Glacier Client, featuring dynamic UI generation, a draggable HUD canvas, and raw JSON editing.",
+  "requestFramePermissions": []
+}
