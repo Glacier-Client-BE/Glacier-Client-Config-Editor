@@ -74,7 +74,7 @@ const App: React.FC = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `glacier_${version}_config.json`;
+    a.download = `config.json`;
     a.click();
     URL.revokeObjectURL(url);
   }, [config, version]);
