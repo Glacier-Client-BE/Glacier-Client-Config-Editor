@@ -133,6 +133,11 @@ const ConfigForm: React.FC<ConfigFormProps> = ({ config, activeSection, onUpdate
           k.includes('hide_nethercoordinates') ||
           k.includes('hide_vanillacordinates')
         ));
+      }
+      else if (base === 'itemcounters') {
+        children = keys.filter(k => k !== root && (
+          k.includes('hide_potioncounter') || k.includes('hide_totemcounter') || k.includes('hide_arrowcounter')
+        ));
       } else if (base === 'clockcompass') {
         children = keys.filter(k => k !== root && (
           k.startsWith('$clockcompass_') || k.includes('compass_aux') || k.includes('clock_aux') || k.includes('recovery_compass_aux') || k.includes('show_clock_compass')
