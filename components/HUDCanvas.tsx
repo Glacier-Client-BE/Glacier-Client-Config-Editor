@@ -61,6 +61,19 @@ const HUDCanvas: React.FC<HUDCanvasProps> = ({ config, modules, onUpdate }) => {
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [hoveredAnchor, setHoveredAnchor] = useState<AnchorType | null>(null);
+  const [fullscreen, setFullscreen] = useState(false);
+  const [showBackground, setShowBackground] = useState(true);
+
+  useEffect(() => {
+    if (!fullscreen) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setFullscreen(false); };
+    window.addEventListener('keydown', onKey);
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      document.body.style.overflow = '';
+    };
+  }, [fullscreen]);
 
   const visibleModules = useMemo(() => {
     const settings = config[SECTION];
@@ -240,14 +253,65 @@ const HUDCanvas: React.FC<HUDCanvasProps> = ({ config, modules, onUpdate }) => {
   const selectedMod = selectedId ? modules.find(m => m.id === selectedId) : null;
   const selectedSettings = selectedMod ? config[SECTION] : null;
 
+  const wrapperClass = fullscreen
+    ? 'fixed inset-0 z-[1500] bg-black/95 backdrop-blur-sm flex flex-col select-none p-3 md:p-5 anim-fade-in'
+    : 'w-full h-full flex flex-col select-none';
+
+  const canvasClass = fullscreen
+    ? 'relative w-full flex-1 border-2 border-white/15 rounded-2xl overflow-hidden shadow-2xl touch-none bg-glacier-black'
+    : 'hud-grid relative w-full aspect-video border-2 border-white/10 rounded-2xl overflow-hidden shadow-inner flex-shrink-0 touch-none bg-gradient-to-br from-glacier-black/80 to-black/60';
+
   return (
-    <div className="w-full h-full flex flex-col select-none">
+    <div className={wrapperClass}>
+      {fullscreen && (
+        <div className="flex items-center justify-between mb-3 px-1 shrink-0">
+          <div className="flex items-center gap-2.5">
+            <i className="fas fa-expand text-blurple"></i>
+            <span className="text-xs md:text-sm font-extrabold uppercase tracking-widest gradient-text-blurple">HUD Layout · Fullscreen</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowBackground(b => !b)}
+              className={`px-3 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all border ${showBackground ? 'bg-blurple/20 text-blurple border-blurple/30' : 'bg-glacier-black/70 text-glacier-muted border-white/10 hover:text-white'}`}
+              title="Toggle Minecraft background"
+            >
+              <i className={`fas ${showBackground ? 'fa-image' : 'fa-image-portrait'} mr-1.5`}></i>
+              {showBackground ? 'BG On' : 'BG Off'}
+            </button>
+            <button
+              onClick={() => setFullscreen(false)}
+              className="px-4 py-2 rounded-full bg-glacier-red/15 hover:bg-glacier-red/25 text-glacier-red border border-glacier-red/25 text-[10px] font-black uppercase tracking-widest transition-all"
+              title="Exit fullscreen (Esc)"
+            >
+              <i className="fas fa-compress mr-1.5"></i>Exit
+            </button>
+          </div>
+        </div>
+      )}
+
       <div
         ref={containerRef}
         onPointerDown={onContainerClick as any}
-        className="hud-grid relative w-full aspect-video bg-gradient-to-br from-glacier-black/80 to-black/60 border-2 border-white/10 rounded-2xl overflow-hidden shadow-inner flex-shrink-0 touch-none"
+        className={canvasClass}
       >
-        <div className="absolute inset-0 bg-[radial-gradient(rgba(114,137,218,.15)_1px,transparent_1px)] [background-size:24px_24px] opacity-40 pointer-events-none"></div>
+        {showBackground && (
+          <div
+            aria-hidden
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              backgroundImage:
+                'url(https://media.discordapp.net/attachments/1252981510223429693/1501843952641245274/mcbe-1-21-101-bug-annoyed-me-v0-b242anJjYW1hY25mMY5dEpPuyyCI1iDCMPySbQqxA3mE9rTLMSd0Qkjlly98.png?ex=69fd8cad&is=69fc3b2d&hm=6722bc14d7a5bf60ac5e9dc9ea2b1a12170ef859025532aae3dd187e1d0bd815&=&width=1245&height=700)',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              imageRendering: 'pixelated',
+              opacity: fullscreen ? 0.95 : 0.7,
+            }}
+          ></div>
+        )}
+        <div className={`absolute inset-0 ${showBackground ? 'bg-black/25' : ''} pointer-events-none`}></div>
+        {!fullscreen && !showBackground && (
+          <div className="absolute inset-0 bg-[radial-gradient(rgba(114,137,218,.15)_1px,transparent_1px)] [background-size:24px_24px] opacity-40 pointer-events-none"></div>
+        )}
 
         {selectedId && (
           <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 p-3 gap-2 pointer-events-none z-[60]">
@@ -324,16 +388,18 @@ const HUDCanvas: React.FC<HUDCanvasProps> = ({ config, modules, onUpdate }) => {
 
         {visibleModules.length === 0 && (
           <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none gap-2">
-            <i className="fas fa-grip-dots-vertical text-2xl text-glacier-muted/50"></i>
-            <span className="text-[10px] uppercase tracking-widest text-glacier-muted/70 font-black">
-              No active HUD elements
-            </span>
-            <span className="text-[10px] text-glacier-muted/50">Toggle modules in the config panel</span>
+            <div className="px-5 py-4 bg-glacier-black/85 border border-white/10 rounded-2xl backdrop-blur-md flex flex-col items-center gap-1.5">
+              <i className="fas fa-grip-dots-vertical text-2xl text-glacier-muted/70"></i>
+              <span className="text-[10px] uppercase tracking-widest text-white font-black">
+                No active HUD elements
+              </span>
+              <span className="text-[10px] text-glacier-muted">Toggle modules in the config panel</span>
+            </div>
           </div>
         )}
       </div>
 
-      <div className="mt-3 flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
+      <div className={`${fullscreen ? 'mt-3' : 'mt-3'} flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center shrink-0`}>
         <div className="flex-1 bg-glacier-black/40 rounded-xl px-4 py-2.5 border border-white/5 min-h-[44px] flex items-center">
           {selectedMod && selectedSettings ? (
             <div className="flex items-center gap-3 flex-wrap text-[10px] font-black uppercase tracking-widest">
@@ -359,6 +425,23 @@ const HUDCanvas: React.FC<HUDCanvasProps> = ({ config, modules, onUpdate }) => {
             title="Reset offset of selected module to (0, 0)"
           >
             <i className="fas fa-crosshairs mr-1.5"></i>Reset Offset
+          </button>
+        )}
+        {!fullscreen ? (
+          <button
+            onClick={() => setFullscreen(true)}
+            className="px-4 py-2.5 rounded-xl bg-glacier-black/70 hover:bg-blurple/20 hover:text-white text-glacier-muted border border-white/10 hover:border-blurple/30 text-[10px] font-black uppercase tracking-widest transition-all"
+            title="Open fullscreen editor"
+          >
+            <i className="fas fa-expand mr-1.5"></i>Fullscreen
+          </button>
+        ) : (
+          <button
+            onClick={() => setShowBackground(b => !b)}
+            className={`sm:hidden px-4 py-2.5 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all ${showBackground ? 'bg-blurple/15 text-blurple border-blurple/25' : 'bg-glacier-black/70 text-glacier-muted border-white/10'}`}
+          >
+            <i className={`fas ${showBackground ? 'fa-image' : 'fa-image-portrait'} mr-1.5`}></i>
+            {showBackground ? 'Hide BG' : 'Show BG'}
           </button>
         )}
       </div>
