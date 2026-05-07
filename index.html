@@ -3,93 +3,219 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#1e2124">
+    <meta name="description" content="Glacier Client Config Editor — visual editor for Glacier Minecraft Bedrock configs.">
     <title>Glacier Client Config Editor</title>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+
+    <link rel="icon" href="https://glacierclient.xyz/assets/logo.png">
+
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
 
+    <script>
+        // Match Glacier-Website palette in Tailwind utility classes
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        blurple: { DEFAULT: '#7289da', dark: '#5b6eae', light: '#9ba9ff' },
+                        glacier: {
+                            dark: '#424549',
+                            darker: '#36393e',
+                            darkest: '#282b30',
+                            black: '#1e2124',
+                            green: '#57f287',
+                            yellow: '#fee75c',
+                            red: '#ed4245',
+                            pink: '#eb459e',
+                            muted: '#b9bbbe'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'Menlo', 'Monaco', 'monospace']
+                    },
+                    boxShadow: {
+                        glow: '0 0 20px rgba(114,137,218,.4)',
+                        'glow-lg': '0 8px 30px rgba(114,137,218,.55)'
+                    }
+                }
+            }
+        };
+    </script>
+
     <style>
         :root {
-            --discord-blurple: #7289da;
-            --discord-dark: #424549;
-            --discord-darker: #36393e;
-            --discord-darkest: #282b30;
-            --discord-black: #1e2124;
-            --discord-green: #57f287;
-            --discord-blue-glow: rgba(114, 137, 218, 0.6);
-            --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            --border-radius: 12px;
+            --blurple: #7289da;
+            --blurple-dark: #5b6eae;
+            --blurple-light: #9ba9ff;
+            --blurple-glow: rgba(114, 137, 218, .6);
+            --blurple-faint: rgba(114, 137, 218, .2);
+            --dark: #424549;
+            --darker: #36393e;
+            --darkest: #282b30;
+            --black: #1e2124;
+            --green: #57f287;
+            --red: #ed4245;
+            --text-muted: #b9bbbe;
+            --ease: cubic-bezier(.4, 0, .2, 1);
+            --fast: .15s;
+            --normal: .25s;
+            --slow: .4s;
+            --radius: 12px;
+            --pill: 9999px;
+            --shadow: 0 8px 16px rgba(0, 0, 0, .3);
+            --shadow-lg: 0 20px 40px rgba(0, 0, 0, .45);
+        }
+
+        * { box-sizing: border-box; }
+
+        html {
+            scroll-behavior: smooth;
+            -webkit-text-size-adjust: 100%;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--discord-darkest);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, var(--darkest) 0%, var(--black) 100%);
             color: #fff;
+            line-height: 1.6;
             overflow-x: hidden;
-            background: linear-gradient(135deg, var(--discord-darkest) 0%, var(--discord-black) 100%);
-            min-height: 100vh;
+            min-height: 100dvh;
+            -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeLegibility;
         }
 
         body::before {
             content: '';
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            inset: 0;
             background:
-                radial-gradient(circle at 20% 80%, rgba(114, 137, 218, 0.05) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(87, 242, 135, 0.03) 0%, transparent 50%);
+                radial-gradient(circle at 20% 80%, rgba(114, 137, 218, .06) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(87, 242, 135, .035) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(235, 69, 158, .02) 0%, transparent 50%);
             z-index: -1;
-            animation: backgroundPulse 20s ease-in-out infinite alternate;
+            will-change: opacity, transform;
+            animation: bgPulse 20s ease-in-out infinite alternate;
+            pointer-events: none;
         }
 
-        @keyframes backgroundPulse {
-            0% {
-                opacity: 0.5;
-                transform: scale(1);
-            }
-
-            100% {
-                opacity: 1;
-                transform: scale(1.05);
-            }
+        @keyframes bgPulse {
+            from { opacity: .55; transform: scale(1); }
+            to { opacity: 1; transform: scale(1.05); }
         }
 
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
+        @media (prefers-reduced-motion: reduce) {
+            body::before { animation: none; }
+            * { animation-duration: .001ms !important; transition-duration: .001ms !important; }
         }
 
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 3px;
-        }
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255,255,255,.04); border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(114,137,218,.45); border-radius: 4px; transition: background var(--fast) var(--ease); }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--blurple); }
+        .custom-scrollbar { scrollbar-width: thin; scrollbar-color: rgba(114,137,218,.45) rgba(255,255,255,.04); }
 
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: var(--discord-blurple);
-            border-radius: 3px;
-        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
         input[type="range"] {
-            -webkit-appearance: none;
+            -webkit-appearance: none; appearance: none;
             height: 6px;
-            background: rgba(30, 33, 36, 0.7);
+            background: rgba(30, 33, 36, .8);
             border-radius: 3px;
             outline: none;
+            cursor: pointer;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none; appearance: none;
+            width: 18px; height: 18px;
+            border-radius: 50%;
+            background: var(--blurple);
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,.3), 0 0 0 0 rgba(114,137,218,0);
+            transition: transform var(--fast) var(--ease), box-shadow var(--fast) var(--ease);
+        }
+        input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.18); box-shadow: 0 2px 6px rgba(0,0,0,.3), 0 0 0 6px rgba(114,137,218,.18); }
+        input[type="range"]::-moz-range-thumb {
+            width: 18px; height: 18px; border: 0; border-radius: 50%;
+            background: var(--blurple); cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,.3);
         }
 
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            background: var(--discord-blurple);
-            cursor: pointer;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+        .btn-shine { position: relative; overflow: hidden; }
+        .btn-shine::after {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,.18), transparent);
+            transform: translateX(-100%);
+            transition: transform .55s var(--ease);
+            pointer-events: none;
         }
+        .btn-shine:hover::after { transform: translateX(100%); }
+
+        .gradient-text {
+            background: linear-gradient(90deg, #fff, var(--blurple));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .gradient-text-blurple {
+            background: linear-gradient(90deg, var(--blurple), var(--blurple-light));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .card-base {
+            background: rgba(66, 69, 73, .55);
+            border: 1px solid rgba(255, 255, 255, .05);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: var(--shadow);
+            transition: border-color var(--normal) var(--ease), box-shadow var(--normal) var(--ease);
+        }
+        .card-base:hover { border-color: rgba(114,137,218,.28); box-shadow: var(--shadow-lg); }
+
+        .anim-fade-in { animation: fadeIn .35s var(--ease) both; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+        .anim-slide-up { animation: slideUp .4s var(--ease) both; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+        .hud-grid::before {
+            content: '';
+            position: absolute; inset: 0;
+            background-image:
+                linear-gradient(rgba(114,137,218,.06) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(114,137,218,.06) 1px, transparent 1px);
+            background-size: 32px 32px;
+            pointer-events: none;
+            opacity: .5;
+        }
+
+        .hud-module { will-change: transform, left, top, right, bottom; touch-action: none; user-select: none; }
+
+        .toggle-knob { transition: transform .2s var(--ease); will-change: transform; }
+
+        @media (max-width: 767px) {
+            .mobile-safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0); }
+        }
+
+        ::selection { background: rgba(114,137,218,.45); color: #fff; }
+
+        .focus-ring:focus-visible { outline: 2px solid var(--blurple); outline-offset: 2px; }
     </style>
 </head>
 
