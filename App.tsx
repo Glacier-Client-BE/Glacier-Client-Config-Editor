@@ -352,7 +352,7 @@ const App: React.FC = () => {
 
             <div className="flex-1 overflow-hidden min-h-0">
               {activeTab === 'visual' ? (
-                <HUDCanvas config={config} modules={hudModules} onUpdate={updateConfig} />
+                <HUDCanvas config={config} defaults={DEFAULT_CONFIGS[version]} modules={hudModules} onUpdate={updateConfig} />
               ) : (
                 <RawEditor config={config} onUpdate={setConfig} />
               )}

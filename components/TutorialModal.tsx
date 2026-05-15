@@ -123,7 +123,7 @@ const TutorialModal: React.FC<TutorialModalProps> = ({ open, onClose }) => {
           {tab === 'locate' && (
             <div className="space-y-5 anim-fade-in">
               <div>
-                <h3 className="text-sm font-extrabold text-white flex items-center gap-2"><i className="fas fa-mobile-screen text-blurple"></i> Mobile (Android &amp; iOS)</h3>
+                <h3 className="text-sm font-extrabold text-white flex items-center gap-2"><i className="fab fa-android text-blurple"></i> Android</h3>
                 <ol className="mt-2 space-y-2 text-xs text-glacier-muted list-decimal pl-4 marker:text-blurple marker:font-bold">
                   <li>Open your device's <span className="text-white font-semibold">Files</span> app.</li>
                   <li>Navigate to:</li>
@@ -132,6 +132,18 @@ const TutorialModal: React.FC<TutorialModalProps> = ({ open, onClose }) => {
                   <PathBlock copyKey="m1" value="Android/data/com.mojang.minecraftpe/files/games/com.mojang/resource_packs/" />
                 </div>
                 <p className="text-xs text-glacier-muted mt-2">Open the <span className="text-white font-semibold">/Glacier</span> folder and locate <code className="text-blurple font-mono">config.json</code>.</p>
+              </div>
+
+              <div className="border-t border-white/5 pt-5">
+                <h3 className="text-sm font-extrabold text-white flex items-center gap-2"><i className="fab fa-apple text-blurple"></i> iOS / iPadOS</h3>
+                <ol className="mt-2 space-y-2 text-xs text-glacier-muted list-decimal pl-4 marker:text-blurple marker:font-bold">
+                  <li>Open the <span className="text-white font-semibold">Files</span> app &rarr; <span className="text-white font-semibold">On My iPhone</span> (or <span className="text-white font-semibold">iPad</span>).</li>
+                  <li>Navigate to:</li>
+                </ol>
+                <div className="mt-2">
+                  <PathBlock copyKey="i1" label="iOS" value="On My iPhone/Minecraft/games/com.mojang/resource_packs/" />
+                </div>
+                <p className="text-xs text-glacier-muted mt-2">Open the <span className="text-white font-semibold">/Glacier</span> folder and locate <code className="text-blurple font-mono">config.json</code>. If <span className="text-white font-semibold">Minecraft</span> doesn't appear in the Files app, open Minecraft once after installing it from the App Store so the folder is created.</p>
               </div>
 
               <div className="border-t border-white/5 pt-5">
