@@ -14,10 +14,10 @@ const SECTION = 'mod_menu_config@gc.pnl';
 // HUD module sizes & offsets are authored in reference-space pixels (Minecraft 1080p landscape).
 // At runtime the canvas may be any size — we scale everything by canvasWidth / REFERENCE_WIDTH.
 const REFERENCE_WIDTH = 1920;
-const MIN_SCALE = 0.25;
+const MIN_SCALE = 0.55;
 // Touch devices need a larger floor — raw scale at 360px wide would shrink modules
 // to ~8px tall, which is impossible to grab with a finger.
-const MIN_SCALE_TOUCH = 0.55;
+const MIN_SCALE_TOUCH = 0.75;
 
 const ANCHORS: AnchorType[] = [
   'top_left', 'top_middle', 'top_right',
