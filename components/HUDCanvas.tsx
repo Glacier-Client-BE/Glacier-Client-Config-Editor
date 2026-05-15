@@ -32,7 +32,7 @@ const ANCHOR_LABELS: Record<AnchorType, string> = {
 };
 
 const BG_URL =
-  'https://media.discordapp.net/attachments/1252981510223429693/1501843952641245274/mcbe-1-21-101-bug-annoyed-me-v0-b242anJjYW1hY25mMY5dEpPuyyCI1iDCMPySbQqxA3mE9rTLMSd0Qkjlly98.png?ex=69fd8cad&is=69fc3b2d&hm=6722bc14d7a5bf60ac5e9dc9ea2b1a12170ef859025532aae3dd187e1d0bd815&=&width=1245&height=700';
+  'https://media.discordapp.net/attachments/1252981510223429693/1501843952641245274/mcbe-1-21-101-bug-annoyed-me-v0-b242anJjYW1hY25mMY5dEpPuyyCI1iDCMPySbQqxA3mE9rTLMSd0Qkjlly98.png?ex=6a0818ad&is=6a06c72d&hm=7b53d9d9b9093d988e7e81394c53598cf430defe03a26b5ff0b2ba3fb0654b5b&=&width=1245&height=700';
 
 const computePosition = (
   anchor: AnchorType,
