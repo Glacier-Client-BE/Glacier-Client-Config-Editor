@@ -1,227 +1,171 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#1e2124">
-    <meta name="description" content="Glacier Client Config Editor — visual editor for Glacier Minecraft Bedrock configs.">
-    <title>Glacier Client Config Editor</title>
-
-    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
-
-    <link rel="icon" href="https://glacierclient.xyz/assets/logo.png">
-
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
-
-    <script>
-        // Match Glacier-Website palette in Tailwind utility classes
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        blurple: { DEFAULT: '#7289da', dark: '#5b6eae', light: '#9ba9ff' },
-                        glacier: {
-                            dark: '#424549',
-                            darker: '#36393e',
-                            darkest: '#282b30',
-                            black: '#1e2124',
-                            green: '#57f287',
-                            yellow: '#fee75c',
-                            red: '#ed4245',
-                            pink: '#eb459e',
-                            muted: '#b9bbbe'
-                        }
-                    },
-                    fontFamily: {
-                        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'Menlo', 'Monaco', 'monospace']
-                    },
-                    boxShadow: {
-                        glow: '0 0 20px rgba(114,137,218,.4)',
-                        'glow-lg': '0 8px 30px rgba(114,137,218,.55)'
-                    }
-                }
-            }
-        };
-    </script>
-
-    <style>
-        :root {
-            --blurple: #7289da;
-            --blurple-dark: #5b6eae;
-            --blurple-light: #9ba9ff;
-            --blurple-glow: rgba(114, 137, 218, .6);
-            --blurple-faint: rgba(114, 137, 218, .2);
-            --dark: #424549;
-            --darker: #36393e;
-            --darkest: #282b30;
-            --black: #1e2124;
-            --green: #57f287;
-            --red: #ed4245;
-            --text-muted: #b9bbbe;
-            --ease: cubic-bezier(.4, 0, .2, 1);
-            --fast: .15s;
-            --normal: .25s;
-            --slow: .4s;
-            --radius: 12px;
-            --pill: 9999px;
-            --shadow: 0 8px 16px rgba(0, 0, 0, .3);
-            --shadow-lg: 0 20px 40px rgba(0, 0, 0, .45);
-        }
-
-        * { box-sizing: border-box; }
-
-        html {
-            scroll-behavior: smooth;
-            -webkit-text-size-adjust: 100%;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, var(--darkest) 0%, var(--black) 100%);
-            color: #fff;
-            line-height: 1.6;
-            overflow-x: hidden;
-            min-height: 100dvh;
-            -webkit-font-smoothing: antialiased;
-            text-rendering: optimizeLegibility;
-        }
-
-        body::before {
-            content: '';
-            position: fixed;
-            inset: 0;
-            background:
-                radial-gradient(circle at 20% 80%, rgba(114, 137, 218, .06) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(87, 242, 135, .035) 0%, transparent 50%),
-                radial-gradient(circle at 40% 40%, rgba(235, 69, 158, .02) 0%, transparent 50%);
-            z-index: -1;
-            will-change: opacity, transform;
-            animation: bgPulse 20s ease-in-out infinite alternate;
-            pointer-events: none;
-        }
-
-        @keyframes bgPulse {
-            from { opacity: .55; transform: scale(1); }
-            to { opacity: 1; transform: scale(1.05); }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-            body::before { animation: none; }
-            * { animation-duration: .001ms !important; transition-duration: .001ms !important; }
-        }
-
-        .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255,255,255,.04); border-radius: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(114,137,218,.45); border-radius: 4px; transition: background var(--fast) var(--ease); }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--blurple); }
-        .custom-scrollbar { scrollbar-width: thin; scrollbar-color: rgba(114,137,218,.45) rgba(255,255,255,.04); }
-
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-        input[type="range"] {
-            -webkit-appearance: none; appearance: none;
-            height: 6px;
-            background: rgba(30, 33, 36, .8);
-            border-radius: 3px;
-            outline: none;
-            cursor: pointer;
-        }
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none; appearance: none;
-            width: 18px; height: 18px;
-            border-radius: 50%;
-            background: var(--blurple);
-            cursor: pointer;
-            box-shadow: 0 2px 6px rgba(0,0,0,.3), 0 0 0 0 rgba(114,137,218,0);
-            transition: transform var(--fast) var(--ease), box-shadow var(--fast) var(--ease);
-        }
-        input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.18); box-shadow: 0 2px 6px rgba(0,0,0,.3), 0 0 0 6px rgba(114,137,218,.18); }
-        input[type="range"]::-moz-range-thumb {
-            width: 18px; height: 18px; border: 0; border-radius: 50%;
-            background: var(--blurple); cursor: pointer;
-            box-shadow: 0 2px 6px rgba(0,0,0,.3);
-        }
-
-        input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
-        input[type="number"]::-webkit-outer-spin-button,
-        input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-
-        .btn-shine { position: relative; overflow: hidden; }
-        .btn-shine::after {
-            content: ''; position: absolute; inset: 0;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,.18), transparent);
-            transform: translateX(-100%);
-            transition: transform .55s var(--ease);
-            pointer-events: none;
-        }
-        .btn-shine:hover::after { transform: translateX(100%); }
-
-        .gradient-text {
-            background: linear-gradient(90deg, #fff, var(--blurple));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-        .gradient-text-blurple {
-            background: linear-gradient(90deg, var(--blurple), var(--blurple-light));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-
-        .card-base {
-            background: rgba(66, 69, 73, .55);
-            border: 1px solid rgba(255, 255, 255, .05);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            box-shadow: var(--shadow);
-            transition: border-color var(--normal) var(--ease), box-shadow var(--normal) var(--ease);
-        }
-        .card-base:hover { border-color: rgba(114,137,218,.28); box-shadow: var(--shadow-lg); }
-
-        .anim-fade-in { animation: fadeIn .35s var(--ease) both; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-
-        .anim-slide-up { animation: slideUp .4s var(--ease) both; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
-
-        .hud-grid::before {
-            content: '';
-            position: absolute; inset: 0;
-            background-image:
-                linear-gradient(rgba(114,137,218,.06) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(114,137,218,.06) 1px, transparent 1px);
-            background-size: 32px 32px;
-            pointer-events: none;
-            opacity: .5;
-        }
-
-        .hud-module { will-change: transform, left, top, right, bottom; touch-action: none; user-select: none; }
-
-        .toggle-knob { transition: transform .2s var(--ease); will-change: transform; }
-
-        @media (max-width: 767px) {
-            .mobile-safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0); }
-        }
-
-        ::selection { background: rgba(114,137,218,.45); color: #fff; }
-
-        .focus-ring:focus-visible { outline: 2px solid var(--blurple); outline-offset: 2px; }
-    </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Glacier Client Config Editor | Glacier Productions</title>
+    <meta name="description" content="Visually edit, drag and export your Glacier Client config.json for Minecraft Bedrock Edition. Toggle modules, tweak opacity and reposition the HUD in real time." />
+    <link rel="canonical" href="https://config.glacierclient.xyz" />
+    <meta property="og:title" content="Glacier Config Editor" />
+    <meta property="og:description" content="Visually edit, drag and export your Glacier Client config.json." />
+    <meta property="og:image" content="https://glacierclient.xyz/assets/mod_menu.png" />
+    <meta property="og:url" content="https://config.glacierclient.xyz" />
+    <meta property="og:type" content="website" />
+    <link rel="icon" type="image/png" href="assets/logo.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
 
 <body>
-    <div id="root"></div>
-    <script type="module" src="/index.tsx"></script>
+    <header id="mainHeader">
+        <div class="top-bar">
+            <a class="branding" href="https://glacierclient.xyz/" target="_blank" rel="noopener">
+                <img src="assets/logo.png" alt="Glacier Client" class="logo-icon" width="36" height="36" />
+                <div class="branding-text">
+                    <div class="branding-title">Glacier Client Config Editor</div>
+                    <div class="branding-sub">Glacier Productions</div>
+                </div>
+            </a>
+
+            <div class="top-bar-spacer"></div>
+
+            <nav class="nav-tabs" id="versionTabs" aria-label="Config version"></nav>
+
+            <div class="seg-group">
+                <button class="icon-btn-sm" id="undoBtn" title="Undo (Ctrl+Z)" aria-label="Undo" disabled><i class="fas fa-undo"></i></button>
+                <button class="icon-btn-sm" id="redoBtn" title="Redo (Ctrl+Y)" aria-label="Redo" disabled><i class="fas fa-redo"></i></button>
+            </div>
+
+            <button class="header-icon-btn" id="themeToggle" title="Toggle theme" aria-label="Toggle theme"><i class="fas fa-sun"></i></button>
+            <button class="header-icon-btn hide-sm" id="tutorialBtn" title="Tutorial / Help" aria-label="Open tutorial"><i class="fas fa-book"></i></button>
+            <a class="header-discord" href="https://dsc.gg/glacierclientmcbe" target="_blank" rel="noopener"><i class="fab fa-discord"></i><span>Discord</span></a>
+        </div>
+    </header>
+
+    <main>
+        <div class="mobile-switch" id="mobileSwitch">
+            <button data-view="config" class="active"><i class="fas fa-cog"></i> Config</button>
+            <button data-view="preview"><i class="fas fa-eye"></i> Preview</button>
+        </div>
+
+        <div class="workspace card-base anim-slide-up">
+            <!-- ── Sidebar: configuration ── -->
+            <aside class="ws-sidebar" id="configPanel">
+                <div class="ws-sidebar-head">
+                    <div class="panel-head-row">
+                        <h2 class="panel-title"><i class="fas fa-sliders-h"></i> Configuration</h2>
+                        <button class="chip-btn danger" id="resetSectionBtn" title="Reset current section"><i class="fas fa-rotate-left"></i> Reset</button>
+                    </div>
+                    <div class="section-pills" id="sectionPills"></div>
+                    <div class="search-bar" id="searchWrap">
+                        <i class="fas fa-search search-ico"></i>
+                        <input type="text" id="searchInput" placeholder="Search modules…" aria-label="Search modules" />
+                        <button class="search-clear" id="searchClear" aria-label="Clear search"><i class="fas fa-times"></i></button>
+                    </div>
+                </div>
+
+                <div class="scroll-body" id="controlsScroll">
+                    <div class="controls-list" id="controlsList"></div>
+                </div>
+
+                <div class="ws-sidebar-foot">
+                    <div class="export-wrap">
+                        <button class="btn btn-primary" id="exportBtn" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-download"></i> Export <i class="fas fa-chevron-up caret"></i>
+                        </button>
+                        <div class="export-menu" id="exportMenu" role="menu">
+                            <button class="export-opt" id="optPack" role="menuitem">
+                                <span class="export-opt-ico"><i class="fas fa-box-open"></i></span>
+                                <span class="export-opt-text">
+                                    <span class="eo-title">Download Config Pack <span class="eo-badge">Recommended</span></span>
+                                    <span class="eo-sub">.mcpack — import straight into Minecraft</span>
+                                </span>
+                            </button>
+                            <button class="export-opt" id="optJson" role="menuitem">
+                                <span class="export-opt-ico"><i class="fas fa-file-code"></i></span>
+                                <span class="export-opt-text">
+                                    <span class="eo-title">Export JSON</span>
+                                    <span class="eo-sub">Raw config.json file</span>
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+                    <button class="btn btn-ghost" id="importBtn" title="Import JSON" aria-label="Import JSON"><i class="fas fa-upload"></i></button>
+                    <input type="file" id="fileInput" accept=".json,application/json" hidden />
+                </div>
+            </aside>
+
+            <!-- ── Preview stage ── -->
+            <section class="ws-preview mobile-hidden" id="previewPanel">
+                <div class="ws-preview-bar">
+                    <div class="view-tabs">
+                        <button class="view-tab active" data-view="visual"><i class="fas fa-eye"></i> Visual</button>
+                        <button class="view-tab" data-view="raw"><i class="fas fa-code"></i> Code</button>
+                    </div>
+                    <div class="ws-preview-actions">
+                        <button class="chip-btn accent" id="copyBtn" style="display:none"><i class="fas fa-copy"></i> Copy</button>
+                        <button class="tool-btn active" id="bgToggle" title="Toggle Minecraft background" aria-label="Toggle background"><i class="fas fa-image"></i></button>
+                        <button class="tool-btn" id="fsToggle" title="Fullscreen" aria-label="Fullscreen"><i class="fas fa-expand"></i></button>
+                    </div>
+                </div>
+                <div class="ws-preview-body" id="viewBody"></div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-content">
+                <a class="footer-brand" href="https://glacierclient.xyz/" target="_blank" rel="noopener">
+                    <img src="assets/logo.png" alt="Glacier Client Logo" class="footer-logo" width="38" height="38" />
+                    <span class="brand-name">Glacier Client</span>
+                </a>
+                <nav class="footer-social" aria-label="Social media links">
+                    <a href="https://discord.glacierclient.xyz/" class="social-link" target="_blank" rel="noopener" aria-label="Discord"><i class="fab fa-discord"></i></a>
+                    <a href="https://github.com/Glacier-Client-BE" class="social-link" target="_blank" rel="noopener" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                    <a href="https://youtube.com/@glacierclient" class="social-link" target="_blank" rel="noopener" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                    <a href="https://x.com/glacierclientbe" class="social-link" target="_blank" rel="noopener" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="https://www.instagram.com/glacierclientmcbe" class="social-link" target="_blank" rel="noopener" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="https://www.tiktok.com/@glacierclientmcbe" class="social-link" target="_blank" rel="noopener" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+                </nav>
+            </div>
+            <p class="copyright-text">&copy; <span id="currentYear"></span> Glacier Client · Config Editor · made for the community ·
+                <a href="#" id="footerTutorial">Tutorial</a>
+            </p>
+        </div>
+    </footer>
+
+    <!-- ── Tutorial modal ── -->
+    <div class="modal-overlay" id="tutorialModal">
+        <div class="card-base modal" role="dialog" aria-modal="true" aria-label="Configuration tutorial">
+            <div class="modal-head">
+                <div class="modal-head-left">
+                    <div class="modal-badge"><i class="fas fa-snowflake"></i></div>
+                    <div>
+                        <div class="modal-title">Configuration Guide</div>
+                        <div class="modal-sub">Locate · edit · customize</div>
+                    </div>
+                </div>
+                <button class="header-icon-btn" id="modalClose" aria-label="Close tutorial"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-tabs" id="modalTabs"></div>
+            <div class="modal-body" id="modalBody"></div>
+            <div class="modal-foot">
+                <span class="muted" style="font-size:.68rem"><kbd>Esc</kbd> to close</span>
+                <button class="btn btn-primary" id="modalGotIt" style="flex:0">Got it</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"><i class="fas fa-check-circle"></i><span id="toastMsg"></span></div>
+
+    <script src="config-data.js"></script>
+    <script src="app.js"></script>
 </body>
 
 </html>

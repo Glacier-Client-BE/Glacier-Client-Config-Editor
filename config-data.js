@@ -1,9 +1,7 @@
+/* Auto-generated from constants.tsx — config defaults & HUD sizes */
+const VERSIONS = ['v4', 'v5', 'v6'];
 
-import { ConfigVersion, ConfigData } from './types';
-
-export const VERSIONS: ConfigVersion[] = ['v4', 'v5', 'v6'];
-
-export const HUD_SIZES: Record<string, { w: number, h: number, icon: string }> = {
+const HUD_SIZES = {
   armorhud: { w: 32, h: 64, icon: 'fa-shield-halved' },
   offhandhud: { w: 18, h: 18, icon: 'fa-hand' },
   f1button: { w: 18, h: 18, icon: 'fa-eye-slash' },
@@ -36,7 +34,7 @@ export const HUD_SIZES: Record<string, { w: number, h: number, icon: string }> =
   serverdisplay: { w: 64, h: 32, icon: 'fa-server' }
 };
 
-export const DEFAULT_CONFIGS: Record<ConfigVersion, ConfigData> = {
+const DEFAULT_CONFIGS = {
   v4: {
     "mod_menu_config@gc.pnl": {
       "$armorhud": false,
@@ -748,3 +746,5 @@ export const DEFAULT_CONFIGS: Record<ConfigVersion, ConfigData> = {
     "namespace": "gc"
   }
 };
+
+window.GC_DATA = { VERSIONS, HUD_SIZES, DEFAULT_CONFIGS };
