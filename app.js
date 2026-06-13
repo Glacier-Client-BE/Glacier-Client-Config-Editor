@@ -408,7 +408,7 @@
     const stage = h('div', { class: 'hud-stage' });
     const canvas = h('div', { class: 'hud-canvas' });
     if (showBackground) {
-      canvas.appendChild(h('div', { class: 'hud-bg', style: "background-image:url('assets/BG.png')" }));
+      canvas.appendChild(h('div', { class: 'hud-bg', style: "background-image:url('assets/HUD.png')" }));
       canvas.appendChild(h('div', { class: 'hud-bg-dim' }));
     } else {
       canvas.appendChild(h('div', { class: 'hud-grid-dots' }));
