@@ -56,6 +56,13 @@
     --surface-border: rgba(255, 255, 255, 0.06);
     --surface-inset: #1f2227;
 
+    /* Fonts — Apple devices resolve -apple-system/BlinkMacSystemFont to SF and
+       stop there; every other platform falls through to the web fonts:
+       Plus Jakarta Sans for body/smaller text, Roboto (bold) for larger text. */
+    --font-body: -apple-system, BlinkMacSystemFont, 'Plus Jakarta Sans', 'Segoe UI', Roboto, sans-serif;
+    --font-display: -apple-system, BlinkMacSystemFont, 'Roboto', 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
     --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
     --fast: 0.15s;
     --normal: 0.25s;
@@ -93,7 +100,7 @@
 html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; background: var(--bg); }
 
 body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: var(--font-body);
     background: transparent;
     color: var(--text);
     line-height: 1.6;
@@ -118,6 +125,13 @@ body::before {
     transform: translateZ(0);
     backface-visibility: hidden;
     will-change: transform;
+}
+
+/* Larger / prominent text → Roboto bold on non-Apple, SF on Apple */
+.branding-title, .panel-title, .modal-title, .modal-badge, .brand-name,
+.version-pill, .btn, .nav-tab, .section-pill, .modal-tab,
+.empty-state p, h1, h2, h3 {
+    font-family: var(--font-display);
 }
 
 img { display: block; max-width: 100%; }
@@ -675,10 +689,12 @@ kbd { padding: 2px 7px; background: var(--surface-inset); border: 1px solid var(
 .anim-fade-in { animation: fadeIn .25s var(--ease) both; }
 
 /* ── Responsive ───────────────────────────────────────────────── */
+
+/* Tablet & below: stack the workspace and expose the view switch */
 @media (max-width: 900px) {
     .workspace { flex-direction: column; height: auto; }
-    .ws-sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--glass-border); height: calc(100dvh - 232px); }
-    .ws-preview { height: calc(100dvh - 232px); }
+    .ws-sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--glass-border); height: calc(100dvh - 232px); min-height: 380px; }
+    .ws-preview { height: calc(100dvh - 232px); min-height: 380px; }
     .ws-sidebar.mobile-hidden, .ws-preview.mobile-hidden { display: none; }
     .mobile-switch {
         display: flex; gap: 5px; padding: 5px; margin-bottom: 14px;
@@ -693,10 +709,44 @@ kbd { padding: 2px 7px; background: var(--surface-inset); border: 1px solid var(
     .mobile-switch button.active { background: var(--accent); color: #fff; box-shadow: 0 0 14px var(--accent-glow); }
     .branding-sub { display: none; }
     .header-discord span { display: none; }
-    .header-discord { padding: 0; width: var(--ctl-h); }
+    .header-discord { padding: 0; width: var(--ctl-h); justify-content: center; }
 }
-@media (max-width: 520px) {
+
+/* Phones: keep the fixed header on a single row that never overflows */
+@media (max-width: 620px) {
     .hide-sm { display: none !important; }
-    main { padding: 78px 12px 20px; }
-    .nav-tab { padding: 0 13px; font-size: .8rem; }
+    main { padding: 76px 12px 20px; }
+    .top-bar { gap: 8px; padding: 9px 12px; }
+    /* Logo stays as a home link; the long title is dropped to reclaim space */
+    .branding-text { display: none; }
+    /* Version tabs shrink and scroll horizontally instead of pushing siblings off-screen */
+    .nav-tabs { min-width: 0; overflow-x: auto; flex-shrink: 1; scrollbar-width: none; }
+    .nav-tabs::-webkit-scrollbar { display: none; }
+    .nav-tab { padding: 0 13px; font-size: .82rem; }
+    .seg-group { flex-shrink: 0; }
+}
+
+/* Small phones: drop the least-essential header controls */
+@media (max-width: 400px) {
+    main { padding: 74px 10px 18px; }
+    .top-bar { gap: 6px; padding: 8px 10px; }
+    .nav-tab { padding: 0 11px; }
+    .ws-sidebar-head { padding: 14px 14px 12px; }
+    .scroll-body { padding: 12px 14px; }
+    .ws-sidebar-foot { padding: 12px 14px; }
+    .ws-preview-bar { padding: 11px 14px; }
+    .ws-preview-body { padding: 12px; }
+    /* 16px inputs prevent iOS Safari from auto-zooming on focus */
+    .search-bar input, .field, .xy-cell input { font-size: 16px; }
+}
+
+/* Touch devices: larger, easier-to-hit drag handles regardless of width */
+@media (pointer: coarse) {
+    .hud-module { cursor: default; }
+    .tool-btn, .header-icon-btn, .mobile-switch button { -webkit-tap-highlight-color: transparent; }
+}
+
+/* Landscape phones: reclaim vertical space taken by the stacked switch */
+@media (max-width: 900px) and (max-height: 520px) and (orientation: landscape) {
+    .ws-sidebar, .ws-preview { height: auto; min-height: 320px; max-height: 78vh; }
 }
