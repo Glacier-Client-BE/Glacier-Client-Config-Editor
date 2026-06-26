@@ -64,6 +64,10 @@
     --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 
     --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+    /* Strong ease-out for entrances/UI — built-in `ease` lacks punch */
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+    /* iOS-like drawer/spring curve for popovers + sliding surfaces */
+    --ease-spring: cubic-bezier(0.32, 0.72, 0, 1);
     --fast: 0.15s;
     --normal: 0.25s;
     --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.45);
@@ -296,6 +300,19 @@ main { padding: 84px 18px 24px; max-width: 1480px; margin: 0 auto; }
     min-height: 540px;
     border-radius: 18px;
     overflow: hidden;
+    /* Machined-hardware depth: ambient drop tinted to the dark base, a tight
+       contact shadow, and a 1px inner top highlight so the panel reads as a
+       glass plate seated in a frame rather than a flat rectangle. */
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.06) inset,
+        0 2px 8px rgba(0, 0, 0, 0.18),
+        0 24px 60px rgba(8, 10, 14, 0.5);
+}
+[data-theme="light"] .workspace {
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.7) inset,
+        0 2px 8px rgba(15, 17, 21, 0.06),
+        0 24px 60px rgba(15, 17, 21, 0.14);
 }
 .ws-sidebar {
     width: 410px; flex-shrink: 0; display: flex; flex-direction: column;
@@ -405,7 +422,7 @@ main { padding: 84px 18px 24px; max-width: 1480px; margin: 0 auto; }
 .toggle::after {
     content: ''; position: absolute; top: 3px; left: 3px;
     width: 17px; height: 17px; border-radius: 50%; background: #fff;
-    box-shadow: 0 1px 3px rgba(0,0,0,.4); transition: transform var(--t);
+    box-shadow: 0 1px 3px rgba(0,0,0,.4); transition: transform .2s var(--ease-out);
 }
 .toggle.on { background: var(--accent); box-shadow: 0 0 8px rgba(114,137,218,.5); }
 .toggle.on::after { transform: translateX(19px); }
@@ -475,9 +492,11 @@ input[type="range"]::-moz-range-thumb { width: 16px; height: 16px; border-radius
     backdrop-filter: blur(var(--blur)); -webkit-backdrop-filter: blur(var(--blur));
     box-shadow: var(--shadow-lg); padding: 6px;
     display: none; flex-direction: column; gap: 4px;
-    transform: translateY(6px); opacity: 0; transition: opacity var(--fast) var(--ease), transform var(--fast) var(--ease);
+    transform-origin: bottom center;
+    transform: translateY(6px) scale(0.97); opacity: 0;
+    transition: opacity var(--fast) var(--ease-out), transform var(--normal) var(--ease-spring);
 }
-.export-menu.open { display: flex; transform: translateY(0); opacity: 1; }
+.export-menu.open { display: flex; transform: translateY(0) scale(1); opacity: 1; }
 .export-opt { display: flex; align-items: center; gap: 12px; padding: 11px; border: 1px solid transparent; border-radius: 10px; background: transparent; cursor: pointer; text-align: left; transition: background var(--t), border-color var(--t); }
 .export-opt:hover { background: var(--bg-item-hover); border-color: var(--accent-glow); }
 .export-opt-ico { width: 38px; height: 38px; flex-shrink: 0; border-radius: 10px; background: var(--accent-bg); color: var(--accent-hover); display: flex; align-items: center; justify-content: center; font-size: 1rem; }
@@ -500,6 +519,39 @@ input[type="range"]::-moz-range-thumb { width: 16px; height: 16px; border-radius
 .btn-ghost:hover { color: var(--text); border-color: var(--accent-glow); }
 .btn::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,.18), transparent); transform: translateX(-100%); transition: transform .55s; }
 .btn:hover::after { transform: translateX(100%); }
+
+/* ── Press feedback ───────────────────────────────────────────────
+   Every pressable element scales down on :active so the UI feels like
+   it physically heard the tap. Kept subtle (0.96–0.97). Declared after
+   the hover rules so press wins over hover-lift on equal specificity. */
+.chip-btn:active,
+.header-icon-btn:active,
+.tool-btn:active,
+.nav-tab:active,
+.version-tab:active,
+.section-pill:active,
+.export-opt:active,
+.social-link:active,
+.mobile-switch button:active,
+.path-copy:active,
+.modal-tab:active,
+.view-tab:active,
+.icon-btn-sm:active:not(:disabled),
+.search-clear:active {
+    transform: scale(0.96);
+}
+.btn:active { transform: translateY(-1px) scale(0.97); }
+.footer-brand:active, .branding:active { transform: scale(0.98); }
+
+/* Ensure the press scale interpolates (these didn't transition transform
+   before). Restates their colour/background transitions so nothing regresses,
+   then adds a fast ease-out transform so the push feels smooth, not snapped. */
+.chip-btn, .tool-btn, .nav-tab, .version-tab, .section-pill, .export-opt,
+.mobile-switch button, .path-copy, .modal-tab, .view-tab, .icon-btn-sm,
+.search-clear {
+    transition: color var(--t), background-color var(--t), border-color var(--t),
+                box-shadow var(--t), transform var(--fast) var(--ease-out);
+}
 
 /* ── Right panel: visual / code tabs ──────────────────────────── */
 .view-tabs { display: flex; gap: 18px; }
@@ -607,9 +659,10 @@ input[type="range"]::-moz-range-thumb { width: 16px; height: 16px; border-radius
 .modal-overlay.open { opacity: 1; visibility: visible; }
 .modal {
     width: 100%; max-width: 760px; max-height: 90dvh; display: flex; flex-direction: column; overflow: hidden;
-    border-radius: var(--r-md); transform: translateY(16px); transition: transform var(--normal) var(--ease);
+    border-radius: var(--r-md); transform: translateY(16px) scale(0.98);
+    transition: transform var(--normal) var(--ease-out);
 }
-.modal-overlay.open .modal { transform: translateY(0); }
+.modal-overlay.open .modal { transform: translateY(0) scale(1); }
 .modal-head { display: flex; align-items: center; justify-content: space-between; padding: 18px 22px; border-bottom: 1px solid var(--glass-border); background: linear-gradient(120deg, var(--accent-bg), transparent 70%); }
 .modal-head-left { display: flex; align-items: center; gap: 13px; }
 .modal-badge { width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, var(--accent), var(--accent-hover)); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 1.1rem; box-shadow: 0 4px 14px var(--accent-glow); }
@@ -651,14 +704,15 @@ kbd { padding: 2px 7px; background: var(--surface-inset); border: 1px solid var(
 
 /* ── Toast ────────────────────────────────────────────────────── */
 .toast {
-    position: fixed; bottom: 22px; left: 50%; transform: translate(-50%, 10px); z-index: 2200;
+    position: fixed; bottom: 22px; left: 50%; transform: translate(-50%, 12px) scale(0.96); z-index: 2200;
     display: flex; align-items: center; gap: 9px; padding: 11px 18px; border-radius: var(--pill);
     background: var(--glass-strong); border: 1px solid rgba(114,137,218,.3); box-shadow: var(--shadow-lg);
     backdrop-filter: blur(var(--blur)); -webkit-backdrop-filter: blur(var(--blur));
     font-size: .76rem; font-weight: 700; color: var(--text);
-    opacity: 0; visibility: hidden; transition: opacity var(--normal), transform var(--normal), visibility var(--normal);
+    opacity: 0; visibility: hidden;
+    transition: opacity var(--normal) var(--ease-out), transform var(--normal) var(--ease-out), visibility var(--normal);
 }
-.toast.show { opacity: 1; visibility: visible; transform: translate(-50%, 0); }
+.toast.show { opacity: 1; visibility: visible; transform: translate(-50%, 0) scale(1); }
 .toast i { color: var(--green); }
 
 /* ── Footer (ported 1:1 from glacierclient.xyz) ───────────────── */
@@ -749,4 +803,33 @@ kbd { padding: 2px 7px; background: var(--surface-inset); border: 1px solid var(
 /* Landscape phones: reclaim vertical space taken by the stacked switch */
 @media (max-width: 900px) and (max-height: 520px) and (orientation: landscape) {
     .ws-sidebar, .ws-preview { height: auto; min-height: 320px; max-height: 78vh; }
+}
+
+/* ── Reduced motion ───────────────────────────────────────────────
+   Honour the OS-level preference: strip movement (slides, scale,
+   parallax) and collapse durations to near-instant, while leaving
+   opacity/colour feedback intact so the UI still communicates state.
+   Scroll-jumping and the entrance animation are disabled outright. */
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+    }
+    body::before { will-change: auto; }
+    .anim-slide-up, .anim-fade-in { animation: none !important; }
+    /* Keep press feedback off so nothing visibly jumps under the finger */
+    .btn:active, .chip-btn:active, .header-icon-btn:active, .tool-btn:active,
+    .nav-tab:active, .version-tab:active, .section-pill:active, .export-opt:active,
+    .social-link:active, .mobile-switch button:active, .path-copy:active,
+    .modal-tab:active, .view-tab:active, .icon-btn-sm:active, .search-clear:active,
+    .footer-brand:active, .branding:active { transform: none; }
+}
+
+/* Touch devices fire :hover on tap, causing stuck lift states. Gate the
+   hover-lift transforms to genuine pointers; press feedback still applies. */
+@media (hover: none) {
+    .header-icon-btn:hover, .header-discord:hover, .footer-brand:hover,
+    .social-link:hover, .tut-card:hover, .btn-primary:hover { transform: none; }
 }
