@@ -28,6 +28,51 @@
     ['pause_menu', 'Pause Menu'], ['container', 'Container'],
   ];
 
+  /* ── Module artwork ──────────────────────────────────────────────
+     The main site ships an icon for every mod (assets/mods/<id>.png, the
+     same art its mods grid renders), so a module looks identical in both
+     places. Paths are root-absolute: the deploy step copies assets/mods
+     to the published root, and at glacierclient.xyz/config/ they resolve
+     against the main site — see .github/workflows/deploy-config-editor.yml.
+
+     Groups whose id matches an icon filename need no entry. The map below
+     covers the rest: the three individual item counters share the counter
+     art, and the handful of groups that are setting clusters rather than
+     shipped mods (the boss bar, the scoreboard, the text-visibility
+     switches) fall back to a Font Awesome glyph. */
+  const MODULE_ART = {
+    armorhud: 1, bowindicator: 1, chat: 1, chunkmap: 1, clockcompass: 1, coordinates: 1,
+    daycounter: 1, dayevent: 1, debughud: 1, directionhud: 1, expcalculator: 1, forcecoords: 1,
+    fpscounter: 1, hotbar: 1, hudpopup: 1, inventoryhud: 1, itemcounters: 1, lowdurability: 1,
+    mainhandhud: 1, mobileshortcuts: 1, offhandhud: 1, playerlist: 1, safezoneviewer: 1,
+    serverdisplay: 1, shinypotions: 1, slotcounter: 1, speedometer: 1, statushud: 1,
+    targethud: 1, timerhud: 1, walkdistance: 1,
+    // Group id → the icon that actually depicts it.
+    arrowcounter: 'itemcounter', potioncounter: 'itemcounter', totemcounter: 'itemcounter',
+    crosshair: 'crosshairs', saturation_display: 'display', nightshift: 'display',
+  };
+  const MODULE_GLYPH = {
+    bossbar: 'fa-bars-progress',
+    scoreboard: 'fa-list-ol',
+    text_visibility: 'fa-comment-slash',
+    exp_bar: 'fa-chart-simple',
+    brighter: 'fa-lightbulb',
+    creeperrange: 'fa-bomb',
+  };
+
+  function moduleIcon(groupId) {
+    const art = MODULE_ART[groupId];
+    if (art) {
+      const name = art === 1 ? groupId : art;
+      return h('span', { class: 'group-icon' }, [
+        h('img', { src: '/assets/mods/' + name + '.png', alt: '', width: 24, height: 24, loading: 'lazy', decoding: 'async' }),
+      ]);
+    }
+    // Unknown ids get a neutral glyph rather than a broken image.
+    const glyph = MODULE_GLYPH[groupId] || (HUD_SIZES[groupId] && HUD_SIZES[groupId].icon) || 'fa-sliders';
+    return h('span', { class: 'group-icon group-icon--glyph' }, [h('i', { class: 'fas ' + glyph, 'aria-hidden': 'true' })]);
+  }
+
   const clone = (o) => (typeof structuredClone === 'function' ? structuredClone(o) : JSON.parse(JSON.stringify(o)));
   const $ = (id) => document.getElementById(id);
   const coarse = () => window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
@@ -240,6 +285,7 @@
       tg.addEventListener('click', (e) => { e.stopPropagation(); updateConfig([activeSection, data.root], !enabled, false, 'controls'); });
       left.appendChild(tg);
     }
+    left.appendChild(moduleIcon(groupId));
     left.appendChild(h('div', { class: 'group-meta' }, [
       h('span', { class: 'group-name', text: groupId.replace(/_/g, ' ') }),
       h('span', { class: 'group-count', text: data.children.length + ' ' + (data.children.length === 1 ? 'parameter' : 'parameters') }),
@@ -315,10 +361,14 @@
     const wrap = $('versionTabs');
     wrap.innerHTML = '';
     VERSIONS.forEach((v) => {
-      const b = h('button', { class: 'nav-tab' + (v === version ? ' active' : ''), text: v.toUpperCase() });
+      const b = h('button', { class: 'version-tab' + (v === version ? ' active' : ''), text: v.toUpperCase() });
       b.addEventListener('click', () => selectVersion(v));
       wrap.appendChild(b);
     });
+    // The header pill mirrors the site's client-version pill, so it tracks
+    // whichever config version is being edited.
+    const pill = $('versionPill');
+    if (pill) pill.textContent = version;
   }
 
   function selectVersion(v) {
@@ -408,7 +458,7 @@
     const stage = h('div', { class: 'hud-stage' });
     const canvas = h('div', { class: 'hud-canvas' });
     if (showBackground) {
-      canvas.appendChild(h('div', { class: 'hud-bg', style: "background-image:url('assets/HUD.png')" }));
+      canvas.appendChild(h('div', { class: 'hud-bg', style: "background-image:url('img/HUD.png')" }));
       canvas.appendChild(h('div', { class: 'hud-bg-dim' }));
     } else {
       canvas.appendChild(h('div', { class: 'hud-grid-dots' }));
@@ -741,7 +791,7 @@
       zip.file('manifest.json', JSON.stringify(makeManifest(), null, 2));
       zip.file('config.json', JSON.stringify(config, null, 2));
       try {
-        const res = await fetch('assets/pack_icon.png', { cache: 'no-cache' });
+        const res = await fetch('img/pack_icon.png', { cache: 'no-cache' });
         if (res.ok) zip.file('pack_icon.png', await res.arrayBuffer());
       } catch (e) { /* icon optional */ }
       const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE' });
@@ -755,7 +805,7 @@
     theme = t;
     document.documentElement.setAttribute('data-theme', t);
     try { localStorage.setItem('gc-theme', t); } catch (e) {}
-    $('themeToggle').innerHTML = t === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+    $('themeToggle').innerHTML = '<i class="fas ' + (t === 'dark' ? 'fa-sun' : 'fa-moon') + '" aria-hidden="true"></i>';
     refreshHUD();
   }
 
@@ -897,7 +947,19 @@
     $('redoBtn').addEventListener('click', redo);
     $('themeToggle').addEventListener('click', () => applyTheme(theme === 'dark' ? 'light' : 'dark'));
     $('tutorialBtn').addEventListener('click', openModal);
-    $('footerTutorial').addEventListener('click', (e) => { e.preventDefault(); openModal(); });
+    [$('footerTutorial'), $('cardTutorial')].forEach((el) => {
+      if (el) el.addEventListener('click', (e) => { e.preventDefault(); openModal(); });
+    });
+
+    // The site's header collapses its nav into a dropdown below 768px; this
+    // page has no router, so it drives the same .active class itself.
+    const menuBtn = $('mobileMenuBtn'), navMenu = $('navMenu');
+    const closeMenu = () => { navMenu.classList.remove('active'); menuBtn.setAttribute('aria-expanded', 'false'); };
+    menuBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      menuBtn.setAttribute('aria-expanded', navMenu.classList.toggle('active') ? 'true' : 'false');
+    });
+    document.addEventListener('click', (e) => { if (!navMenu.contains(e.target)) closeMenu(); });
     $('modalClose').addEventListener('click', closeModal);
     $('modalGotIt').addEventListener('click', closeModal);
     $('tutorialModal').addEventListener('click', (e) => { if (e.target === $('tutorialModal')) closeModal(); });
