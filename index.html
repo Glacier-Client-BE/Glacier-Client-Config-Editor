@@ -37,8 +37,8 @@
     </noscript>
     <!-- Root-absolute so the one stylesheet resolves both here (deployed at the
          subdomain root) and at glacierclient.xyz/config/ during development. -->
-    <link rel="stylesheet" href="/css/styles.css?v=20260726125001" />
-    <link rel="stylesheet" href="editor.css?v=20260726125001" />
+    <link rel="stylesheet" href="/css/styles.css?v=20260902203329" />
+    <link rel="stylesheet" href="editor.css?v=20260902203329" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" defer></script>
 </head>
 
@@ -143,8 +143,9 @@
                     <div class="ws-sidebar-foot">
                         <div class="export-wrap">
                             <button class="btn btn-primary" id="exportBtn" aria-haspopup="true" aria-expanded="false">
-                                <i class="fas fa-download" aria-hidden="true"></i> Export <i
+                                <i class="fas fa-download" aria-hidden="true"></i> <span class="export-label">Export</span><span class="export-progress" aria-live="polite"></span> <i
                                     class="fas fa-chevron-up caret" aria-hidden="true"></i>
+                                <span class="unsaved-dot" aria-hidden="true"></span>
                             </button>
                             <div class="export-menu" id="exportMenu" role="menu">
                                 <button class="export-opt" id="optPack" role="menuitem">
@@ -308,11 +309,11 @@
         </div>
     </div>
 
-    <div class="editor-toast" id="toast"><i class="fas fa-check-circle" aria-hidden="true"></i><span
+    <div class="editor-toast" id="toast" role="status" aria-live="polite"><i class="fas fa-check-circle" aria-hidden="true"></i><span
             id="toastMsg"></span></div>
 
-    <script src="config-data.js?v=20260726125001"></script>
-    <script src="app.js?v=20260726125001"></script>
+    <script src="config-data.js?v=20260902203329"></script>
+    <script src="app.js?v=20260902203329"></script>
 </body>
 
 </html>
