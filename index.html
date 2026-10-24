@@ -27,7 +27,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Roboto:wght@500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Roboto:wght@500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap"
         rel="stylesheet" />
     <!-- Same non-blocking Font Awesome load as the main site. -->
     <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
@@ -37,8 +37,8 @@
     </noscript>
     <!-- Root-absolute so the one stylesheet resolves both here (deployed at the
          subdomain root) and at glacierclient.xyz/config/ during development. -->
-    <link rel="stylesheet" href="/css/styles.css?v=20261024213546" />
-    <link rel="stylesheet" href="editor.css?v=20261024213546" />
+    <link rel="stylesheet" href="/css/styles.css?v=20261024213736" />
+    <link rel="stylesheet" href="editor.css?v=20261024213736" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" defer></script>
 </head>
 
@@ -224,8 +224,8 @@
                             <div class="seg-pill" id="scaleSeg" role="group" aria-label="GUI scale">
                                 <span class="seg-label">GUI scale</span>
                                 <button type="button" data-scale="1">1x</button>
-                                <button type="button" class="active" data-scale="2">2x</button>
-                                <button type="button" data-scale="3">3x</button>
+                                <button type="button" data-scale="2">2x</button>
+                                <button type="button" class="active" data-scale="3">3x</button>
                             </div>
                         </div>
                         <div class="ws-preview-actions">
@@ -364,8 +364,9 @@
         import { setupHeroMedia } from '/js/modules/heroMedia.js';
         setupHeroMedia();
     </script>
-        <script src="config-data.js?v=20261024213546"></script>
-    <script src="app.js?v=20261024213546"></script>
+    <script src="hud-scene.js?v=20261024213736"></script>
+    <script src="config-data.js?v=20261024213736"></script>
+    <script src="app.js?v=20261024213736"></script>
 </body>
 
 </html>
