@@ -37,8 +37,8 @@
     </noscript>
     <!-- Root-absolute so the one stylesheet resolves both here (deployed at the
          subdomain root) and at glacierclient.xyz/config/ during development. -->
-    <link rel="stylesheet" href="/css/styles.css?v=20261024212749" />
-    <link rel="stylesheet" href="editor.css?v=20261024212749" />
+    <link rel="stylesheet" href="/css/styles.css?v=20261024212839" />
+    <link rel="stylesheet" href="editor.css?v=20261024212839" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" defer></script>
 </head>
 
@@ -165,6 +165,10 @@
                                 aria-label="Search modules" />
                             <button class="search-clear" id="searchClear" aria-label="Clear search"><i
                                     class="fas fa-times" aria-hidden="true"></i></button>
+                        </div>
+                        <div class="filter-row">
+                            <button class="chip-btn" type="button" id="enabledOnlyBtn" aria-pressed="false"><i class="fas fa-toggle-on" aria-hidden="true"></i> Enabled only</button>
+                            <span class="enabled-count" id="enabledCount" aria-live="polite"></span>
                         </div>
                     </div>
 
@@ -348,8 +352,8 @@
         import { setupHeroMedia } from '/js/modules/heroMedia.js';
         setupHeroMedia();
     </script>
-        <script src="config-data.js?v=20261024212749"></script>
-    <script src="app.js?v=20261024212749"></script>
+        <script src="config-data.js?v=20261024212839"></script>
+    <script src="app.js?v=20261024212839"></script>
 </body>
 
 </html>
